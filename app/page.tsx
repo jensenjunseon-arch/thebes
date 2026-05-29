@@ -409,8 +409,10 @@ export default function LandingPage() {
                 Department of Mathematics
               </div>
               <p>
-                제품의 학문적 정당성. 폴리아식 문제 해결 체계를 실제 커리큘럼과
-                문제 풀로 구현하고, 영어 수학 어휘·표현의 정확성을 책임집니다.
+                제품의 학문적 정당성.<br />
+                폴리아식 문제 해결 체계를 실제 커리큘럼과<br />
+                문제 풀로 구현하고, 영어 수학<br />
+                어휘·표현의 정확성을 책임집니다.
               </p>
             </div>
             <div className="lp-member">
@@ -421,8 +423,10 @@ export default function LandingPage() {
                 John Jay · Forensic Psych.
               </div>
               <p>
-                학습 경험 설계, 그리고 — 결정적으로 — 측정 모델의 설계.
-                심리측정·진단 전문성이 &#8220;추론 절차의 질을 구인으로 분해하고
+                학습 경험 설계, 그리고 — 결정적으로 —<br />
+                측정 모델의 설계.<br />
+                심리측정·진단 전문성이<br />
+                &#8220;추론 절차의 질을 구인으로 분해하고<br />
                 채점·타당화한다&#8221;는 해자를 직접 만듭니다.
               </p>
             </div>
@@ -430,13 +434,13 @@ export default function LandingPage() {
               <div className="role">Engineering · 개발 담당</div>
               <div className="school">
                 U. Pennsylvania
-                <br />
-                School of Engineering
               </div>
               <p>
-                AI 파이프라인·스코어링 시스템·학부모 리포트 데이터 레이어까지
-                제품의 기술 인프라 전체를 설계합니다. 측정 모델이 실제로
-                작동하도록 만드는 것이 이 팀의 역할입니다.
+                AI 파이프라인·스코어링 시스템·<br />
+                학부모 리포트 데이터 레이어까지<br />
+                제품의 기술 인프라 전체를 설계합니다.<br />
+                측정 모델이 실제로 작동하도록 만드는 것이<br />
+                이 팀의 역할입니다.
               </p>
             </div>
           </div>
