@@ -296,7 +296,7 @@ body {
 .lp-demo-step-bar .stp:last-child { border-right: none; }
 .lp-demo-step-bar .stp:hover { background: rgba(20,17,12,0.025); }
 .lp-demo-step-bar .stp .n { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; color: var(--ink-4); margin-bottom: 4px; }
-.lp-demo-step-bar .stp .t { font-family: var(--font-serif); font-size: 19px; color: var(--ink-2); letter-spacing: -0.01em; }
+.lp-demo-step-bar .stp .t { font-family: var(--font-sans); font-size: 19px; color: var(--ink-2); letter-spacing: -0.01em; }
 .lp-demo-step-bar .stp .t small { display: block; font-family: var(--font-kr); font-style: normal; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
 .lp-demo-step-bar .stp.active .t { color: var(--ink); }
 .lp-demo-step-bar .stp.active .n { color: var(--accent); }
