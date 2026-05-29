@@ -244,18 +244,18 @@ body {
 .lp-acad-card {
   position: relative; background: var(--paper-2);
   border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 36px; min-height: 280px;
+  padding: 26px 28px; min-height: 0;
 }
 .lp-acad-card .tag {
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--ink-3); margin-bottom: 18px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px;
 }
-.lp-acad-card .subj { font-family: var(--font-sans); font-size: 36px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+.lp-acad-card .subj { font-family: var(--font-sans); font-size: 32px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
 .lp-acad-card .price {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-3);
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -268,13 +268,13 @@ body {
   border-radius: 999px;
   background: rgba(181, 65, 27, 0.10);
   color: var(--accent);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
 }
-.lp-acad-card .what { font-size: 14.5px; color: var(--ink-2); line-height: 1.55; }
+.lp-acad-card .what { font-size: 15.5px; color: var(--ink-2); line-height: 1.5; }
 .lp-acad-card .what ul { list-style: none; padding: 0; margin: 0; }
-.lp-acad-card .what li { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; }
+.lp-acad-card .what li { display: flex; gap: 10px; align-items: baseline; padding: 4px 0; }
 .lp-acad-card .what li::before { content: "—"; color: var(--ink-4); }
 .lp-two-bridge {
   margin-top: 42px; padding: 32px 36px;
