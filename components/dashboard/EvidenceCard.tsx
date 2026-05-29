@@ -28,7 +28,7 @@ export function EvidenceSection({ items }: Props) {
                 })}
               </span>
             </div>
-            <blockquote className="mt-2 border-l-2 border-accent pl-3 font-serif italic leading-relaxed text-ink/85">
+            <blockquote className="mt-2 border-l-2 border-accent pl-3 font-serif leading-relaxed text-ink/85">
               "{item.quote}"
             </blockquote>
             <p className="mt-2 text-xs text-ink/55">{item.rationale}</p>

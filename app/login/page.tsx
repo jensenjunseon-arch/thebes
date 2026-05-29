@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthInput } from "@/components/auth/AuthInput";
+import { GoogleSSOButton } from "@/components/auth/SSOButton";
 
 function LoginForm() {
   const router = useRouter();
@@ -71,6 +72,14 @@ function LoginForm() {
       >
         {loading ? "로그인 중…" : "로그인"}
       </button>
+
+      <div className="relative my-4 flex items-center gap-3">
+        <div className="h-px flex-1 bg-ink/10" />
+        <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/40">또는</span>
+        <div className="h-px flex-1 bg-ink/10" />
+      </div>
+
+      <GoogleSSOButton label="Google로 로그인" />
     </form>
   );
 }

@@ -87,7 +87,7 @@ function SessionShell({
       {children}
 
       <footer className="mx-auto max-w-7xl px-6 pb-12">
-        <p className="max-w-2xl border-l-2 border-accent pl-5 font-serif italic text-ink/70">
+        <p className="max-w-2xl border-l-2 border-accent pl-5 font-serif text-ink/70">
           "Right — you noticed that 'average of the two numbers' might be a trap."
         </p>
       </footer>

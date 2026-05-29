@@ -82,7 +82,7 @@ export default async function ParentDashboardPage({
         <p className="mt-4 max-w-2xl text-ink/70">
           학원이 점수를 책임진다면, 우리는 그 점수가 측정하지 못하는 사고력을
           책임집니다. 아래 6개 구인은{" "}
-          <span className="font-serif italic">Pólya (1945)</span> 와 추론 연구에서
+          <span className="font-serif">Pólya (1945)</span> 와 추론 연구에서
           도출된 측정 지표입니다.
         </p>
 

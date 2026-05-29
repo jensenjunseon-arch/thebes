@@ -87,7 +87,7 @@ function EmptyState() {
         <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/40">
           Step 01 · Frame it
         </p>
-        <p className="mt-3 font-serif text-2xl italic leading-snug text-ink/80">
+        <p className="mt-3 font-serif text-2xl leading-snug text-ink/80">
           What are you actually being asked?
         </p>
         <p className="mt-3 text-sm text-ink/55">

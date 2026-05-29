@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { cn } from "@/lib/cn";
+import { GoogleSSOButton } from "@/components/auth/SSOButton";
 
 type Role = "student" | "parent";
 
@@ -138,6 +139,14 @@ export default function SignupPage() {
         >
           {loading ? "가입 중…" : "가입하기"}
         </button>
+
+        <div className="relative my-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-ink/10" />
+          <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/40">또는</span>
+          <div className="h-px flex-1 bg-ink/10" />
+        </div>
+
+        <GoogleSSOButton label="Google로 가입하기" />
       </form>
     </AuthCard>
   );

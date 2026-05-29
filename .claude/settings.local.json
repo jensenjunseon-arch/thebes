@@ -29,7 +29,14 @@
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" http://localhost:3000)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(git commit -m 'fix: lp-btn color hidden by .lp-root a specificity override *)",
+      "Bash(git commit -m 'feat: add engineering team member \\(UPenn\\), 3-col team grid *)",
+      "Bash(git commit -m 'fix: remove UPenn school subtitle, apply consistent line breaks in team cards *)",
+      "Bash(npx tsc *)",
+      "Bash(git commit -m 'feat: remove all italic styling; add Google SSO to login/signup *)"
     ]
   }
 }

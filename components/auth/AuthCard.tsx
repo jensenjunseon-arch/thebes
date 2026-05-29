@@ -16,7 +16,7 @@ export function AuthCard({ title, subtitle, children, footer }: Props) {
         className="mb-8 font-mono text-sm tracking-tighter2 text-ink/60 hover:text-ink"
       >
         Thebes<span className="text-accent">.</span>
-        <span className="font-serif italic">AI</span>
+        <span className="font-serif">AI</span>
       </Link>
 
       <div className="w-full max-w-sm rounded-3xl border border-ink/10 bg-paper-2 px-8 py-9">

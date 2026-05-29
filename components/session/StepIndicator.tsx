@@ -40,7 +40,7 @@ export function StepIndicator({ activeStep }: Props) {
                 </span>
               )}
             </div>
-            <div className="mt-1 font-serif text-xl italic">
+            <div className="mt-1 font-serif text-xl">
               {step.englishLabel}
             </div>
             <div className="mt-1 text-xs text-ink/60">{step.koreanSupport}</div>

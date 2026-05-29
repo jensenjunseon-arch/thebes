@@ -64,7 +64,7 @@ export function ScorePanel({ totals, lastDeltas, recentEvidence }: Props) {
           <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/40">
             evidence · most recent turn
           </p>
-          <blockquote className="mt-2 border-l-2 border-accent pl-3 font-serif italic text-ink/80">
+          <blockquote className="mt-2 border-l-2 border-accent pl-3 font-serif text-ink/80">
             “{recentEvidence.quote}”
           </blockquote>
           <p className="mt-1 text-xs text-ink/55">
