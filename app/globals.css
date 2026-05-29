@@ -550,6 +550,10 @@ body {
   .lp-two-bridge .save-lbl { font-size: 19px; }
   .lp-section-head-mid { margin-top: 64px; padding-top: 48px; }
   .lp-two-provocation .hook { font-size: 22px; }
+  .lp-two-provocation .hook .vs {
+    display: block;
+    margin: 4px 0;
+  }
   .lp-two-provocation .body { font-size: 15px; }
   .lp-two-provocation .examples { font-size: 11px; gap: 10px; }
   .lp-validity-grid { grid-template-columns: 1fr; }
