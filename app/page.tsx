@@ -164,7 +164,10 @@ export default function LandingPage() {
             <div className="lp-acad-card">
               <div className="tag">학원 A · 영어</div>
               <div className="subj">English</div>
-              <div className="price">월 평균 50–70만원 · 주 3회</div>
+              <div className="price">
+                <span className="monthly">월 평균 50–70만원 · 주 3회</span>
+                <span className="yearly">→ 연간 최대 840만원</span>
+              </div>
               <div className="what">
                 <ul>
                   <li>단어 외우기</li>
@@ -177,7 +180,10 @@ export default function LandingPage() {
             <div className="lp-acad-card">
               <div className="tag">학원 B · 수학</div>
               <div className="subj">수학</div>
-              <div className="price">월 평균 50–80만원 · 주 3회</div>
+              <div className="price">
+                <span className="monthly">월 평균 50–80만원 · 주 3회</span>
+                <span className="yearly">→ 연간 최대 960만원</span>
+              </div>
               <div className="what">
                 <ul>
                   <li>공식 외우기</li>

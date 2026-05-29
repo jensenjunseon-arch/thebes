@@ -250,8 +250,22 @@ body {
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--ink-3); margin-bottom: 18px;
 }
-.lp-acad-card .subj { font-family: var(--font-serif); font-size: 36px; letter-spacing: -0.02em; margin-bottom: 8px; }
-.lp-acad-card .price { font-family: var(--font-mono); font-size: 13px; color: var(--ink-3); margin-bottom: 24px; }
+.lp-acad-card .subj { font-family: var(--font-sans); font-size: 36px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+.lp-acad-card .price { font-family: var(--font-mono); font-size: 13px; margin-bottom: 6px; }
+.lp-acad-card .price .monthly {
+  color: var(--accent);
+  text-decoration: line-through;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.lp-acad-card .price .yearly {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  opacity: 0.75;
+}
 .lp-acad-card .what { font-size: 14.5px; color: var(--ink-2); line-height: 1.55; }
 .lp-acad-card .what ul { list-style: none; padding: 0; margin: 0; }
 .lp-acad-card .what li { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; }
