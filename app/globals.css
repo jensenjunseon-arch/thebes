@@ -277,10 +277,15 @@ body {
 .lp-acad-card .what li { display: flex; gap: 10px; align-items: baseline; padding: 4px 0; }
 .lp-acad-card .what li::before { content: "—"; color: var(--ink-4); }
 .lp-two-bridge {
-  margin-top: 42px; padding: 32px 36px;
+  padding: 32px 36px;
   background: var(--ink); color: var(--on-dark);
   border-radius: var(--radius);
   display: flex; flex-direction: column; gap: 26px;
+}
+.lp-section-head-mid {
+  margin-top: 96px;
+  padding-top: 72px;
+  border-top: 1px dashed var(--line-2);
 }
 .lp-two-bridge .bridge-top { display: flex; align-items: center; gap: 24px; }
 .lp-two-bridge .arrow {
@@ -543,6 +548,7 @@ body {
   .lp-two-bridge .save { text-align: left; justify-content: flex-start; }
   .lp-two-bridge .save-num { font-size: 30px; }
   .lp-two-bridge .save-lbl { font-size: 19px; }
+  .lp-section-head-mid { margin-top: 64px; padding-top: 48px; }
   .lp-two-provocation .hook { font-size: 22px; }
   .lp-two-provocation .body { font-size: 15px; }
   .lp-two-provocation .examples { font-size: 11px; gap: 10px; }

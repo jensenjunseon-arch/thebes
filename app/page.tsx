@@ -103,7 +103,52 @@ export default function LandingPage() {
       {/* ── Two academies ────────────────────────────────────── */}
       <section className="lp-section">
         <div className="lp-container">
-          <div className="lp-section-head">
+          {/* HOOK — 스크롤 즉시 보이는 절약 메시지 */}
+          <div className="lp-two-bridge">
+            <div className="bridge-top">
+              <span className="arrow">+ THEBES ──→</span>
+              <span className="msg">
+                두 학원의 예산을{" "}
+                <em>하나의 사고 훈련</em>으로 묶습니다.
+                <br />
+                영어 학습이면서, 수학 사고 훈련이고, AI 시대 역량 교육입니다.
+              </span>
+            </div>
+            <div className="bridge-savings">
+              <div className="comp">
+                <div className="comp-row">
+                  <span className="comp-label">두 학원 합계</span>
+                  <span className="comp-num">연간 1,800만원</span>
+                </div>
+                <div className="comp-row">
+                  <span className="comp-label">Thebes 1년</span>
+                  <span className="comp-num thebes">연간 99만원</span>
+                </div>
+              </div>
+              <div className="save">
+                <span className="save-num">연간 1,701만원 절약</span>
+                <span className="save-lbl">기존 학원 대비 95% 절감</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="lp-two-provocation">
+            <p className="hook">
+              학원 의자에 1년<span className="vs">vs.</span>영어가 통하는 곳에서 한 달.
+            </p>
+            <p className="body">
+              Thebes가 아낀 <strong>1,701만원</strong>이면,<br />
+              학원이 가르치지 못하는 세상을 자녀에게 직접 보여줄 수 있습니다.
+            </p>
+            <div className="examples">
+              <span>미국 여름캠프 한 달 · 약 1,100만원</span>
+              <span>유럽 어학연수 한 달 · 약 630만원</span>
+              <span>4인 가족 동남아 두 달 · 약 1,000만원</span>
+            </div>
+          </div>
+
+          {/* EVIDENCE — 1,800만원이 어디서 나왔는지 설명 */}
+          <div className="lp-section-head lp-section-head-mid">
             <div className="lp-eyebrow">
               <span className="dot" />
               두 학원이 따로 노는 문제
@@ -151,48 +196,6 @@ export default function LandingPage() {
                   <li>내신·수능 점수</li>
                 </ul>
               </div>
-            </div>
-          </div>
-          <div className="lp-two-bridge">
-            <div className="bridge-top">
-              <span className="arrow">+ THEBES ──→</span>
-              <span className="msg">
-                두 학원의 예산을{" "}
-                <em>하나의 사고 훈련</em>으로 묶습니다.
-                <br />
-                영어 학습이면서, 수학 사고 훈련이고, AI 시대 역량 교육입니다.
-              </span>
-            </div>
-            <div className="bridge-savings">
-              <div className="comp">
-                <div className="comp-row">
-                  <span className="comp-label">두 학원 합계</span>
-                  <span className="comp-num">연간 1,800만원</span>
-                </div>
-                <div className="comp-row">
-                  <span className="comp-label">Thebes 1년</span>
-                  <span className="comp-num thebes">연간 99만원</span>
-                </div>
-              </div>
-              <div className="save">
-                <span className="save-num">연간 1,701만원 절약</span>
-                <span className="save-lbl">기존 학원 대비 95% 절감</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="lp-two-provocation">
-            <p className="hook">
-              학원 의자에 1년<span className="vs">vs.</span>영어가 통하는 곳에서 한 달.
-            </p>
-            <p className="body">
-              Thebes가 아낀 <strong>1,701만원</strong>이면,<br />
-              학원이 가르치지 못하는 세상을 자녀에게 직접 보여줄 수 있습니다.
-            </p>
-            <div className="examples">
-              <span>미국 여름캠프 한 달 · 약 1,100만원</span>
-              <span>유럽 어학연수 한 달 · 약 630만원</span>
-              <span>4인 가족 동남아 두 달 · 약 1,000만원</span>
             </div>
           </div>
         </div>
