@@ -212,13 +212,13 @@ export default function LandingPage() {
                 </div>
                 <div className="comp-row">
                   <span className="comp-label">Thebes 1년</span>
-                  <span className="comp-num thebes">연간 348만원</span>
+                  <span className="comp-num thebes">연간 99만원</span>
                 </div>
               </div>
               <span className="arrow-mid">→</span>
               <div className="save">
-                <div className="save-num">1,452만원</div>
-                <div className="save-lbl">연간 절약 · 81% 절감</div>
+                <div className="save-num">1,701만원</div>
+                <div className="save-lbl">연간 절약 · 95% 절감</div>
               </div>
             </div>
           </div>
