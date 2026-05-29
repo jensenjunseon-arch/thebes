@@ -16,20 +16,19 @@ export async function SiteHeader({ label }: Props) {
 
   return (
     <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-      <Link href="/" className="font-mono text-sm tracking-tighter2">
-        Thebes<span className="text-accent">.</span>
-        <span className="font-serif">AI</span>
+      <Link href="/" className="font-mono text-base font-medium tracking-tighter2">
+        Thebes<span className="text-accent">.</span>AI
       </Link>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-5">
         {label && (
-          <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/50">
+          <p className="font-mono text-xs uppercase tracking-tighter2 text-ink/50">
             {label}
           </p>
         )}
         {user ? (
-          <div className="flex items-center gap-3">
-            <p className="hidden font-mono text-[10px] uppercase tracking-tighter2 text-ink/50 sm:block">
+          <div className="flex items-center gap-4">
+            <p className="hidden font-mono text-xs tracking-tighter2 text-ink/50 sm:block">
               {user.email}
             </p>
             <LogoutButton />
@@ -37,7 +36,7 @@ export async function SiteHeader({ label }: Props) {
         ) : (
           <Link
             href="/login"
-            className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/60 hover:text-accent"
+            className="font-mono text-xs uppercase tracking-tighter2 text-ink/60 hover:text-accent"
           >
             로그인
           </Link>
