@@ -294,7 +294,7 @@ body {
 .lp-two-bridge .msg em { color: var(--accent-soft); font-style: normal; font-weight: 600; }
 
 .lp-two-bridge .bridge-savings {
-  display: grid; grid-template-columns: 1.15fr auto 1fr;
+  display: grid; grid-template-columns: 0.85fr 1.4fr;
   gap: 36px; align-items: center;
   padding-top: 26px;
   border-top: 1px dashed rgba(229, 213, 184, 0.18);
@@ -315,25 +315,21 @@ body {
 .lp-two-bridge .comp-num.thebes {
   color: var(--on-dark); font-weight: 600;
 }
-.lp-two-bridge .arrow-mid {
-  font-family: var(--font-mono); font-size: 24px;
-  color: var(--accent-soft); opacity: 0.7; text-align: center;
-}
 .lp-two-bridge .save {
-  text-align: right;
-  padding: 14px 20px;
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  justify-content: flex-end;
+  padding: 18px 26px;
   border-left: 2px solid var(--accent);
   background: rgba(181, 65, 27, 0.14);
   border-radius: 12px;
 }
 .lp-two-bridge .save-num {
-  font-family: var(--font-sans); font-size: 40px; font-weight: 700;
+  font-family: var(--font-sans); font-size: 36px; font-weight: 700;
   letter-spacing: -0.025em; color: var(--accent-soft); line-height: 1;
 }
 .lp-two-bridge .save-lbl {
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: rgba(229, 213, 184, 0.75);
-  margin-top: 8px;
+  font-family: var(--font-sans); font-size: 24px; font-weight: 500;
+  letter-spacing: -0.015em; color: rgba(229, 213, 184, 0.92); line-height: 1.1;
 }
 
 /* ─── Pólya demo ─── */
@@ -544,8 +540,60 @@ body {
   .lp-two-bridge .bridge-top { flex-direction: column; align-items: flex-start; }
   .lp-two-bridge .msg { font-size: 18px; }
   .lp-two-bridge .bridge-savings { grid-template-columns: 1fr; gap: 18px; }
-  .lp-two-bridge .arrow-mid { display: none; }
-  .lp-two-bridge .save { text-align: left; }
-  .lp-two-bridge .save-num { font-size: 34px; }
+  .lp-two-bridge .save { text-align: left; justify-content: flex-start; }
+  .lp-two-bridge .save-num { font-size: 30px; }
+  .lp-two-bridge .save-lbl { font-size: 19px; }
+  .lp-two-provocation .hook { font-size: 22px; }
+  .lp-two-provocation .body { font-size: 15px; }
+  .lp-two-provocation .examples { font-size: 11px; gap: 10px; }
   .lp-validity-grid { grid-template-columns: 1fr; }
 }
+
+/* ── provocation message under bridge ── */
+.lp-two-provocation {
+  margin-top: 32px;
+  padding: 0 8px;
+  text-align: center;
+}
+.lp-two-provocation .hook {
+  font-family: var(--font-kr);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  line-height: 1.25;
+  margin: 0 0 16px;
+}
+.lp-two-provocation .hook .vs {
+  color: var(--accent);
+  margin: 0 6px;
+  font-weight: 600;
+}
+.lp-two-provocation .body {
+  font-family: var(--font-kr);
+  font-size: 17px;
+  color: var(--ink-2);
+  line-height: 1.55;
+  margin: 0 auto 14px;
+  max-width: 640px;
+}
+.lp-two-provocation .body strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+.lp-two-provocation .examples {
+  display: inline-flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  padding: 12px 20px;
+  border-top: 1px dashed var(--line-2);
+  border-bottom: 1px dashed var(--line-2);
+  margin-top: 4px;
+}
+.lp-two-provocation .examples span { white-space: nowrap; }
