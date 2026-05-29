@@ -1,0 +1,97 @@
+"use client";
+
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { AuthInput } from "@/components/auth/AuthInput";
+
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/";
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError(
+        authError.message === "Invalid login credentials"
+          ? "이메일 또는 비밀번호가 맞지 않습니다."
+          : authError.message,
+      );
+      setLoading(false);
+      return;
+    }
+
+    // next is an internal redirect — safe to cast past typed routes.
+    router.push(next as "/");
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <AuthInput
+        label="이메일"
+        type="email"
+        placeholder="you@example.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        autoComplete="email"
+      />
+      <AuthInput
+        label="비밀번호"
+        type="password"
+        placeholder="••••••••"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        autoComplete="current-password"
+        error={error || undefined}
+      />
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-2 w-full rounded-xl bg-ink py-2.5 text-sm text-on-dark transition hover:bg-accent disabled:cursor-wait disabled:opacity-60"
+      >
+        {loading ? "로그인 중…" : "로그인"}
+      </button>
+    </form>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <AuthCard
+      title="로그인"
+      subtitle="Thebes AI 계정으로 로그인하세요."
+      footer={
+        <>
+          계정이 없으신가요?{" "}
+          <Link href="/signup" className="text-accent hover:underline">
+            회원가입
+          </Link>
+        </>
+      }
+    >
+      <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-ink/5" />}>
+        <LoginForm />
+      </Suspense>
+    </AuthCard>
+  );
+}
