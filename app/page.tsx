@@ -195,13 +195,32 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="lp-two-bridge">
-            <span className="arrow">+ THEBES ──→</span>
-            <span className="msg">
-              두 학원의 예산을{" "}
-              <em>하나의 사고 훈련</em>으로 묶습니다.
-              <br />
-              영어 학습이면서, 수학 사고 훈련이고, AI 시대 역량 교육입니다.
-            </span>
+            <div className="bridge-top">
+              <span className="arrow">+ THEBES ──→</span>
+              <span className="msg">
+                두 학원의 예산을{" "}
+                <em>하나의 사고 훈련</em>으로 묶습니다.
+                <br />
+                영어 학습이면서, 수학 사고 훈련이고, AI 시대 역량 교육입니다.
+              </span>
+            </div>
+            <div className="bridge-savings">
+              <div className="comp">
+                <div className="comp-row">
+                  <span className="comp-label">두 학원 합계</span>
+                  <span className="comp-num">연간 1,800만원</span>
+                </div>
+                <div className="comp-row">
+                  <span className="comp-label">Thebes 1년</span>
+                  <span className="comp-num thebes">연간 348만원</span>
+                </div>
+              </div>
+              <span className="arrow-mid">→</span>
+              <div className="save">
+                <div className="save-num">1,452만원</div>
+                <div className="save-lbl">연간 절약 · 81% 절감</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

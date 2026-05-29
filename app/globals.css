@@ -277,10 +277,12 @@ body {
 .lp-acad-card .what li { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; }
 .lp-acad-card .what li::before { content: "—"; color: var(--ink-4); }
 .lp-two-bridge {
-  margin-top: 42px; padding: 28px 36px;
+  margin-top: 42px; padding: 32px 36px;
   background: var(--ink); color: var(--on-dark);
-  border-radius: var(--radius); display: flex; align-items: center; gap: 24px;
+  border-radius: var(--radius);
+  display: flex; flex-direction: column; gap: 26px;
 }
+.lp-two-bridge .bridge-top { display: flex; align-items: center; gap: 24px; }
 .lp-two-bridge .arrow {
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
   color: var(--accent-soft); white-space: nowrap;
@@ -290,6 +292,49 @@ body {
   color: var(--on-dark); letter-spacing: -0.015em; font-weight: 500;
 }
 .lp-two-bridge .msg em { color: var(--accent-soft); font-style: normal; font-weight: 600; }
+
+.lp-two-bridge .bridge-savings {
+  display: grid; grid-template-columns: 1.15fr auto 1fr;
+  gap: 36px; align-items: center;
+  padding-top: 26px;
+  border-top: 1px dashed rgba(229, 213, 184, 0.18);
+}
+.lp-two-bridge .comp { display: flex; flex-direction: column; gap: 12px; }
+.lp-two-bridge .comp-row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+}
+.lp-two-bridge .comp-label {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(229, 213, 184, 0.55);
+}
+.lp-two-bridge .comp-num {
+  font-family: var(--font-sans); font-size: 19px; font-weight: 500;
+  color: rgba(229, 213, 184, 0.55);
+  letter-spacing: -0.01em;
+}
+.lp-two-bridge .comp-num.thebes {
+  color: var(--on-dark); font-weight: 600;
+}
+.lp-two-bridge .arrow-mid {
+  font-family: var(--font-mono); font-size: 24px;
+  color: var(--accent-soft); opacity: 0.7; text-align: center;
+}
+.lp-two-bridge .save {
+  text-align: right;
+  padding: 14px 20px;
+  border-left: 2px solid var(--accent);
+  background: rgba(181, 65, 27, 0.14);
+  border-radius: 12px;
+}
+.lp-two-bridge .save-num {
+  font-family: var(--font-sans); font-size: 40px; font-weight: 700;
+  letter-spacing: -0.025em; color: var(--accent-soft); line-height: 1;
+}
+.lp-two-bridge .save-lbl {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(229, 213, 184, 0.75);
+  margin-top: 8px;
+}
 
 /* ─── Pólya demo ─── */
 .lp-polya-bg { background: linear-gradient(to bottom, var(--paper-2) 0%, var(--paper) 100%); }
@@ -495,7 +540,12 @@ body {
   .lp-closing .lp-hero-cta { flex-direction: column; align-items: stretch; }
   .lp-closing .lp-hero-cta .lp-btn { justify-content: center; }
   .lp-btn { padding: 13px 18px; font-size: 14.5px; }
-  .lp-two-bridge { flex-direction: column; align-items: flex-start; padding: 24px; }
+  .lp-two-bridge { padding: 24px; }
+  .lp-two-bridge .bridge-top { flex-direction: column; align-items: flex-start; }
   .lp-two-bridge .msg { font-size: 18px; }
+  .lp-two-bridge .bridge-savings { grid-template-columns: 1fr; gap: 18px; }
+  .lp-two-bridge .arrow-mid { display: none; }
+  .lp-two-bridge .save { text-align: left; }
+  .lp-two-bridge .save-num { font-size: 34px; }
   .lp-validity-grid { grid-template-columns: 1fr; }
 }
