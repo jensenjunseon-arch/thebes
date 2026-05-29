@@ -84,7 +84,8 @@ body {
   overflow-wrap: break-word;
 }
 .lp-root img, .lp-root svg { display: block; max-width: 100%; }
-.lp-root a { color: inherit; text-decoration: none; }
+.lp-root a { text-decoration: none; }
+.lp-root a:not(.lp-btn):not(.lp-nav-cta):not(.lp-hero-secondary) { color: inherit; }
 .lp-root button { font: inherit; color: inherit; cursor: pointer; }
 .lp-root h1, .lp-root h2, .lp-root h3, .lp-root h4 {
   margin: 0; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15;
