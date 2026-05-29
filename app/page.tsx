@@ -48,8 +48,8 @@ export default function LandingPage() {
         <div className="lp-nav-inner">
           <Link href="/" className="lp-brand">
             <BrandMark />
-            Thebes{" "}
-            <span style={{ color: "var(--accent)" }}>AI</span>
+            <span>Thebes</span>
+            <span className="lp-brand-ai">AI</span>
           </Link>
           <div className="lp-nav-links">
             <a href="#how">작동 방식</a>
