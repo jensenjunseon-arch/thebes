@@ -390,16 +390,17 @@ export default function LandingPage() {
               만든 사람들
             </div>
             <h2>
-              수학적 엄밀성을 가진 사람과,
+              수학자, 심리측정학자,
               <br />
-              <span className="em">사람의 사고를 측정해 온 심리학자</span>가 만났습니다.
+              <span className="em">그리고 엔지니어</span>가 만났습니다.
             </h2>
             <p className="lede">
-              그래서 우리는 &#8216;사고력을 키운다&#8217;는 모호한 약속을{" "}
-              <b>데이터로 증명할 수 있습니다.</b>
+              &#8216;사고력을 키운다&#8217;는 약속을 학문적으로 정당화하고,
+              측정 가능한 구인으로 분해하고,{" "}
+              <b>실제 작동하는 제품으로 구현합니다.</b>
             </p>
           </div>
-          <div className="lp-team-grid">
+          <div className="lp-team-grid lp-team-grid-3">
             <div className="lp-member">
               <div className="role">Mathematics · 수학 담당</div>
               <div className="school">
@@ -423,6 +424,19 @@ export default function LandingPage() {
                 학습 경험 설계, 그리고 — 결정적으로 — 측정 모델의 설계.
                 심리측정·진단 전문성이 &#8220;추론 절차의 질을 구인으로 분해하고
                 채점·타당화한다&#8221;는 해자를 직접 만듭니다.
+              </p>
+            </div>
+            <div className="lp-member">
+              <div className="role">Engineering · 개발 담당</div>
+              <div className="school">
+                U. Pennsylvania
+                <br />
+                School of Engineering
+              </div>
+              <p>
+                AI 파이프라인·스코어링 시스템·학부모 리포트 데이터 레이어까지
+                제품의 기술 인프라 전체를 설계합니다. 측정 모델이 실제로
+                작동하도록 만드는 것이 이 팀의 역할입니다.
               </p>
             </div>
           </div>

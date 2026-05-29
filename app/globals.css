@@ -411,6 +411,7 @@ body {
 .lp-team h2 .em { color: var(--accent-soft); font-weight: 600; position: relative; display: inline-block; }
 .lp-team h2 .em::after { content: ""; position: absolute; left: -0.05em; right: -0.05em; bottom: 0.08em; height: 0.28em; background: rgba(236,206,182,0.14); z-index: -1; border-radius: 2px; }
 .lp-team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 56px; }
+.lp-team-grid-3 { grid-template-columns: repeat(3, 1fr); }
 .lp-member { padding: 32px; background: rgba(246,242,232,0.04); border: 1px solid rgba(246,242,232,0.10); border-radius: var(--radius); }
 .lp-member .role { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; color: var(--accent-soft); text-transform: uppercase; margin-bottom: 16px; }
 .lp-member .school { font-family: var(--font-serif); font-size: 26px; letter-spacing: -0.01em; margin-bottom: 14px; color: var(--on-dark); }
@@ -443,7 +444,7 @@ body {
   .lp-demo-step-bar { grid-template-columns: repeat(2, 1fr); }
   .lp-report-body { grid-template-columns: 1fr; }
   .lp-report-list { border-right: none; border-bottom: 1px solid var(--line); }
-  .lp-team-grid { grid-template-columns: 1fr; }
+  .lp-team-grid, .lp-team-grid-3 { grid-template-columns: 1fr; }
   .lp-counter-compare { grid-template-columns: 1fr; }
   .lp-counter-col + .lp-counter-col { border-left: none; border-top: 1px solid rgba(246,242,232,0.12); }
   .lp-nav-links { display: none; }
