@@ -165,8 +165,8 @@ export default function LandingPage() {
               <div className="tag">학원 A · 영어</div>
               <div className="subj">English</div>
               <div className="price">
-                <span className="monthly">월 평균 50–70만원 · 주 3회</span>
-                <span className="yearly">→ 연간 최대 840만원</span>
+                <span>월 평균 50–70만원 · 주 3회</span>
+                <span className="yearly">연간 840만원</span>
               </div>
               <div className="what">
                 <ul>
@@ -181,8 +181,8 @@ export default function LandingPage() {
               <div className="tag">학원 B · 수학</div>
               <div className="subj">수학</div>
               <div className="price">
-                <span className="monthly">월 평균 50–80만원 · 주 3회</span>
-                <span className="yearly">→ 연간 최대 960만원</span>
+                <span>월 평균 50–80만원 · 주 3회</span>
+                <span className="yearly">연간 960만원</span>
               </div>
               <div className="what">
                 <ul>
