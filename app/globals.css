@@ -316,21 +316,20 @@ body {
   color: var(--on-dark); font-weight: 600;
 }
 .lp-two-bridge .save {
-  display: flex; flex-direction: column; align-items: flex-end;
-  gap: 8px;
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  justify-content: flex-end;
   padding: 18px 26px;
   border-left: 2px solid var(--accent);
   background: rgba(181, 65, 27, 0.14);
   border-radius: 12px;
-  text-align: right;
 }
 .lp-two-bridge .save-num {
-  font-family: var(--font-sans); font-size: 32px; font-weight: 700;
+  font-family: var(--font-sans); font-size: 36px; font-weight: 700;
   letter-spacing: -0.025em; color: var(--accent-soft); line-height: 1;
 }
 .lp-two-bridge .save-lbl {
-  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em;
-  text-transform: uppercase; color: rgba(229, 213, 184, 0.7);
+  font-family: var(--font-sans); font-size: 24px; font-weight: 500;
+  letter-spacing: -0.015em; color: rgba(229, 213, 184, 0.92); line-height: 1.1;
 }
 
 /* ─── Pólya demo ─── */
@@ -541,33 +540,14 @@ body {
   .lp-two-bridge .bridge-top { flex-direction: column; align-items: flex-start; }
   .lp-two-bridge .msg { font-size: 18px; }
   .lp-two-bridge .bridge-savings { grid-template-columns: 1fr; gap: 18px; }
-  .lp-two-bridge .save { text-align: left; align-items: flex-start; }
-  .lp-two-bridge .save-num { font-size: 26px; }
-  .lp-two-bridge .save-lbl { font-size: 11px; }
-  .lp-chapter { padding-bottom: 32px; }
-  .lp-chapter .label { font-size: 10px; }
+  .lp-two-bridge .save { text-align: left; justify-content: flex-start; }
+  .lp-two-bridge .save-num { font-size: 30px; }
+  .lp-two-bridge .save-lbl { font-size: 19px; }
   .lp-two-provocation .hook { font-size: 22px; }
   .lp-two-provocation .body { font-size: 15px; }
   .lp-two-provocation .examples { font-size: 11px; gap: 10px; }
   .lp-validity-grid { grid-template-columns: 1fr; }
 }
-
-/* ── chapter divider ── */
-.lp-chapter {
-  display: flex; align-items: center; gap: 24px;
-  padding-bottom: 56px;
-  font-family: var(--font-mono);
-  font-size: 11px; letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.lp-chapter .num {
-  font-size: 13px; font-weight: 600;
-  color: var(--accent); letter-spacing: 0.08em;
-}
-.lp-chapter .line {
-  flex: 1; height: 1px; background: var(--line);
-}
-.lp-chapter .label { color: var(--ink-3); white-space: nowrap; }
 
 /* ── provocation message under bridge ── */
 .lp-two-provocation {

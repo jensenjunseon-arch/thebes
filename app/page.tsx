@@ -103,11 +103,6 @@ export default function LandingPage() {
       {/* ── Two academies ────────────────────────────────────── */}
       <section className="lp-section">
         <div className="lp-container">
-          <div className="lp-chapter">
-            <span className="num">01</span>
-            <span className="line" />
-            <span className="label">현실 · The Reality</span>
-          </div>
           <div className="lp-section-head">
             <div className="lp-eyebrow">
               <span className="dot" />
@@ -188,11 +183,11 @@ export default function LandingPage() {
 
           <div className="lp-two-provocation">
             <p className="hook">
-              학원 1년 더<span className="vs">vs.</span>세상에서 한 달.
+              학원 의자에 1년<span className="vs">vs.</span>영어가 통하는 곳에서 한 달.
             </p>
             <p className="body">
-              같은 <strong>1,701만원</strong>입니다.<br />
-              Thebes가 아낀 돈으로, 학원이 가르치지 못하는 세상을 자녀에게 직접 보여줄 수 있습니다.
+              Thebes가 아낀 <strong>1,701만원</strong>이면,<br />
+              학원이 가르치지 못하는 세상을 자녀에게 직접 보여줄 수 있습니다.
             </p>
             <div className="examples">
               <span>미국 여름캠프 한 달 · 약 1,100만원</span>
