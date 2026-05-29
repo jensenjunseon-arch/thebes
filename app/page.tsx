@@ -227,13 +227,13 @@ export default function LandingPage() {
               학원 의자에 1년<span className="vs">vs.</span>영어가 통하는 곳에서 한 달.
             </p>
             <p className="body">
-              Thebes가 아낀 <strong>1,701만원</strong>이면, 학원이 가르치지 못하는
-              세상을 자녀에게 직접 보여줄 수 있습니다.
+              Thebes가 아낀 <strong>1,701만원</strong>이면,<br />
+              학원이 가르치지 못하는 세상을 자녀에게 직접 보여줄 수 있습니다.
             </p>
             <div className="examples">
-              <span>미국 여름캠프 한 달</span>
-              <span>유럽 어학연수 한 달</span>
-              <span>가족 해외 체류 두 달</span>
+              <span>미국 여름캠프 한 달 · 약 1,100만원</span>
+              <span>유럽 어학연수 한 달 · 약 630만원</span>
+              <span>4인 가족 동남아 두 달 · 약 1,000만원</span>
             </div>
           </div>
         </div>
