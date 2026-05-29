@@ -360,7 +360,7 @@ body {
 .lp-report-bg { background: var(--paper-2); }
 .lp-report-wrap { margin-top: 56px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 30px 60px -40px rgba(20,17,12,0.25); }
 .lp-report-head { padding: 28px 32px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; background: linear-gradient(to bottom, var(--paper) 0%, var(--paper-2) 100%); }
-.lp-report-head .who { font-family: var(--font-serif); font-size: 26px; letter-spacing: -0.015em; }
+.lp-report-head .who { font-family: var(--font-kr); font-size: 26px; letter-spacing: -0.015em; font-weight: 600; }
 .lp-report-head .who small { display: block; font-family: var(--font-mono); font-style: normal; font-size: 11px; letter-spacing: 0.14em; color: var(--ink-3); margin-top: 4px; text-transform: uppercase; }
 .lp-report-head .period { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); text-align: right; }
 .lp-report-head .period .delta { display: block; font-family: var(--font-serif); font-size: 22px; color: var(--accent); margin-top: 6px; }
