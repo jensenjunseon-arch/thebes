@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { StepIndicator } from "@/components/session/StepIndicator";
 import { ChatPanel, type Turn } from "@/components/session/ChatPanel";
 import { ProblemChip } from "@/components/session/ProblemChip";
@@ -8,10 +8,18 @@ import { LiveEvidenceCard, type LiveEvidence } from "@/components/session/LiveEv
 import { LiveScoreBar, type ScoreTotals } from "@/components/session/LiveScoreBar";
 import { TOTAL_STEPS, stepById, type StepId } from "@/lib/steps";
 import { submitTurn } from "@/app/session/[id]/actions";
+import { beatFor } from "@/lib/demoScript";
 import { LEVELS, type Level, type PublicProblem } from "@/lib/problems";
 import type { TutorMessage } from "@/lib/ai/tutor";
 import type { ConstructId } from "@/lib/constructs";
 import { cn } from "@/lib/cn";
+
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function truncateQuote(s: string, max = 110): string {
+  const t = s.trim();
+  return t.length <= max ? t : t.slice(0, max - 1) + "…";
+}
 
 const EMPTY_TOTALS: ScoreTotals = {
   redefine: 0,
@@ -31,6 +39,8 @@ interface Props {
   initialStep?: StepId;
   // Show the difficulty picker (demo only).
   enablePicker?: boolean;
+  // Scripted demo mode — runs entirely client-side with no API calls.
+  scripted?: boolean;
 }
 
 function greetingTurn(step: StepId): Turn {
@@ -55,8 +65,11 @@ export function SessionView({
   initialTurns = [],
   initialStep = 1,
   enablePicker = false,
+  scripted = false,
 }: Props) {
   const [problemId, setProblemId] = useState(initialProblemId);
+  // Per-step submission counter for the scripted demo engine.
+  const beatRef = useRef(0);
   const [step, setStep] = useState<StepId>(initialStep);
   const [turns, setTurns] = useState<Turn[]>(
     initialTurns.length > 0 ? initialTurns : [greetingTurn(initialStep)],
@@ -86,6 +99,7 @@ export function SessionView({
   }));
 
   function resetSession(nextStep: StepId = 1) {
+    beatRef.current = 0;
     setStep(nextStep);
     setTurns([greetingTurn(nextStep)]);
     setTotals(EMPTY_TOTALS);
@@ -113,6 +127,44 @@ export function SessionView({
   function handleStudentSubmit(content: string) {
     const studentTurnId = crypto.randomUUID();
     setTurns((prev) => [...prev, { id: studentTurnId, speaker: "student", content }]);
+
+    // ── scripted demo: no API, runs entirely client-side ──────────────────
+    if (scripted) {
+      startTransition(async () => {
+        await delay(700); // let the typing indicator breathe — sells "AI thinking"
+        const beat = beatFor(step, beatRef.current);
+
+        setTurns((prev) => [
+          ...prev,
+          { id: crypto.randomUUID(), speaker: "coach", content: beat.coachReply },
+        ]);
+
+        applyScore(beat.deltas as Record<ConstructId, number>);
+        setEvidence({
+          quote: truncateQuote(content), // the student's ACTUAL words
+          topConstruct: beat.evidenceConstruct,
+          topDelta: beat.deltas[beat.evidenceConstruct] ?? 1,
+          rationale: beat.rationale,
+        });
+
+        if (beat.advance && step < TOTAL_STEPS) {
+          const next = (step + 1) as StepId;
+          beatRef.current = 0;
+          setStep(next);
+          setTurns((prev) => [...prev, greetingTurn(next)]);
+          setBanner({
+            kind: "advance",
+            text: `${stepById(step).englishLabel} 완료 — 다음 단계로`,
+          });
+        } else if (beat.advance && step === TOTAL_STEPS) {
+          setBanner({ kind: "advance", text: "진단 완료! 곧 결과를 보여드릴게요." });
+        } else {
+          beatRef.current += 1;
+          setBanner(null);
+        }
+      });
+      return;
+    }
 
     startTransition(async () => {
       try {

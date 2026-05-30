@@ -68,7 +68,10 @@
       "Bash(echo \"---EXIT: $?---\")",
       "Bash(git commit -m 'feat\\(diagnostic\\): Build 1 — mobile-first session, 2-step model, coach greeting, live evidence *)",
       "Bash(echo \"EXIT: $?\")",
-      "Bash(git commit -m 'feat\\(diagnostic\\): problem pool with difficulty levels + graceful AI-error handling *)"
+      "Bash(git commit -m 'feat\\(diagnostic\\): problem pool with difficulty levels + graceful AI-error handling *)",
+      "Bash(echo \"tsc EXIT: $?\")",
+      "Bash(pkill -f \"next-server\")",
+      "Bash(git commit -m 'feat\\(diagnostic\\): scripted demo mode — zero-API pre-launch diagnostic *)"
     ]
   }
 }

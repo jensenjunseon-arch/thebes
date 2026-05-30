@@ -30,6 +30,10 @@ export default async function SessionPage({
 
   // ── demo route — full problem pool + difficulty picker ──────────────────────
   if (id === "demo" || !isSupabaseConfigured()) {
+    // Scripted by default (no API credits spent during pre-launch demos).
+    // Set NEXT_PUBLIC_DEMO_SCRIPTED="false" once Anthropic credits are funded
+    // to switch the demo to the real AI coach.
+    const scripted = process.env.NEXT_PUBLIC_DEMO_SCRIPTED !== "false";
     return (
       <SessionShell sessionLabel={id}>
         <SessionView
@@ -37,6 +41,7 @@ export default async function SessionPage({
           initialProblemId={DEFAULT_PROBLEM_ID}
           sessionId={null}
           enablePicker
+          scripted={scripted}
         />
       </SessionShell>
     );
