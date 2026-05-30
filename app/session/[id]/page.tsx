@@ -83,14 +83,7 @@ function SessionShell({
   return (
     <main className="min-h-dvh bg-paper text-ink">
       <SiteHeader label={`Session · ${sessionLabel}`} />
-
       {children}
-
-      <footer className="mx-auto max-w-7xl px-6 pb-12">
-        <p className="max-w-2xl border-l-2 border-accent pl-5 font-sans text-ink/70">
-          "Right — you noticed that 'average of the two numbers' might be a trap."
-        </p>
-      </footer>
     </main>
   );
 }

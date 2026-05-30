@@ -1,52 +1,44 @@
-import { POLYA_STEPS, type StepId } from "@/lib/steps";
+import { POLYA_STEPS, TOTAL_STEPS, type StepId } from "@/lib/steps";
 import { cn } from "@/lib/cn";
 
 interface Props {
   activeStep: StepId;
 }
 
-// Linear progress through the 4 Pólya steps. The current step is bold; passed
-// steps are muted but visible; future steps are visible-but-dim. Students
-// should always see the whole path — the structure is the point.
+// Compact 2-step progress. Mobile-first: a thin progress rail + the current
+// step's label, so students always see where they are and how far is left.
 export function StepIndicator({ activeStep }: Props) {
-  return (
-    <ol className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-      {POLYA_STEPS.map((step) => {
-        const state =
-          step.id < activeStep
-            ? "done"
-            : step.id === activeStep
-              ? "active"
-              : "future";
+  const current = POLYA_STEPS[activeStep - 1];
 
-        return (
-          <li
-            key={step.id}
-            className={cn(
-              "rounded-2xl border px-4 py-3 transition",
-              state === "active" &&
-                "border-accent bg-paper-2 shadow-[0_2px_0_0_rgba(181,65,27,0.25)]",
-              state === "done" && "border-ink/15 bg-paper text-ink/60",
-              state === "future" && "border-ink/10 bg-paper text-ink/35",
-            )}
-          >
-            <div className="flex items-baseline justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-tighter2">
-                Step 0{step.id}
-              </span>
-              {state === "active" && (
-                <span className="font-mono text-[10px] uppercase tracking-tighter2 text-accent">
-                  now
-                </span>
+  return (
+    <div>
+      <div className="flex items-center gap-3">
+        {POLYA_STEPS.map((step) => {
+          const state =
+            step.id < activeStep ? "done" : step.id === activeStep ? "active" : "future";
+          return (
+            <span
+              key={step.id}
+              className={cn(
+                "h-1.5 flex-1 rounded-full transition-all duration-500",
+                state === "done" && "bg-accent/50",
+                state === "active" && "bg-accent",
+                state === "future" && "bg-ink/12",
               )}
-            </div>
-            <div className="mt-1 font-serif text-xl">
-              {step.englishLabel}
-            </div>
-            <div className="mt-1 text-xs text-ink/60">{step.koreanSupport}</div>
-          </li>
-        );
-      })}
-    </ol>
+            />
+          );
+        })}
+      </div>
+
+      <div className="mt-2.5 flex items-baseline justify-between gap-3">
+        <p className="font-kr text-base font-semibold text-ink">
+          {current.englishLabel}
+          <span className="ml-2 font-mono text-[11px] uppercase tracking-tighter2 text-ink/40">
+            Step {activeStep}/{TOTAL_STEPS}
+          </span>
+        </p>
+      </div>
+      <p className="mt-1 text-sm leading-relaxed text-ink/55">{current.studentHint}</p>
+    </div>
   );
 }

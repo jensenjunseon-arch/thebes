@@ -3,7 +3,7 @@
 import { tutorReply, type TutorMessage } from "@/lib/ai/tutor";
 import { scoreTurn, type ScorerOutput } from "@/lib/ai/scorer";
 import { DEMO_PROBLEM, DEMO_CEFR_LEVEL } from "@/lib/demo";
-import type { StepId } from "@/lib/steps";
+import { type StepId, TOTAL_STEPS } from "@/lib/steps";
 import {
   insertTurn,
   insertScores,
@@ -124,7 +124,7 @@ async function persistCoachTurnAndScore(
       await insertScores(studentTurnId, score);
     }
     if (advance) {
-      if (step < 4) {
+      if (step < TOTAL_STEPS) {
         await advanceSession(sessionId, step);
       } else {
         await completeSession(sessionId);

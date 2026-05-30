@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
 export interface Turn {
@@ -18,6 +18,12 @@ interface Props {
 
 export function ChatPanel({ turns, onStudentSubmit, disabled, pending }: Props) {
   const [draft, setDraft] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to the newest turn.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [turns.length, pending]);
 
   function submit() {
     const trimmed = draft.trim();
@@ -27,8 +33,8 @@ export function ChatPanel({ turns, onStudentSubmit, disabled, pending }: Props) 
   }
 
   return (
-    <div className="flex h-full flex-col rounded-3xl border border-ink/10 bg-paper-2">
-      <div className="flex-1 space-y-4 overflow-y-auto px-6 py-6">
+    <div className="flex h-full min-h-[60dvh] flex-col rounded-3xl border border-ink/10 bg-paper-2 lg:min-h-[520px]">
+      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6">
         {turns.length === 0 ? (
           <EmptyState />
         ) : (
@@ -47,33 +53,35 @@ export function ChatPanel({ turns, onStudentSubmit, disabled, pending }: Props) 
         )}
       </div>
 
-      <div className="border-t border-ink/10 px-4 py-4">
+      <div className="border-t border-ink/10 p-3 sm:px-4 sm:py-4">
         <div className="flex items-end gap-2">
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+              // Enter sends; Shift+Enter makes a newline. (Mobile keyboards
+              // show a return key — long answers can still use Shift+Enter.)
+              if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 submit();
               }
             }}
-            placeholder="Type your reasoning in English…"
+            placeholder="영어로 생각을 적어보세요…"
             disabled={disabled}
             rows={2}
-            className="min-h-[60px] flex-1 resize-none rounded-2xl border border-ink/15 bg-paper px-4 py-3 text-sm leading-relaxed outline-none placeholder:text-ink/35 focus:border-accent disabled:opacity-50"
+            className="min-h-[56px] flex-1 resize-none rounded-2xl border border-ink/15 bg-paper px-4 py-3 text-[15px] leading-relaxed outline-none placeholder:text-ink/35 focus:border-accent disabled:opacity-50"
           />
           <button
             type="button"
             onClick={submit}
             disabled={disabled || !draft.trim()}
-            className="h-[60px] rounded-2xl bg-ink px-5 font-mono text-xs uppercase tracking-tighter2 text-on-dark transition hover:bg-accent disabled:opacity-40"
+            className="h-[56px] shrink-0 rounded-2xl bg-ink px-5 font-kr text-sm font-semibold text-on-dark transition hover:bg-accent disabled:opacity-40"
           >
-            Send
+            전송
           </button>
         </div>
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-tighter2 text-ink/40">
-          ⌘ / Ctrl + Enter to send · English only at this step
+        <p className="mt-2 text-[12px] text-ink/40">
+          이 단계는 <span className="text-ink/60">영어로</span> 생각을 적어요 · Enter 전송
         </p>
       </div>
     </div>
@@ -84,14 +92,14 @@ function EmptyState() {
   return (
     <div className="grid h-full place-items-center text-center">
       <div className="max-w-sm">
-        <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/40">
-          Step 01 · Frame it
+        <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/40">
+          Step 01 · Understand
         </p>
-        <p className="mt-3 font-serif text-2xl leading-snug text-ink/80">
-          What are you actually being asked?
+        <p className="mt-3 font-sans text-xl leading-snug text-ink/80">
+          문제가 무엇을 묻고 있나요?
         </p>
         <p className="mt-3 text-sm text-ink/55">
-          Restate the problem in your own words. Don’t rush to a method.
+          답을 서두르지 말고, 문제를 네 말로 다시 설명해봐.
         </p>
       </div>
     </div>
@@ -104,22 +112,18 @@ function TurnBubble({ turn }: { turn: Turn }) {
     <div className={cn("flex", isCoach ? "justify-start" : "justify-end")}>
       <div
         className={cn(
-          "max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
-          isCoach
-            ? "bg-paper text-ink"
-            : "bg-ink text-on-dark",
+          "max-w-[82%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed",
+          isCoach ? "bg-paper text-ink" : "bg-ink text-on-dark",
         )}
       >
-        {!isCoach && (
-          <p className="mb-1 font-mono text-[10px] uppercase tracking-tighter2 text-on-dark/50">
-            you
-          </p>
-        )}
-        {isCoach && (
-          <p className="mb-1 font-mono text-[10px] uppercase tracking-tighter2 text-ink/40">
-            coach
-          </p>
-        )}
+        <p
+          className={cn(
+            "mb-1 font-mono text-[10px] uppercase tracking-tighter2",
+            isCoach ? "text-ink/40" : "text-on-dark/50",
+          )}
+        >
+          {isCoach ? "coach" : "you"}
+        </p>
         <p>{turn.content}</p>
       </div>
     </div>

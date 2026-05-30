@@ -3,17 +3,22 @@
 import { useState, useTransition } from "react";
 import { StepIndicator } from "@/components/session/StepIndicator";
 import { ChatPanel, type Turn } from "@/components/session/ChatPanel";
-import { ProblemCard } from "@/components/session/ProblemCard";
-import {
-  ScorePanel,
-  EMPTY_TOTALS,
-  type ScoreTotals,
-  type RecentEvidence,
-} from "@/components/session/ScorePanel";
-import { POLYA_STEPS, type StepId } from "@/lib/steps";
+import { ProblemChip } from "@/components/session/ProblemChip";
+import { LiveEvidenceCard, type LiveEvidence } from "@/components/session/LiveEvidenceCard";
+import { LiveScoreBar, type ScoreTotals } from "@/components/session/LiveScoreBar";
+import { TOTAL_STEPS, stepById, type StepId } from "@/lib/steps";
 import { submitTurn } from "@/app/session/[id]/actions";
 import type { TutorMessage } from "@/lib/ai/tutor";
 import type { ConstructId } from "@/lib/constructs";
+
+const EMPTY_TOTALS: ScoreTotals = {
+  redefine: 0,
+  assume: 0,
+  paths: 0,
+  verify: 0,
+  logic: 0,
+  english: 0,
+};
 
 interface Props {
   problem: {
@@ -24,9 +29,28 @@ interface Props {
   };
   // null = demo mode (no DB persistence)
   sessionId: string | null;
-  // Used when resuming an in-progress session from DB
   initialTurns?: Turn[];
   initialStep?: StepId;
+}
+
+// Seed the coach's opening line so the student never faces a blank box.
+function greetingTurn(step: StepId): Turn {
+  return {
+    id: `greeting-${step}`,
+    speaker: "coach",
+    content: stepById(step).greeting,
+  };
+}
+
+function topMovedConstruct(
+  deltas: Record<ConstructId, number>,
+): { id: ConstructId; delta: number } | null {
+  let best: { id: ConstructId; delta: number } | null = null;
+  for (const key of Object.keys(deltas) as ConstructId[]) {
+    const d = deltas[key] ?? 0;
+    if (d > 0 && (!best || d > best.delta)) best = { id: key, delta: d };
+  }
+  return best;
 }
 
 export function SessionView({
@@ -36,12 +60,12 @@ export function SessionView({
   initialStep = 1,
 }: Props) {
   const [step, setStep] = useState<StepId>(initialStep);
-  const [turns, setTurns] = useState<Turn[]>(initialTurns);
+  const [turns, setTurns] = useState<Turn[]>(
+    initialTurns.length > 0 ? initialTurns : [greetingTurn(initialStep)],
+  );
   const [totals, setTotals] = useState<ScoreTotals>(EMPTY_TOTALS);
   const [lastDeltas, setLastDeltas] = useState<ScoreTotals | null>(null);
-  const [recentEvidence, setRecentEvidence] = useState<RecentEvidence | null>(
-    null,
-  );
+  const [evidence, setEvidence] = useState<LiveEvidence | null>(null);
   const [pending, startTransition] = useTransition();
   const [advanceBanner, setAdvanceBanner] = useState<string | null>(null);
 
@@ -52,12 +76,7 @@ export function SessionView({
 
   function handleStudentSubmit(content: string) {
     const studentTurnId = crypto.randomUUID();
-    const studentTurn: Turn = {
-      id: studentTurnId,
-      speaker: "student",
-      content,
-    };
-    setTurns((prev) => [...prev, studentTurn]);
+    setTurns((prev) => [...prev, { id: studentTurnId, speaker: "student", content }]);
 
     startTransition(async () => {
       try {
@@ -76,22 +95,26 @@ export function SessionView({
 
         if (res.score) {
           applyScore(res.score.construct_deltas);
-          setRecentEvidence({
-            quote: res.score.evidence_quote,
-            rationale: res.score.rationale,
-          });
+          const top = topMovedConstruct(res.score.construct_deltas);
+          if (top) {
+            setEvidence({
+              quote: res.score.evidence_quote,
+              topConstruct: top.id,
+              topDelta: top.delta,
+              rationale: res.score.rationale,
+            });
+          }
         } else {
           setLastDeltas(null);
         }
 
-        if (res.advance && step < 4) {
+        if (res.advance && step < TOTAL_STEPS) {
           const next = (step + 1) as StepId;
           setStep(next);
-          setAdvanceBanner(
-            `Step ${step} → Step ${next}. ${res.advanceReason}`,
-          );
-        } else if (res.advance && step === 4) {
-          setAdvanceBanner(`Session complete. ${res.advanceReason}`);
+          setTurns((prev) => [...prev, greetingTurn(next)]);
+          setAdvanceBanner(`${stepById(step).englishLabel} 완료 — 다음 단계로`);
+        } else if (res.advance && step === TOTAL_STEPS) {
+          setAdvanceBanner("진단 완료! 곧 결과를 보여드릴게요.");
         } else {
           setAdvanceBanner(null);
         }
@@ -121,55 +144,54 @@ export function SessionView({
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-12">
+    <section className="mx-auto max-w-2xl px-4 pb-28 sm:px-6">
       <div className="mb-4 flex items-baseline justify-between">
-        <h1 className="font-kr text-2xl font-semibold tracking-tighter2">
-          오늘의 한 문제
+        <h1 className="font-kr text-xl font-semibold tracking-tighter2 sm:text-2xl">
+          사고력 진단
         </h1>
         <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/50">
-          Pólya · 4 steps · English only
-          {sessionId === null && (
-            <span className="ml-2 text-accent">· demo</span>
-          )}
+          {TOTAL_STEPS} steps · English
+          {sessionId === null && <span className="ml-2 text-accent">· demo</span>}
         </p>
       </div>
 
-      <StepIndicator activeStep={step} />
+      <ProblemChip
+        topic={problem.topic}
+        difficulty={problem.difficulty}
+        englishStatement={problem.englishStatement}
+        koreanSupport={problem.koreanSupport}
+      />
 
-      <p className="mt-3 max-w-2xl text-sm text-ink/55">
-        {POLYA_STEPS[step - 1].intent}
-      </p>
+      <div className="mt-5">
+        <StepIndicator activeStep={step} />
+      </div>
 
       {advanceBanner && (
-        <div className="mt-4 rounded-2xl border border-accent/40 bg-accent-soft/60 px-4 py-3 font-mono text-xs uppercase tracking-tighter2 text-accent">
+        <div className="mt-4 rounded-2xl border border-accent/40 bg-accent-soft/60 px-4 py-3 text-sm font-medium text-accent">
           {advanceBanner}
         </div>
       )}
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-        <ProblemCard
-          topic={problem.topic}
-          difficulty={problem.difficulty}
-          englishStatement={problem.englishStatement}
-          koreanSupport={problem.koreanSupport}
+      <div className="mt-5">
+        <ChatPanel
+          turns={turns}
+          onStudentSubmit={handleStudentSubmit}
+          disabled={pending}
+          pending={pending}
         />
-
-        <div className="min-h-[520px]">
-          <ChatPanel
-            turns={turns}
-            onStudentSubmit={handleStudentSubmit}
-            disabled={pending}
-            pending={pending}
-          />
-        </div>
       </div>
 
-      <div className="mt-6">
-        <ScorePanel
-          totals={totals}
-          lastDeltas={lastDeltas}
-          recentEvidence={recentEvidence}
-        />
+      {evidence && (
+        <div className="mt-4">
+          <LiveEvidenceCard evidence={evidence} />
+        </div>
+      )}
+
+      {/* Slim live score — full breakdown lives in the result screen. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-ink/10 bg-paper/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+        <div className="mx-auto max-w-2xl">
+          <LiveScoreBar totals={totals} lastDeltas={lastDeltas} />
+        </div>
       </div>
     </section>
   );
