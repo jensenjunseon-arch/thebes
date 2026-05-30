@@ -2,7 +2,8 @@
 
 import { tutorReply, type TutorMessage } from "@/lib/ai/tutor";
 import { scoreTurn, type ScorerOutput } from "@/lib/ai/scorer";
-import { DEMO_PROBLEM, DEMO_CEFR_LEVEL } from "@/lib/demo";
+import { DEMO_CEFR_LEVEL } from "@/lib/demo";
+import { getProblemById, DEFAULT_PROBLEM } from "@/lib/problems";
 import { type StepId, TOTAL_STEPS } from "@/lib/steps";
 import {
   insertTurn,
@@ -17,7 +18,10 @@ export interface SubmitTurnInput {
   step: StepId;
   history: TutorMessage[];
   utterance: string;
+  problemId: string;
 }
+
+export type SubmitTurnError = "ai_unavailable";
 
 export interface SubmitTurnResult {
   reply: string;
@@ -25,6 +29,7 @@ export interface SubmitTurnResult {
   advance: boolean;
   advanceReason: string;
   score: ScorerOutput | null;
+  error?: SubmitTurnError;
 }
 
 export async function submitTurn(
@@ -34,6 +39,10 @@ export async function submitTurn(
     ...input.history,
     { role: "user", content: input.utterance },
   ];
+
+  // Resolve the active problem server-side so the answer tokens never reach
+  // the client. Falls back to the default problem for live DB sessions.
+  const problem = getProblemById(input.problemId) ?? DEFAULT_PROBLEM;
 
   const isLive = input.sessionId !== null && isSupabaseConfigured();
 
@@ -52,19 +61,32 @@ export async function submitTurn(
     tutorReply({
       step: input.step,
       cefrLevel: DEMO_CEFR_LEVEL,
-      problemStatement: DEMO_PROBLEM.englishStatement,
-      forbiddenAnswerTokens: DEMO_PROBLEM.forbiddenAnswerTokens,
+      problemStatement: problem.englishStatement,
+      forbiddenAnswerTokens: problem.forbiddenAnswerTokens,
       history,
     }),
     scoreTurn({
       turn_id: input.studentTurnId,
       step: input.step,
       utterance: input.utterance,
-      problemStatement: DEMO_PROBLEM.englishStatement,
+      problemStatement: problem.englishStatement,
     }),
   ]);
 
-  if (tutorSettled.status === "rejected") throw tutorSettled.reason;
+  // Graceful degradation: if the tutor LLM call fails (e.g. API key, network,
+  // or out of credits), return a structured error instead of throwing — the
+  // client shows an accurate, retryable message rather than a vague crash.
+  if (tutorSettled.status === "rejected") {
+    console.error("[submitTurn] tutor call failed:", tutorSettled.reason);
+    return {
+      reply: "",
+      coachTurnId: crypto.randomUUID(),
+      advance: false,
+      advanceReason: "",
+      score: null,
+      error: "ai_unavailable",
+    };
+  }
 
   const tutor = tutorSettled.value;
   const score =

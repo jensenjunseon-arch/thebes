@@ -66,7 +66,9 @@
       "Bash(git commit -m 'fix: stack hook into 3 lines on mobile \\(학원 / vs. / 영어 통하는 곳\\) *)",
       "Bash(git commit -m 'feat: redesign brand logo — Geist Mono with refined tracking *)",
       "Bash(echo \"---EXIT: $?---\")",
-      "Bash(git commit -m 'feat\\(diagnostic\\): Build 1 — mobile-first session, 2-step model, coach greeting, live evidence *)"
+      "Bash(git commit -m 'feat\\(diagnostic\\): Build 1 — mobile-first session, 2-step model, coach greeting, live evidence *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(git commit -m 'feat\\(diagnostic\\): problem pool with difficulty levels + graceful AI-error handling *)"
     ]
   }
 }

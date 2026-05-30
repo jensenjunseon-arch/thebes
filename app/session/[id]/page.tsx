@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SessionView } from "@/components/session/SessionView";
-import { DEMO_PROBLEM } from "@/lib/demo";
+import {
+  PUBLIC_PROBLEMS,
+  DEFAULT_PROBLEM_ID,
+  toPublicProblem,
+  getProblemById,
+} from "@/lib/problems";
 import { getSessionById, getSessionTurns } from "@/lib/supabase/queries";
 import type { Turn } from "@/components/session/ChatPanel";
 
@@ -23,24 +28,21 @@ export default async function SessionPage({
 }) {
   const { id } = await params;
 
-  // ── demo route ────────────────────────────────────────────────────────────
+  // ── demo route — full problem pool + difficulty picker ──────────────────────
   if (id === "demo" || !isSupabaseConfigured()) {
     return (
       <SessionShell sessionLabel={id}>
         <SessionView
-          problem={{
-            topic: DEMO_PROBLEM.topic,
-            difficulty: DEMO_PROBLEM.difficulty,
-            englishStatement: DEMO_PROBLEM.englishStatement,
-            koreanSupport: DEMO_PROBLEM.koreanSupport,
-          }}
+          problems={[...PUBLIC_PROBLEMS]}
+          initialProblemId={DEFAULT_PROBLEM_ID}
           sessionId={null}
+          enablePicker
         />
       </SessionShell>
     );
   }
 
-  // ── live route ────────────────────────────────────────────────────────────
+  // ── live route ──────────────────────────────────────────────────────────────
   if (!UUID_RE.test(id)) notFound();
 
   const [session, dbTurns] = await Promise.all([
@@ -56,18 +58,16 @@ export default async function SessionPage({
     content: t.content,
   }));
 
+  const problem = toPublicProblem(getProblemById(DEFAULT_PROBLEM_ID)!);
+
   return (
     <SessionShell sessionLabel={id.slice(0, 8)}>
       <SessionView
-        problem={{
-          topic: DEMO_PROBLEM.topic,
-          difficulty: DEMO_PROBLEM.difficulty,
-          englishStatement: DEMO_PROBLEM.englishStatement,
-          koreanSupport: DEMO_PROBLEM.koreanSupport,
-        }}
+        problems={[problem]}
+        initialProblemId={problem.id}
         sessionId={id}
         initialTurns={turns}
-        initialStep={session.active_step}
+        initialStep={session.active_step <= 2 ? (session.active_step as 1 | 2) : 2}
       />
     </SessionShell>
   );
