@@ -24,7 +24,7 @@ export const DEMO_SCRIPT: Record<StepId, ScriptBeat[]> = {
     {
       coachReply:
         "Good — you said it in your own words instead of copying the problem. Now: what are you assuming that the problem doesn't state outright?",
-      deltas: { redefine: 4, english: 2 },
+      deltas: { redefine: 4, english: 1 },
       evidenceConstruct: "redefine",
       rationale: "문제를 그대로 베끼지 않고 자기 언어로 다시 진술했어요.",
       advance: false,
@@ -32,7 +32,7 @@ export const DEMO_SCRIPT: Record<StepId, ScriptBeat[]> = {
     {
       coachReply:
         "Nice — naming that assumption out loud is exactly what strong problem-solvers do. Is there more than one way you could approach this?",
-      deltas: { assume: 3, english: 1 },
+      deltas: { assume: 3 },
       evidenceConstruct: "assume",
       rationale: "숨어 있던 전제를 의식적으로 드러냈어요.",
       advance: false,
@@ -40,7 +40,7 @@ export const DEMO_SCRIPT: Record<StepId, ScriptBeat[]> = {
     {
       coachReply:
         "That's a clear plan. You reframed the problem, surfaced an assumption, and chose a path — that's the whole first stage. Let's actually solve it now.",
-      deltas: { paths: 4, english: 2 },
+      deltas: { paths: 4, english: 1 },
       evidenceConstruct: "paths",
       rationale: "한 가지 이상의 접근을 떠올리고 방향을 정했어요.",
       advance: true,
@@ -50,7 +50,7 @@ export const DEMO_SCRIPT: Record<StepId, ScriptBeat[]> = {
     {
       coachReply:
         "Walk me through why that first step follows. What lets you do that?",
-      deltas: { logic: 4, english: 2 },
+      deltas: { logic: 3 },
       evidenceConstruct: "logic",
       rationale: "단계 사이를 비약 없이 근거로 연결했어요.",
       advance: false,
@@ -58,7 +58,7 @@ export const DEMO_SCRIPT: Record<StepId, ScriptBeat[]> = {
     {
       coachReply:
         "Good — no jumps there. When you reach an answer, how could you check it a different way?",
-      deltas: { logic: 2, english: 1 },
+      deltas: { logic: 2 },
       evidenceConstruct: "logic",
       rationale: "다음 단계를 앞 단계의 결론 위에 쌓았어요.",
       advance: false,
@@ -66,7 +66,7 @@ export const DEMO_SCRIPT: Record<StepId, ScriptBeat[]> = {
     {
       coachReply:
         "Excellent — checking your answer another way is the habit most students skip. You just ran a full Pólya cycle. That's the diagnostic done!",
-      deltas: { verify: 5, english: 2 },
+      deltas: { verify: 6, english: 1 },
       evidenceConstruct: "verify",
       rationale: "답을 다른 방법으로 점검하려고 시도했어요.",
       advance: true,
