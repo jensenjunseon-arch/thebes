@@ -5,9 +5,22 @@
 // `toPublicProblem()` to strip the answer before serializing to the client.
 // The answer tokens are resolved server-side in submitTurn for the leak filter.
 
-export type Level = "중1" | "중2" | "중3" | "고1";
+export type Level =
+  | "초등 저학년"
+  | "초등 고학년"
+  | "중1"
+  | "중2"
+  | "중3"
+  | "고1";
 
-export const LEVELS: readonly Level[] = ["중1", "중2", "중3", "고1"];
+export const LEVELS: readonly Level[] = [
+  "초등 저학년",
+  "초등 고학년",
+  "중1",
+  "중2",
+  "중3",
+  "고1",
+];
 
 export interface Problem {
   id: string;
@@ -25,6 +38,50 @@ export type PublicProblem = Omit<Problem, "forbiddenAnswerTokens">;
 export const DEFAULT_PROBLEM_ID = "b7c2e1f0-0000-0000-0000-000000000001";
 
 export const PROBLEMS: readonly Problem[] = [
+  // ── 초등 저학년 ───────────────────────────────────────────────────────
+  {
+    id: "elem-low-add",
+    level: "초등 저학년",
+    topic: "덧셈",
+    englishStatement:
+      "You have 8 candies. Your friend gives you 6 more. How many candies do you have now?",
+    koreanSupport:
+      "사탕 8개를 가지고 있어요. 친구가 6개를 더 줬어요. 지금 사탕은 모두 몇 개일까요?",
+    forbiddenAnswerTokens: ["14"],
+  },
+  {
+    id: "elem-low-mult",
+    level: "초등 저학년",
+    topic: "곱셈",
+    englishStatement:
+      "A box has 4 rows of cookies. Each row has 3 cookies. How many cookies are there in total?",
+    koreanSupport:
+      "상자에 쿠키가 4줄 들어 있어요. 한 줄에 쿠키가 3개씩 있어요. 쿠키는 모두 몇 개일까요?",
+    forbiddenAnswerTokens: ["12"],
+  },
+
+  // ── 초등 고학년 ───────────────────────────────────────────────────────
+  {
+    id: "elem-high-fraction",
+    level: "초등 고학년",
+    topic: "분수",
+    englishStatement:
+      "A pizza is cut into 8 equal slices. You eat 3 of them. What fraction of the pizza is left?",
+    koreanSupport:
+      "피자를 똑같이 8조각으로 잘랐어요. 그중 3조각을 먹었어요. 남은 피자는 전체의 몇 분의 몇일까요?",
+    forbiddenAnswerTokens: ["5/8"],
+  },
+  {
+    id: "elem-high-divide",
+    level: "초등 고학년",
+    topic: "나눗셈",
+    englishStatement:
+      "There are 24 students. They are split into groups of 4. How many groups are there?",
+    koreanSupport:
+      "학생이 24명 있어요. 4명씩 한 모둠으로 나누면, 모둠은 모두 몇 개일까요?",
+    forbiddenAnswerTokens: ["= 6", "6 groups", "6 모둠"],
+  },
+
   // ── 중1 ──────────────────────────────────────────────────────────────
   {
     id: "ratio-muffins",

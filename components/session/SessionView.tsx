@@ -6,6 +6,10 @@ import { ChatPanel, type Turn } from "@/components/session/ChatPanel";
 import { ProblemChip } from "@/components/session/ProblemChip";
 import { LiveEvidenceCard, type LiveEvidence } from "@/components/session/LiveEvidenceCard";
 import { LiveScoreBar, type ScoreTotals } from "@/components/session/LiveScoreBar";
+import {
+  DiagnosticResult,
+  type EvidenceByConstruct,
+} from "@/components/session/DiagnosticResult";
 import { TOTAL_STEPS, stepById, type StepId } from "@/lib/steps";
 import { submitTurn } from "@/app/session/[id]/actions";
 import { beatFor } from "@/lib/demoScript";
@@ -77,6 +81,9 @@ export function SessionView({
   const [totals, setTotals] = useState<ScoreTotals>(EMPTY_TOTALS);
   const [lastDeltas, setLastDeltas] = useState<ScoreTotals | null>(null);
   const [evidence, setEvidence] = useState<LiveEvidence | null>(null);
+  const [evidenceByConstruct, setEvidenceByConstruct] = useState<EvidenceByConstruct>({});
+  const [completed, setCompleted] = useState(false);
+  const [done, setDone] = useState(false);
   const [pending, startTransition] = useTransition();
   const [banner, setBanner] = useState<{ kind: "advance" | "error"; text: string } | null>(
     null,
@@ -105,7 +112,20 @@ export function SessionView({
     setTotals(EMPTY_TOTALS);
     setLastDeltas(null);
     setEvidence(null);
+    setEvidenceByConstruct({});
+    setCompleted(false);
+    setDone(false);
     setBanner(null);
+  }
+
+  function recordEvidence(
+    construct: ConstructId,
+    delta: number,
+    quote: string,
+    rationale: string,
+  ) {
+    setEvidence({ quote, topConstruct: construct, topDelta: delta, rationale });
+    setEvidenceByConstruct((prev) => ({ ...prev, [construct]: { quote, rationale } }));
   }
 
   function pickLevel(level: Level) {
@@ -140,12 +160,12 @@ export function SessionView({
         ]);
 
         applyScore(beat.deltas as Record<ConstructId, number>);
-        setEvidence({
-          quote: truncateQuote(content), // the student's ACTUAL words
-          topConstruct: beat.evidenceConstruct,
-          topDelta: beat.deltas[beat.evidenceConstruct] ?? 1,
-          rationale: beat.rationale,
-        });
+        recordEvidence(
+          beat.evidenceConstruct,
+          beat.deltas[beat.evidenceConstruct] ?? 1,
+          truncateQuote(content), // the student's ACTUAL words
+          beat.rationale,
+        );
 
         if (beat.advance && step < TOTAL_STEPS) {
           const next = (step + 1) as StepId;
@@ -157,7 +177,8 @@ export function SessionView({
             text: `${stepById(step).englishLabel} 완료 — 다음 단계로`,
           });
         } else if (beat.advance && step === TOTAL_STEPS) {
-          setBanner({ kind: "advance", text: "진단 완료! 곧 결과를 보여드릴게요." });
+          setBanner({ kind: "advance", text: "진단 완료!" });
+          setCompleted(true);
         } else {
           beatRef.current += 1;
           setBanner(null);
@@ -195,12 +216,12 @@ export function SessionView({
           applyScore(res.score.construct_deltas);
           const top = topMovedConstruct(res.score.construct_deltas);
           if (top) {
-            setEvidence({
-              quote: res.score.evidence_quote,
-              topConstruct: top.id,
-              topDelta: top.delta,
-              rationale: res.score.rationale,
-            });
+            recordEvidence(
+              top.id,
+              top.delta,
+              res.score.evidence_quote,
+              res.score.rationale,
+            );
           }
         } else {
           setLastDeltas(null);
@@ -215,7 +236,8 @@ export function SessionView({
             text: `${stepById(step).englishLabel} 완료 — 다음 단계로`,
           });
         } else if (res.advance && step === TOTAL_STEPS) {
-          setBanner({ kind: "advance", text: "진단 완료! 곧 결과를 보여드릴게요." });
+          setBanner({ kind: "advance", text: "진단 완료!" });
+          setCompleted(true);
         } else {
           setBanner(null);
         }
@@ -239,6 +261,16 @@ export function SessionView({
       }
       return next;
     });
+  }
+
+  if (done) {
+    return (
+      <DiagnosticResult
+        totals={totals}
+        evidenceByConstruct={evidenceByConstruct}
+        onRestart={() => resetSession()}
+      />
+    );
   }
 
   return (
@@ -315,7 +347,7 @@ export function SessionView({
         <ChatPanel
           turns={turns}
           onStudentSubmit={handleStudentSubmit}
-          disabled={pending}
+          disabled={pending || completed}
           pending={pending}
         />
       </div>
@@ -326,10 +358,21 @@ export function SessionView({
         </div>
       )}
 
-      {/* Slim live score — full breakdown lives in the result screen. */}
+      {/* Bottom bar: live score during the session → result CTA on completion. */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-ink/10 bg-paper/95 px-4 py-3 backdrop-blur-sm sm:px-6">
         <div className="mx-auto max-w-2xl">
-          <LiveScoreBar totals={totals} lastDeltas={lastDeltas} />
+          {completed ? (
+            <button
+              type="button"
+              onClick={() => setDone(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 font-kr text-sm font-semibold text-on-dark transition hover:opacity-90"
+            >
+              진단 결과 보기
+              <span className="font-mono text-xs">→</span>
+            </button>
+          ) : (
+            <LiveScoreBar totals={totals} lastDeltas={lastDeltas} />
+          )}
         </div>
       </div>
     </section>
