@@ -57,10 +57,15 @@ export function DiagnosticIntro({
         className="animate-rise mt-5 text-[17px] leading-relaxed text-ink/70"
         style={{ animationDelay: "140ms" }}
       >
-        답은 AI가 5초면 냅니다. 그래서 우리는{" "}
+        답은 AI가 5초면 냅니다.
+        <br />
+        그래서 우리는{" "}
         <b className="font-semibold text-accent">정답이 아니라 ‘생각하는 힘’</b>을 봅니다.
-        지금부터 약 5분, AI 코치가 당신이 <b className="font-semibold">어떻게 생각하는지</b>를
-        — 영어로 — 진단합니다.
+        <br />
+        <br />
+        지금부터 약 5분, AI 코치가 당신이
+        <br />
+        <b className="font-semibold">어떻게 생각하는지</b>를 — 영어로 — 진단합니다.
       </p>
 
       <p

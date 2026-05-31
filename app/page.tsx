@@ -438,9 +438,7 @@ export default function LandingPage() {
               <span className="em">그리고 엔지니어</span>가 만났습니다.
             </h2>
             <p className="lede">
-              &#8216;사고력을 키운다&#8217;는 약속을 학문적으로 정당화하고,
-              측정 가능한 구인으로 분해하고,{" "}
-              <b>실제 작동하는 제품으로 구현합니다.</b>
+              <b>AI 인재를 양성하기 위한 전문가들이 모였습니다.</b>
             </p>
           </div>
           <div className="lp-team-grid lp-team-grid-3">
@@ -476,7 +474,9 @@ export default function LandingPage() {
             <div className="lp-member">
               <div className="role">Engineering · 개발 담당</div>
               <div className="school">
-                U. Pennsylvania
+                UC Davis
+                <br />
+                Computer Science (B.S.)
               </div>
               <p>
                 AI 파이프라인·스코어링 시스템·<br />
