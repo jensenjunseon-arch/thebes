@@ -39,9 +39,9 @@ export const POLYA_STEPS: readonly PolyaStep[] = [
     intent:
       "Make the student restate the problem in their own words, surface assumptions, and propose at least one approach.",
     studentHint:
-      "문제를 네 말로 다시 설명하고, 어떻게 풀지 떠올려봐. 답은 아직 몰라도 돼.",
+      "답을 맞히는 게 아니라, ‘어떻게 생각하는지’를 봐요. 영어가 막히면 한국어로 시작해도 좋아요.",
     greeting:
-      "Let's start. Before solving anything — what is this problem actually asking you to find? Say it in your own words.",
+      "Here's the thing — any AI can get the answer in 5 seconds, so I won't ask you for it. I want to see how YOU think. Don't solve it yet. Just tell me, in your own words: what is this problem really asking?",
     primaryConstructs: ["redefine", "assume", "paths", "english"],
   },
   {

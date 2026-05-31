@@ -171,6 +171,35 @@ const RATIONALE: Record<StageKind, string> = {
   verify: "답을 다른 방법으로 점검하려고 시도했어요.",
 };
 
+// ── bilingual on-ramp ───────────────────────────────────────────────────────
+// First-timers who've never reasoned in English shouldn't hit a wall. If they
+// answer in Korean, we accept the THINKING, mirror it back as a model English
+// sentence (built from the problem's coaching, never a fake translation), give
+// partial credit, and keep moving. This is the product's core loop made visible
+// in turn one: a Korean thought becomes English in front of them.
+
+const HANGUL_RE = /[가-힣]/;
+const KOREAN_STUCK_RE = /모르|몰라|도와|글쎄|어렵|^\?+$/;
+
+function stripDot(s: string): string {
+  return s.replace(/[.\s]+$/, "");
+}
+
+function englishMirror(kind: StageKind, c: Coaching): string {
+  switch (kind) {
+    case "restate":
+      return c.restateFrame;
+    case "assume":
+      return `I'm assuming that ${stripDot(c.keyAssumption)}.`;
+    case "plan":
+      return `One way is to ${stripDot(c.approaches[0])}.`;
+    case "reason":
+      return "First, I work out one step — and I can say why it follows.";
+    case "verify":
+      return `I can check it — ${stripDot(c.verifyHint)}.`;
+  }
+}
+
 export function evaluate(
   step: StepId,
   stageIndex: number,
@@ -179,6 +208,29 @@ export function evaluate(
   coaching: Coaching,
 ): StageOutcome {
   const stage = STAGES[step][stageIndex];
+
+  // Korean answer (and not an "I'm stuck" phrase) → bilingual on-ramp.
+  if (HANGUL_RE.test(text) && !KOREAN_STUCK_RE.test(text.trim()) && text.trim().length >= 2) {
+    const nextStage = STAGES[step][stageIndex + 1];
+    const completeStep = !nextStage;
+    const ask = !completeStep && nextStage ? ASK[nextStage.kind] : undefined;
+    const mirror = englishMirror(stage.kind, coaching);
+    const reply =
+      `좋아요 — 생각은 제대로예요. 영어로는 이렇게 말할 수 있어요: “${mirror}”` +
+      (ask ? ` ${ask}` : " 다음엔 영어로도 한 줄 시도해볼까요?");
+    return {
+      reply,
+      construct: stage.construct,
+      delta: 2,
+      englishDelta: 0,
+      rationale: "한국어로 사고를 표현했어요 — 이제 영어로 옮기는 연습이에요.",
+      signal: "partial",
+      recordEvidence: true,
+      advanceStage: true,
+      completeStep,
+    };
+  }
+
   const signal = classify(stage.kind, text);
 
   // Stuck on the first try → scaffold and give one more attempt (don't advance).

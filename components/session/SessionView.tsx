@@ -309,6 +309,11 @@ export function SessionView({
         </p>
       </div>
 
+      <p className="mb-4 rounded-2xl border border-accent/20 bg-accent-soft/30 px-4 py-2.5 text-[13px] leading-relaxed text-ink/75">
+        <span className="font-semibold text-accent">AI가 답을 내는 시대</span> — 우리는
+        정답이 아니라 ‘어떻게 생각하는지’를 봅니다.
+      </p>
+
       {enablePicker && availableLevels.length > 1 && (
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
