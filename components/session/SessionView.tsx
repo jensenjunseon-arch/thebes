@@ -5,11 +5,16 @@ import { StepIndicator } from "@/components/session/StepIndicator";
 import { ChatPanel, type Turn } from "@/components/session/ChatPanel";
 import { ProblemChip } from "@/components/session/ProblemChip";
 import { LiveEvidenceCard, type LiveEvidence } from "@/components/session/LiveEvidenceCard";
-import { LiveScoreBar, type ScoreTotals } from "@/components/session/LiveScoreBar";
+import { ProfileGauge, DetectedTally } from "@/components/session/DiagnosticHud";
 import {
   DiagnosticResult,
   type EvidenceByConstruct,
 } from "@/components/session/DiagnosticResult";
+
+type ScoreTotals = Record<ConstructId, number>;
+
+// Total dialogue stages across the whole diagnostic (Step 1: 3, Step 2: 2).
+const TOTAL_DIALOGUE_STAGES = 5;
 import { TOTAL_STEPS, stepById, type StepId } from "@/lib/steps";
 import { submitTurn } from "@/app/session/[id]/actions";
 import { evaluate, stagesForStep, starterFramesFor } from "@/lib/diagnosticEngine";
@@ -81,7 +86,7 @@ export function SessionView({
     initialTurns.length > 0 ? initialTurns : [greetingTurn(initialStep)],
   );
   const [totals, setTotals] = useState<ScoreTotals>(EMPTY_TOTALS);
-  const [lastDeltas, setLastDeltas] = useState<ScoreTotals | null>(null);
+  const [stagesDone, setStagesDone] = useState(0);
   const [evidence, setEvidence] = useState<LiveEvidence | null>(null);
   const [evidenceByConstruct, setEvidenceByConstruct] = useState<EvidenceByConstruct>({});
   const [completed, setCompleted] = useState(false);
@@ -113,7 +118,7 @@ export function SessionView({
     setStep(nextStep);
     setTurns([greetingTurn(nextStep)]);
     setTotals(EMPTY_TOTALS);
-    setLastDeltas(null);
+    setStagesDone(0);
     setEvidence(null);
     setEvidenceByConstruct({});
     setCompleted(false);
@@ -186,6 +191,9 @@ export function SessionView({
           return;
         }
 
+        // A stage was cleared — advance the profile-completion gauge.
+        setStagesDone((n) => Math.min(TOTAL_DIALOGUE_STAGES, n + 1));
+
         if (out.completeStep && step < TOTAL_STEPS) {
           const next = (step + 1) as StepId;
           stageRef.current = 0;
@@ -237,6 +245,7 @@ export function SessionView({
 
         if (res.score) {
           applyScore(res.score.construct_deltas);
+          setStagesDone((n) => Math.min(TOTAL_DIALOGUE_STAGES, n + 1));
           const top = topMovedConstruct(res.score.construct_deltas);
           if (top) {
             recordEvidence(
@@ -246,8 +255,6 @@ export function SessionView({
               res.score.rationale,
             );
           }
-        } else {
-          setLastDeltas(null);
         }
 
         if (res.advance && step < TOTAL_STEPS) {
@@ -277,7 +284,6 @@ export function SessionView({
   }
 
   function applyScore(deltas: Record<ConstructId, number>) {
-    setLastDeltas(deltas as ScoreTotals);
     setTotals((prev) => {
       const next: ScoreTotals = { ...prev };
       for (const key of Object.keys(deltas) as ConstructId[]) {
@@ -372,7 +378,15 @@ export function SessionView({
         </div>
       )}
 
-      <div className="mt-5">
+      {/* Anticipation gauge + combo tally — wow that builds every turn. */}
+      <div className="mt-5 space-y-3">
+        <ProfileGauge
+          percent={(stagesDone / TOTAL_DIALOGUE_STAGES) * 100}
+        />
+        <DetectedTally totals={totals} justDetected={evidence?.topConstruct ?? null} />
+      </div>
+
+      <div className="mt-4">
         <ChatPanel
           turns={turns}
           onStudentSubmit={handleStudentSubmit}
@@ -388,10 +402,10 @@ export function SessionView({
         </div>
       )}
 
-      {/* Bottom bar: live score during the session → result CTA on completion. */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-ink/10 bg-paper/95 px-4 py-3 backdrop-blur-sm sm:px-6">
-        <div className="mx-auto max-w-2xl">
-          {completed ? (
+      {/* On completion, a thumb-reachable CTA to the result reveal. */}
+      {completed && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-ink/10 bg-paper/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+          <div className="mx-auto max-w-2xl">
             <button
               type="button"
               onClick={() => setDone(true)}
@@ -400,11 +414,9 @@ export function SessionView({
               진단 결과 보기
               <span className="font-mono text-xs">→</span>
             </button>
-          ) : (
-            <LiveScoreBar totals={totals} lastDeltas={lastDeltas} />
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
