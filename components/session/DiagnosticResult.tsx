@@ -10,11 +10,10 @@ import {
 } from "recharts";
 import { CONSTRUCTS, type ConstructId } from "@/lib/constructs";
 
-// Per-construct ceiling for the radar — one stage scores each construct 1–5
-// (english accrues up to ~5 too), so 6 gives a touch of headroom.
+// Per-construct ceiling — one stage scores each construct 1–5 (english ~5 too),
+// so 6 gives a touch of headroom.
 const SESSION_MAX = 6;
 
-// One-line growth tip per construct (rule-based v0).
 const GROWTH_TIP: Record<ConstructId, string> = {
   redefine: "상황을 더 자주 ‘자신의 말로’ 바꿔 말해보면 좋아요.",
   decompose: "상황 속에 어떤 요소들이 있는지 한 번 더 또렷이 짚어보면 좋아요.",
@@ -23,6 +22,13 @@ const GROWTH_TIP: Record<ConstructId, string> = {
   transfer: "하나의 원리를 주변과 미래로 더 넓게 적용해보면 좋아요.",
   english: "생각을 영어로 한 문장 더 길게 써보면 좋아요.",
 };
+
+function indexBand(n: number): string {
+  if (n >= 75) return "AI 인재 상위권 사고력";
+  if (n >= 55) return "탄탄하게 자라는 사고력";
+  if (n >= 35) return "빠르게 성장하는 구간";
+  return "잠재력을 발굴하는 단계";
+}
 
 export interface EvidenceByConstruct {
   [k: string]: { quote: string; rationale: string } | undefined;
@@ -33,7 +39,6 @@ interface Props {
   evidenceByConstruct: EvidenceByConstruct;
   onRestart: () => void;
   onRecap: () => void;
-  // When true (future: authenticated), the gated section is revealed.
   unlocked?: boolean;
 }
 
@@ -61,7 +66,6 @@ export function DiagnosticResult({
 
   const topEvidence = evidenceByConstruct[top.c.id];
 
-  // Composite "AI 인재 지수" (0–100) — computed for integrity; shown only when unlocked.
   const composite = Math.round(
     (CONSTRUCTS.reduce((s, c) => s + Math.min(SESSION_MAX, totals[c.id] ?? 0), 0) /
       (CONSTRUCTS.length * SESSION_MAX)) *
@@ -70,33 +74,34 @@ export function DiagnosticResult({
 
   return (
     <section className="mx-auto max-w-2xl px-4 pb-24 sm:px-6">
-      {/* ── FREE: the proof. Enough to make them believe it read them. ── */}
       <div className="pt-2 text-center">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent">
           AI Talent Report
         </p>
-        <h1 className="mt-2 font-kr text-2xl font-semibold tracking-tighter2 sm:text-3xl">
+        <h1 className="mt-1.5 font-kr text-xl font-semibold tracking-tighter2 text-ink/70">
           AI 인재 리포트
         </h1>
       </div>
 
-      {/* Radar */}
-      <div className="mt-6 rounded-3xl border border-ink/10 bg-paper-2 p-4">
-        <div className="h-72 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadarChart cx="50%" cy="50%" outerRadius="72%" data={radarData}>
-              <PolarGrid stroke="#14110C20" />
-              <PolarAngleAxis
-                dataKey="subject"
-                tick={{
-                  fontSize: 11,
-                  fill: "#14110C99",
-                  fontFamily: "Pretendard Variable, Pretendard, sans-serif",
-                }}
-              />
-              <Radar name="점수" dataKey="점수" stroke="#B5411B" fill="#B5411B" fillOpacity={0.28} />
-            </RadarChart>
-          </ResponsiveContainer>
+      {/* ── HERO: the eye-catch the moment the screen loads ── */}
+      <div className="mt-4 rounded-3xl border border-ink/12 bg-ink p-7 text-center text-on-dark">
+        <p className="font-mono text-[11px] uppercase tracking-tighter2 text-on-dark/55">
+          AI 인재 지수
+        </p>
+        <div className="mt-2 flex items-end justify-center gap-1">
+          <span className="font-kr text-[68px] font-bold leading-none tracking-tighter2">
+            {composite}
+          </span>
+          <span className="mb-2 font-kr text-xl text-on-dark/55">/ 100</span>
+        </div>
+        <p className="mt-2 font-kr text-sm font-semibold text-accent-soft">
+          {indexBand(composite)}
+        </p>
+        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-on-dark/15">
+          <div
+            className="h-full rounded-full bg-accent transition-all duration-700"
+            style={{ width: `${composite}%` }}
+          />
         </div>
       </div>
 
@@ -117,8 +122,8 @@ export function DiagnosticResult({
         )}
       </p>
 
-      {/* Strength — with the student's OWN words. The wow that earns trust. */}
-      <div className="mt-8 rounded-3xl border border-accent/30 bg-accent-soft/30 p-5">
+      {/* Strength — student's OWN words */}
+      <div className="mt-6 rounded-3xl border border-accent/30 bg-accent-soft/30 p-5">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent">
           강점 · {top.c.englishName}
         </p>
@@ -131,11 +136,63 @@ export function DiagnosticResult({
         )}
       </div>
 
-      {/* English recap — free engagement tool. */}
+      {/* Per-construct breakdown — more substance, free */}
+      <div className="mt-4 rounded-3xl border border-ink/10 bg-paper-2 p-5">
+        <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
+          6가지 사고력 · 자세히
+        </p>
+        <div className="mt-4 space-y-3">
+          {CONSTRUCTS.map((c) => {
+            const v = Math.min(SESSION_MAX, totals[c.id] ?? 0);
+            const pct = (v / SESSION_MAX) * 100;
+            return (
+              <div key={c.id} className="flex items-center gap-3">
+                <span className="w-24 shrink-0 font-kr text-[13px] text-ink/75">
+                  {c.koreanName}
+                </span>
+                <span className="relative h-2 flex-1 overflow-hidden rounded-full bg-ink/10">
+                  <span
+                    className="absolute inset-y-0 left-0 rounded-full bg-accent transition-all duration-700"
+                    style={{ width: `${pct}%` }}
+                  />
+                </span>
+                <span className="w-8 shrink-0 text-right font-mono text-[12px] tabular-nums text-ink/55">
+                  {v}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Radar — visual summary, moved BELOW the detail */}
+      <div className="mt-4 rounded-3xl border border-ink/10 bg-paper-2 p-4">
+        <p className="px-2 pt-1 font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
+          한눈에 보기
+        </p>
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+              <PolarGrid stroke="#14110C20" />
+              <PolarAngleAxis
+                dataKey="subject"
+                tick={{
+                  fontSize: 11,
+                  fill: "#14110C99",
+                  fontFamily: "Pretendard Variable, Pretendard, sans-serif",
+                }}
+              />
+              <Radar name="점수" dataKey="점수" stroke="#B5411B" fill="#B5411B" fillOpacity={0.28} />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* English recap — free engagement tool */}
       <button
         type="button"
         onClick={onRecap}
-        className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-4 font-kr text-base font-semibold text-on-dark transition hover:opacity-90"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-4 font-kr text-base font-semibold text-on-dark transition hover:opacity-90"
       >
         영어로 정리하고 따라 쓰기
         <span className="font-mono text-sm">→</span>
@@ -144,9 +201,8 @@ export function DiagnosticResult({
         오늘의 사고 과정을 한 편의 영어 문단으로 — 따라 쓰고, 소리 내어 읽으며
       </p>
 
-      {/* ── THE GATE / or the unlocked aspirational report ── */}
       {unlocked ? (
-        <UnlockedReport composite={composite} bottom={bottom} />
+        <UnlockedReport bottom={bottom} />
       ) : (
         <SignupGate composite={composite} bottomName={bottom.c.koreanName} />
       )}
@@ -162,40 +218,34 @@ export function DiagnosticResult({
   );
 }
 
-/* ── The decisive stop: free proof above → blurred future below + signup wall ── */
+/* ── The decisive stop: the score is shown above; its MEANING is gated. ── */
 function SignupGate({ composite, bottomName }: { composite: number; bottomName: string }) {
   return (
     <div className="relative mt-10">
-      {/* Blurred preview — they SEE the shape of the value behind the wall. */}
-      <div
-        className="pointer-events-none select-none space-y-4 blur-[7px]"
-        aria-hidden
-      >
-        <LockedIndexCard composite={composite} />
+      <div className="pointer-events-none select-none space-y-4 blur-[7px]" aria-hidden>
+        <LockedPeerCard composite={composite} />
         <LockedRoadmapCard />
         <LockedPrescriptionCard bottomName={bottomName} />
       </div>
 
-      {/* Fade from the clear section above into the blur. */}
       <div className="pointer-events-none absolute inset-x-0 -top-10 h-24 bg-gradient-to-b from-paper to-transparent" />
 
-      {/* The wall. */}
       <div className="absolute inset-0 flex items-start justify-center px-2 pt-8">
         <div className="w-full max-w-md rounded-3xl border border-ink/15 bg-paper/95 p-6 text-center shadow-[0_8px_40px_rgba(20,17,12,0.12)] backdrop-blur-sm">
           <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-ink text-on-dark">
             <span aria-hidden className="text-lg">🔒</span>
           </div>
           <h2 className="mt-4 font-kr text-xl font-bold tracking-tighter2 text-ink">
-            여기서부터가, 진짜 리포트입니다
+            그래서, 이 점수는 어느 정도일까요?
           </h2>
           <p className="mt-2 text-[14px] leading-relaxed text-ink/65">
-            오늘의 스냅샷을 넘어 — 이 학생이 AI 시대에 <b className="text-ink">어떤 인재로
-            자라는지</b>까지 보여드릴게요.
+            <b className="text-ink">{composite}점</b>이 또래 중 어디인지, 12주 뒤엔 어떻게
+            자라는지 — 진짜 리포트는 여기서부터예요.
           </p>
 
           <ul className="mx-auto mt-5 max-w-xs space-y-2 text-left">
             {[
-              ["🎯", "AI 인재 지수", "또래와 비교한 종합 사고력 위치"],
+              ["🎯", "또래 비교", "내 지수가 상위 몇 %인지"],
               ["📈", "12주 성장 로드맵", "지금 → 미래, 어떻게 자라는지"],
               ["🧭", "맞춤 학습 처방", `‘${bottomName}’을 강점으로 바꾸는 길`],
               ["👨‍👩‍👧", "부모님 리포트", "매주 갱신되는 성장 기록"],
@@ -226,19 +276,22 @@ function SignupGate({ composite, bottomName }: { composite: number; bottomName: 
   );
 }
 
-/* ── Blurred teaser cards (shapes of value behind the wall) ── */
-function LockedIndexCard({ composite }: { composite: number }) {
+function LockedPeerCard({ composite }: { composite: number }) {
   return (
-    <div className="rounded-3xl border border-ink/12 bg-ink p-6 text-on-dark">
-      <p className="font-mono text-[11px] uppercase tracking-tighter2 text-on-dark/55">
-        AI 인재 지수
+    <div className="rounded-3xl border border-ink/10 bg-paper-2 p-6">
+      <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
+        또래 비교 · 상위 ●●%
       </p>
-      <div className="mt-1 flex items-end gap-3">
-        <span className="font-kr text-5xl font-bold">{composite}</span>
-        <span className="mb-1 font-kr text-sm text-on-dark/60">/ 100 · 상위 ●●%</span>
+      <div className="relative mt-5 h-3 w-full rounded-full bg-ink/10">
+        <div
+          className="absolute -top-1 h-5 w-5 rounded-full border-2 border-paper bg-accent"
+          style={{ left: `${Math.min(92, composite)}%` }}
+        />
       </div>
-      <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-on-dark/15">
-        <div className="h-full rounded-full bg-accent" style={{ width: `${composite}%` }} />
+      <div className="mt-2 flex justify-between font-mono text-[10px] text-ink/40">
+        <span>하위</span>
+        <span>또래 평균</span>
+        <span>상위</span>
       </div>
     </div>
   );
@@ -254,10 +307,7 @@ function LockedRoadmapCard() {
       <div className="mt-5 flex items-end justify-between gap-2">
         {steps.map((s, i) => (
           <div key={s} className="flex flex-1 flex-col items-center gap-2">
-            <div
-              className="w-full rounded-t-lg bg-accent/70"
-              style={{ height: `${24 + i * 22}px` }}
-            />
+            <div className="w-full rounded-t-lg bg-accent/70" style={{ height: `${24 + i * 22}px` }} />
             <span className="font-mono text-[10px] text-ink/45">{s}</span>
           </div>
         ))}
@@ -284,23 +334,20 @@ function LockedPrescriptionCard({ bottomName }: { bottomName: string }) {
   );
 }
 
-/* ── Unlocked view (post-signup) — real growth area + index ── */
+/* ── Unlocked view (post-signup) — reveals the gated cards for real. ── */
 function UnlockedReport({
-  composite,
   bottom,
 }: {
-  composite: number;
   bottom: { c: { id: ConstructId; koreanName: string; englishName: string } };
 }) {
   return (
     <div className="mt-10 space-y-4">
-      <LockedIndexCard composite={composite} />
+      <LockedRoadmapCard />
       <div className="rounded-3xl border border-ink/10 bg-paper-2 p-5">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
-          성장 영역 · {bottom.c.englishName}
+          맞춤 학습 처방 · {bottom.c.koreanName}
         </p>
-        <h2 className="mt-1 font-kr text-lg font-semibold">{bottom.c.koreanName}</h2>
-        <p className="mt-1 text-sm leading-relaxed text-ink/65">
+        <p className="mt-2 text-sm leading-relaxed text-ink/70">
           {GROWTH_TIP[bottom.c.id]}
         </p>
       </div>
