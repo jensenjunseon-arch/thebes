@@ -271,3 +271,24 @@ restate·reason은 각 step의 greeting이 던지고, 코치 응답이 다음 st
 ### 문제 풀
 
 18문제 (초등 저/고학년 · 중1/2/3 · 고1, 각 3문제), 전부 `coaching` 메타데이터 보유. 난이도 칩 + "다른 문제 ↻"로 전환.
+
+---
+
+## 11. 피벗 (2026-06-01) — "문제 풀이"에서 "사고 확장 아크"로
+
+수학 문제처럼 답을 강요하니 처음 온 사람이 답하기 애매했다. 진단을 **답을 구하지 않는, 사고를 바깥으로 넓혀가는 아크**로 전환:
+
+재정의 → **구성 요소 분해** → **요소 간 관계** → **실생활 연결(나에게의 이득)** → **확장적 사고(주변·미래)**
+
+이에 맞춰 6가지 측정 구인 자체를 교체:
+- redefine 문제 재정의력
+- **decompose 구성 요소 분해** (was assume)
+- **relate 관계 파악** (was paths)
+- **relevance 실생활 연결** (was verify)
+- **transfer 확장적 사고** (was logic)
+- english 영어 추론 표현력
+
+2스텝: ① 이 상황 이해하기(재정의·구성요소·관계) ② 나와 세상에 연결하기(이득·확장).
+숫자 답을 절대 묻지 않으므로 누구나 답할 수 있고, "AI가 못 해주는 너만의 이해와 연결"이라 사업 본질을 정확히 증명한다.
+
+변경 파일: constructs.ts, steps.ts, diagnosticEngine.ts(5단계 재작성), problems.ts(32문제 coaching을 summary/components/relationship/realWorld로 교체), DiagnosticResult(GROWTH_TIP), scorer+prompts, ReportPreview(랜딩 일관성), mockData/queries/migration enum.

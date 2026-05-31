@@ -14,11 +14,11 @@ const SESSION_MAX = 20;
 
 // One-line growth tip per construct (rule-based v0).
 const GROWTH_TIP: Record<ConstructId, string> = {
-  redefine: "문제를 더 자주 ‘네 말로’ 바꿔 말해보면 좋아요.",
-  assume: "숨어 있는 전제를 한 번 더 의식적으로 짚어보면 좋아요.",
-  paths: "한 문제에 두 가지 이상의 풀이를 떠올려보면 좋아요.",
-  verify: "답을 구한 뒤 다른 방법으로 한 번 더 확인하는 습관을 들이면 좋아요.",
-  logic: "단계와 단계 사이를 더 촘촘히 이어서 설명해보면 좋아요.",
+  redefine: "상황을 더 자주 ‘네 말로’ 바꿔 말해보면 좋아요.",
+  decompose: "상황 속에 어떤 요소들이 있는지 한 번 더 또렷이 짚어보면 좋아요.",
+  relate: "요소들이 서로 어떻게 영향을 주는지 연결해보면 좋아요.",
+  relevance: "이 사고가 내 삶 어디에 쓸모 있을지 떠올려보면 좋아요.",
+  transfer: "하나의 원리를 주변과 미래로 더 넓게 적용해보면 좋아요.",
   english: "생각을 영어로 한 문장 더 길게 써보면 좋아요.",
 };
 

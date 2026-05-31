@@ -1,32 +1,28 @@
-// The diagnostic spine — a compressed 2-step Pólya flow.
-// Each step is a MERGED stage so that all six constructs are still measured
-// across a ~5-minute session. See docs/diagnostic-redesign.md §9.
+// The diagnostic spine — a widening arc, not a solve-the-problem procedure.
 //
-// Order is enforced: the coach must not advance until the current step's exit
-// condition is satisfied.
+// Step 1 understands the SITUATION (reframe → decompose → relate).
+// Step 2 connects it to the STUDENT and the WORLD (relevance → transfer).
+// The numeric answer is never asked for — any AI can compute it. We measure how
+// the student sees, structures, and extends the situation.
 
 export type StepId = 1 | 2;
 
-// Total steps in the diagnostic — single source of truth for boundary checks.
+// Total Pólya-style phases — single source of truth for boundary checks.
 export const TOTAL_STEPS = 2;
 
 export interface PolyaStep {
   id: StepId;
-  slug: "understand" | "solve";
-  // English display label — the content language, never localized.
+  slug: "understand" | "connect";
   englishLabel: string;
-  // Korean supporting label — shown small.
   koreanSupport: string;
-  // What the coach is trying to surface from the student at this step.
   intent: string;
-  // Korean one-liner shown to the student under the step indicator.
+  // Korean one-liner shown under the step indicator.
   studentHint: string;
-  // The coach's opening line for this step — seeds the chat so the student
-  // never faces a blank box. English (the reasoning language).
+  // The coach's opening line — seeds the chat so the student never faces a
+  // blank box. English (the reasoning language); Korean reassurance is in the hint.
   greeting: string;
-  // What the scorer should be looking for as evidence at this step.
   primaryConstructs: ReadonlyArray<
-    "redefine" | "assume" | "paths" | "verify" | "logic" | "english"
+    "redefine" | "decompose" | "relate" | "relevance" | "transfer" | "english"
   >;
 }
 
@@ -34,28 +30,28 @@ export const POLYA_STEPS: readonly PolyaStep[] = [
   {
     id: 1,
     slug: "understand",
-    englishLabel: "Understand & Plan",
-    koreanSupport: "문제를 다시 진술하고, 가정을 드러내고, 접근을 떠올린다",
+    englishLabel: "Understand the situation",
+    koreanSupport: "상황을 다시 진술하고, 구성 요소와 그 관계를 본다",
     intent:
-      "Make the student restate the problem in their own words, surface assumptions, and propose at least one approach.",
+      "Get the student to restate the situation, name its key components, and see how those components relate — without computing anything.",
     studentHint:
-      "답을 맞히는 게 아니라, ‘어떻게 생각하는지’를 봐요. 영어가 막히면 한국어로 시작해도 좋아요.",
+      "답을 구하는 게 아니에요. 이 상황이 ‘무엇에 대한 건지’ 네 눈으로 보면 돼요. 영어가 막히면 한국어로 시작해도 좋아요.",
     greeting:
-      "Here's the thing — any AI can get the answer in 5 seconds, so I won't ask you for it. I want to see how YOU think. Don't solve it yet. Just tell me, in your own words: what is this problem really asking?",
-    primaryConstructs: ["redefine", "assume", "paths", "english"],
+      "Here's the thing — any AI can compute the answer in 5 seconds, so forget the answer. I want to see how YOU see this. In your own words: what is this situation actually about?",
+    primaryConstructs: ["redefine", "decompose", "relate", "english"],
   },
   {
     id: 2,
-    slug: "solve",
-    englishLabel: "Solve & Check",
-    koreanSupport: "단계별로 비약 없이 풀고, 답을 검증한다",
+    slug: "connect",
+    englishLabel: "Connect it to you & the world",
+    koreanSupport: "이 사고가 나에게, 그리고 주변·미래에 어떤 의미인지 넓힌다",
     intent:
-      "Walk through the solution one step at a time with no logical leaps, then verify the answer another way.",
+      "Widen the student's thinking outward — why understanding this helps them personally, and how the idea extends to the people around them and their future.",
     studentHint:
-      "이제 한 단계씩 풀어봐. 답을 찾으면, 맞는지 다른 방법으로 확인해보자.",
+      "이제 숫자에서 벗어나, 이 생각이 ‘나’와 ‘세상’에 어떤 의미인지 넓혀가요. 정답은 없어요.",
     greeting:
-      "Good — now let's work it out. Walk me through your first step. What do you do, and why that?",
-    primaryConstructs: ["logic", "verify", "english"],
+      "Now let's zoom out. Step away from the numbers for a moment — if you really understood a situation like this, where in your own life would it actually help you?",
+    primaryConstructs: ["relevance", "transfer", "english"],
   },
 ] as const;
 

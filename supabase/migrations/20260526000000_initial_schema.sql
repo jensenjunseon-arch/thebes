@@ -12,7 +12,7 @@ create type link_status  as enum ('active', 'inactive');
 create type session_status as enum ('active', 'completed', 'abandoned');
 create type speaker_role as enum ('ai', 'student');
 create type construct_id as enum (
-  'redefine', 'assume', 'paths', 'verify', 'logic', 'english'
+  'redefine', 'decompose', 'relate', 'relevance', 'transfer', 'english'
 );
 
 -- ── TABLES ───────────────────────────────────────────────────────────────────

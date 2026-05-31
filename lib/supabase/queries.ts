@@ -155,7 +155,7 @@ export async function getWeeklyScores(
   // Build week buckets (Mon→Sun).
   const buckets: Map<string, Record<ConstructId, number>> = new Map();
   const CONSTRUCTS: ConstructId[] = [
-    "redefine", "assume", "paths", "verify", "logic", "english",
+    "redefine", "decompose", "relate", "relevance", "transfer", "english",
   ];
 
   for (const row of rows) {

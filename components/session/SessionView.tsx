@@ -33,10 +33,10 @@ function truncateQuote(s: string, max = 110): string {
 
 const EMPTY_TOTALS: ScoreTotals = {
   redefine: 0,
-  assume: 0,
-  paths: 0,
-  verify: 0,
-  logic: 0,
+  decompose: 0,
+  relate: 0,
+  relevance: 0,
+  transfer: 0,
   english: 0,
 };
 
