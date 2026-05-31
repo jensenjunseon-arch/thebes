@@ -2,14 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { buildRecap, traceMatchPercent } from "@/lib/recap";
-import {
-  ttsSupported,
-  sttSupported,
-  speak,
-  stopSpeaking,
-  createRecognizer,
-  type Recognizer,
-} from "@/lib/speech";
+import { sttSupported, createRecognizer, type Recognizer } from "@/lib/speech";
 import type { Coaching } from "@/lib/problems";
 import type { EvidenceByConstruct } from "@/components/session/DiagnosticResult";
 import { cn } from "@/lib/cn";
@@ -20,8 +13,18 @@ interface Props {
   onBack: () => void;
 }
 
-// Fallback "coming soon" pill when a device lacks the Web Speech API.
-function SoonPill({ icon, label, note }: { icon: string; label: string; note: string }) {
+// "Coming soon" / unsupported pill.
+function SoonPill({
+  icon,
+  label,
+  note,
+  badge = "SOON",
+}: {
+  icon: string;
+  label: string;
+  note: string;
+  badge?: string;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <div>
@@ -33,7 +36,7 @@ function SoonPill({ icon, label, note }: { icon: string; label: string; note: st
         <span aria-hidden>{icon}</span>
         {label}
         <span className="rounded-full bg-ink/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-tighter2 text-ink/45">
-          미지원
+          {badge}
         </span>
       </button>
       {open && <p className="mt-1.5 text-[12px] leading-relaxed text-ink/45">{note}</p>}
@@ -46,26 +49,12 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
   const [draft, setDraft] = useState("");
   const pct = traceMatchPercent(draft, recap.paragraph);
 
-  // Feature flags resolved on the client to avoid SSR mismatch.
-  const [tts, setTts] = useState(false);
-  const [stt, setStt] = useState(false);
-  useEffect(() => {
-    setTts(ttsSupported());
-    setStt(sttSupported());
-    return () => stopSpeaking();
-  }, []);
+  // Read-aloud (listening) is intentionally deferred: the browser's free TTS
+  // voice is too robotic. A natural voice needs a paid TTS API — shown as SOON.
 
-  // Read-aloud (listening)
-  const [speaking, setSpeaking] = useState(false);
-  function toggleSpeak() {
-    if (speaking) {
-      stopSpeaking();
-      setSpeaking(false);
-    } else {
-      setSpeaking(true);
-      speak(recap.paragraph, () => setSpeaking(false));
-    }
-  }
+  // STT support resolved on the client to avoid SSR mismatch.
+  const [stt, setStt] = useState(false);
+  useEffect(() => setStt(sttSupported()), []);
 
   // Read-back (speaking)
   const [listening, setListening] = useState(false);
@@ -107,7 +96,7 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
           자신의 생각을, 하나의 영어 문단으로
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-ink/60">
-          방금 나눈 대화 전체가 이렇게 한 편의 영어 추론이 됩니다. 듣고, 따라 쓰고,
+          방금 나눈 대화 전체가 이렇게 한 편의 영어 추론이 됩니다. 따라 쓰고,
           소리 내어 읽으며 문장을 자신의 것으로 만들어요.
         </p>
       </div>
@@ -118,23 +107,11 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
           <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
             Model paragraph
           </p>
-          {tts ? (
-            <button
-              type="button"
-              onClick={toggleSpeak}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition",
-                speaking
-                  ? "bg-accent text-on-dark"
-                  : "border border-accent/40 bg-accent-soft/40 text-accent hover:bg-accent-soft/70",
-              )}
-            >
-              <span aria-hidden>{speaking ? "■" : "▶"}</span>
-              {speaking ? "정지" : "읽어주기"}
-            </button>
-          ) : (
-            <SoonPill icon="▶" label="읽어주기" note="이 브라우저는 음성 읽기를 지원하지 않아요. 크롬/사파리에서 들을 수 있어요." />
-          )}
+          <SoonPill
+            icon="▶"
+            label="읽어주기"
+            note="자연스러운 원어민 음성으로 읽어주는 리스닝 기능을 준비 중이에요. (고품질 음성 적용 예정)"
+          />
         </div>
         <p className="mt-3 text-[16px] leading-[1.7] text-ink">{recap.paragraph}</p>
       </div>
@@ -191,7 +168,7 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
               {listening ? "듣는 중…" : "따라 읽기"}
             </button>
           ) : (
-            <SoonPill icon="🎤" label="따라 읽기" note="이 브라우저는 음성 인식을 지원하지 않아요. 크롬/사파리에서 말하기 연습을 할 수 있어요." />
+            <SoonPill icon="🎤" label="따라 읽기" badge="미지원" note="이 브라우저는 음성 인식을 지원하지 않아요. 크롬/사파리에서 말하기 연습을 할 수 있어요." />
           )}
         </div>
         {stt && !heard && (
