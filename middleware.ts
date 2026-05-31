@@ -1,13 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Routes that require authentication. The /session/demo path is public so
-// anyone can try the product without signing up.
+// Routes that require authentication.
 const PROTECTED_PREFIXES = ["/dashboard"];
 
-// /session/* is protected EXCEPT /session/demo.
+// Public demo routes — accessible without login (pre-launch; mock data only).
+const PUBLIC_DEMO = new Set(["/session/demo", "/dashboard/parent"]);
+
+// /session/* and /dashboard/* are protected EXCEPT the public demo routes.
 function isProtected(pathname: string): boolean {
-  if (pathname === "/session/demo") return false;
+  if (PUBLIC_DEMO.has(pathname)) return false;
   if (pathname.startsWith("/session/")) return true;
   return PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
 }
