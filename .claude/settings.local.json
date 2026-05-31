@@ -86,7 +86,8 @@
       "Bash(git commit -m 'feat\\(diagnostic\\): pivot to a thinking-WIDENING arc \\(no computing\\) *)",
       "Bash(git commit -m 'feat\\(diagnostic\\): photo-your-own-problem + English recap \\(trace-write\\) *)",
       "Bash(grep -v \"^.*//.*$\")",
-      "Bash(git commit -m 'feat\\(diagnostic\\): graduated scoring, friendlier guidance, AI 인재 리포트, recap CTA up *)"
+      "Bash(git commit -m 'feat\\(diagnostic\\): graduated scoring, friendlier guidance, AI 인재 리포트, recap CTA up *)",
+      "Bash(git commit -m 'docs: comprehensive status & review \\(summary, code/business/tech, improvements\\) *)"
     ]
   }
 }
