@@ -6,6 +6,7 @@ import { ChatPanel, type Turn } from "@/components/session/ChatPanel";
 import { ProblemChip } from "@/components/session/ProblemChip";
 import { LiveEvidenceCard, type LiveEvidence } from "@/components/session/LiveEvidenceCard";
 import { ProfileGauge, DetectedTally } from "@/components/session/DiagnosticHud";
+import { DiagnosticIntro } from "@/components/session/DiagnosticIntro";
 import {
   DiagnosticResult,
   type EvidenceByConstruct,
@@ -77,6 +78,8 @@ export function SessionView({
   scripted = false,
 }: Props) {
   const [problemId, setProblemId] = useState(initialProblemId);
+  // Phase 0 intro gate — skipped when resuming a session with history.
+  const [started, setStarted] = useState(initialTurns.length > 0);
   // Dialogue-engine cursor: which stage of the step, and retries on that stage.
   const stageRef = useRef(0);
   const attemptsRef = useRef(0);
@@ -291,6 +294,10 @@ export function SessionView({
       }
       return next;
     });
+  }
+
+  if (!started) {
+    return <DiagnosticIntro onStart={() => setStarted(true)} />;
   }
 
   if (done) {

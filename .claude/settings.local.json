@@ -79,7 +79,10 @@
       "Bash(git commit -m 'feat\\(diagnostic\\): diversify 초등 저학년 problems beyond bare arithmetic *)",
       "Bash(git commit -m 'feat\\(diagnostic\\): expand pool to 32 problems with diverse topics *)",
       "Bash(git commit -m 'feat\\(diagnostic\\): front-load the hook — thesis reframe + bilingual on-ramp *)",
-      "Bash(git commit -m 'feat\\(diagnostic\\): profile-completion gauge + detected-construct combo tally *)"
+      "Bash(git commit -m 'feat\\(diagnostic\\): profile-completion gauge + detected-construct combo tally *)",
+      "Bash(started)",
+      "Bash(rise)",
+      "Bash(git commit -m 'feat\\(diagnostic\\): Build 3 — onboarding intro \\(Phase 0\\) + animation polish *)"
     ]
   }
 }
