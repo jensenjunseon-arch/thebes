@@ -108,3 +108,13 @@ Next.js 15(App Router) · TS · Tailwind v3 · Recharts · Supabase(Auth/PG, 미
 
 ## 한 줄 결론
 **후킹(무료 진단)과 가치 증명(AI 인재 리포트)까지는 강하게 만들어졌다. 다음 산은 ① 랜딩-제품 일치 ② 결과 영속화·수익 깔때기 ③ 측정 타당도(진짜 AI) — 즉 "데모"에서 "제품"으로 넘어가는 다리다.**
+
+---
+
+## 업데이트 (2026-06-01, 같은 날 후속)
+선택된 개선 3건 반영:
+- ✅ **P0 랜딩 재정렬** — hero·PolyaDemo(5단계 아크)·metadata·footer를 새 서사로. 첫인상=제품.
+- ✅ **P0 결과 영속화 + 가입 캡처(v0)** — localStorage 저장 + 인트로 '지난 결과 다시 보기' + 결과→가입 깔때기 문구. (Supabase 계정 저장은 enum 재마이그레이션 후 작은 write로 연결)
+- ✅ **P1 TTS/STT 실연결** — Web Speech API로 읽어주기(리스닝)·따라 읽기(스피킹, 일치율 채점) 활성화, 미지원 브라우저는 graceful fallback.
+
+남은 핵심: 라이브 LLM 검증(크레딧), Supabase 재마이그레이션+계정 저장, 측정 타당도 데이터, Recharts 경량화, 엔진 단위테스트.
