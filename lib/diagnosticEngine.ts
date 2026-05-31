@@ -47,7 +47,7 @@ const STUCK_RE =
 
 const MARKERS: Record<StageKind, RegExp> = {
   restate:
-    /\b(find|finding|asking|asks|want|wants|need|needs|average|total|sum|how many|how much|what is|fraction|left|each|per|price|slope|hypotenuse|side|groups?)\b/i,
+    /\b(find|finding|asking|asks|want|wants|need|needs|average|total|sum|how many|how much|how long|how heavy|what is|fraction|left|each|per|price|cost|change|slope|hypotenuse|side|groups?|heavier|longer|taller|weighs?|weight|holds?|hold|finish|ends?|difference|altogether|together)\b/i,
   assume:
     /\b(assume|assuming|suppose|let'?s say|let|if|same|constant|equal|both|each|stays?|doesn'?t change|every|all)\b/i,
   plan:

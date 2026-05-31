@@ -58,51 +58,99 @@ export const DEFAULT_PROBLEM_ID = "b7c2e1f0-0000-0000-0000-000000000001";
 export const PROBLEMS: readonly Problem[] = [
   // ── 초등 저학년 ───────────────────────────────────────────────────────
   {
-    id: "elem-low-add",
+    id: "elem-low-weight",
     level: "초등 저학년",
-    topic: "덧셈",
+    topic: "무게",
     englishStatement:
-      "You have 8 candies. Your friend gives you 6 more. How many candies do you have now?",
+      "A melon weighs 2 kg. A watermelon is 3 times as heavy as the melon. How heavy is the watermelon?",
     koreanSupport:
-      "사탕 8개를 가지고 있어요. 친구가 6개를 더 줬어요. 지금 사탕은 모두 몇 개일까요?",
-    forbiddenAnswerTokens: ["14"],
+      "멜론 한 개의 무게는 2kg이에요. 수박은 멜론보다 3배 무거워요. 수박의 무게는 몇 kg일까요?",
+    forbiddenAnswerTokens: ["6 kg", "6kg", "6 kilograms", "= 6", "is 6"],
     coaching: {
-      restateFrame: "I start with ___ candies, and I get ___ more.",
-      keyAssumption: "you don't lose or eat any candies along the way.",
-      approaches: ["count up from 8, six more times", "add the two amounts together"],
-      verifyHint: "take your answer and subtract 6 — you should get back to 8.",
+      restateFrame: "The melon is ___ kg, and the watermelon is ___ times heavier.",
+      keyAssumption: "'3 times as heavy' means you multiply, not add 3.",
+      approaches: ["add the melon's 2 kg three times", "multiply the melon's weight by 3"],
+      verifyHint: "three melons together should weigh the same as your watermelon.",
     },
   },
   {
-    id: "elem-low-mult",
+    id: "elem-low-money",
     level: "초등 저학년",
-    topic: "곱셈",
+    topic: "돈·거스름돈",
     englishStatement:
-      "A box has 4 rows of cookies. Each row has 3 cookies. How many cookies are there in total?",
+      "You buy a pencil for 700 won and pay with a 1,000-won bill. How much change do you get back?",
     koreanSupport:
-      "상자에 쿠키가 4줄 들어 있어요. 한 줄에 쿠키가 3개씩 있어요. 쿠키는 모두 몇 개일까요?",
-    forbiddenAnswerTokens: ["12 cookies", "= 12"],
+      "연필을 700원에 사고 1,000원짜리 지폐를 냈어요. 거스름돈으로 얼마를 돌려받을까요?",
+    forbiddenAnswerTokens: ["300"],
     coaching: {
-      restateFrame: "There are ___ rows, and each row has ___ cookies.",
-      keyAssumption: "every row has the same number of cookies.",
-      approaches: ["add 3 four times", "multiply the rows by the cookies in each row"],
-      verifyHint: "count one row at a time and see if you land on the same total.",
+      restateFrame: "I pay ___ won, and the pencil costs ___ won.",
+      keyAssumption: "the change is what's left of your money after paying.",
+      approaches: ["count up from 700 until you reach 1,000", "subtract the price from what you paid"],
+      verifyHint: "your change plus 700 should add back to 1,000.",
     },
   },
   {
-    id: "elem-low-sub",
+    id: "elem-low-time",
     level: "초등 저학년",
-    topic: "뺄셈",
+    topic: "시간",
     englishStatement:
-      "You have 15 stickers. You give 7 of them to a friend. How many stickers do you have left?",
+      "Soccer practice starts at 3 o'clock and lasts 2 hours. What time does it finish?",
     koreanSupport:
-      "스티커 15개가 있어요. 그중 7개를 친구에게 줬어요. 남은 스티커는 몇 개일까요?",
-    forbiddenAnswerTokens: ["8 stickers", "= 8"],
+      "축구 연습이 3시에 시작해서 2시간 동안 해요. 연습은 몇 시에 끝날까요?",
+    forbiddenAnswerTokens: ["5 o'clock", "5:00", "= 5", "is 5"],
     coaching: {
-      restateFrame: "I start with ___ stickers and give away ___.",
-      keyAssumption: "you only give away the 7 you mentioned — nothing else changes.",
-      approaches: ["count down from 15 by seven", "subtract 7 from 15"],
-      verifyHint: "add your answer back to 7 — it should return to 15.",
+      restateFrame: "It starts at ___ and runs for ___ hours.",
+      keyAssumption: "the practice runs straight through with no break.",
+      approaches: ["count forward 2 hours on a clock", "add the hours onto the start time"],
+      verifyHint: "from your finish time, going back 2 hours should land on 3 o'clock.",
+    },
+  },
+  {
+    id: "elem-low-length",
+    level: "초등 저학년",
+    topic: "길이",
+    englishStatement:
+      "A red ribbon is 9 cm long. A blue ribbon is 4 cm long. How much longer is the red ribbon than the blue one?",
+    koreanSupport:
+      "빨간 리본은 9cm, 파란 리본은 4cm예요. 빨간 리본은 파란 리본보다 몇 cm 더 길까요?",
+    forbiddenAnswerTokens: ["5 cm", "5cm", "= 5", "is 5"],
+    coaching: {
+      restateFrame: "Red is ___ cm, blue is ___ cm, and I compare them.",
+      keyAssumption: "'how much longer' means the difference between the two lengths.",
+      approaches: ["line them up and look at the extra part", "subtract the shorter length from the longer"],
+      verifyHint: "add your answer to the blue ribbon — it should match the red one.",
+    },
+  },
+  {
+    id: "elem-low-capacity",
+    level: "초등 저학년",
+    topic: "들이",
+    englishStatement:
+      "One bottle holds 2 liters of water. How many liters do 4 bottles hold altogether?",
+    koreanSupport:
+      "물병 하나에 물이 2리터 들어가요. 물병 4개에는 물이 모두 몇 리터 들어갈까요?",
+    forbiddenAnswerTokens: ["8 liters", "8 l", "8l", "= 8", "is 8"],
+    coaching: {
+      restateFrame: "Each bottle holds ___ liters, and there are ___ bottles.",
+      keyAssumption: "every bottle holds the same amount of water.",
+      approaches: ["add 2 liters four times", "multiply the bottles by the liters in each"],
+      verifyHint: "fill the bottles one at a time and count — you should reach the same total.",
+    },
+  },
+  {
+    id: "elem-low-share",
+    level: "초등 저학년",
+    topic: "똑같이 나누기",
+    englishStatement:
+      "12 strawberries are shared equally onto 3 plates. How many strawberries are on each plate?",
+    koreanSupport:
+      "딸기 12개를 접시 3개에 똑같이 나눠 담아요. 접시 한 개에는 딸기가 몇 개씩 놓일까요?",
+    forbiddenAnswerTokens: ["4 strawberries", "4 on each", "= 4", "is 4"],
+    coaching: {
+      restateFrame: "There are ___ strawberries split evenly onto ___ plates.",
+      keyAssumption: "each plate gets the same number, with none left over.",
+      approaches: ["deal them out one plate at a time", "divide the total by the number of plates"],
+      verifyHint: "multiply your answer by the 3 plates — you should get back to 12.",
     },
   },
 
