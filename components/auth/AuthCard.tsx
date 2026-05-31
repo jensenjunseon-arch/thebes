@@ -13,10 +13,10 @@ export function AuthCard({ title, subtitle, children, footer }: Props) {
     <main className="flex min-h-dvh flex-col items-center justify-center bg-paper px-4 text-ink">
       <Link
         href="/"
-        className="mb-8 font-mono text-sm tracking-tighter2 text-ink/60 hover:text-ink"
+        className="mb-8 font-mono text-base font-medium tracking-tight text-ink/80 transition hover:text-ink"
       >
-        Thebes<span className="text-accent">.</span>
-        <span className="font-serif">AI</span>
+        Thebes
+        <span className="ml-1 font-semibold tracking-[0.02em] text-accent">AI</span>
       </Link>
 
       <div className="w-full max-w-sm rounded-3xl border border-ink/10 bg-paper-2 px-8 py-9">

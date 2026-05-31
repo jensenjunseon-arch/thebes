@@ -2,6 +2,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { ConstructRadar } from "@/components/dashboard/ConstructRadar";
 import { WeeklyBarChart, ConstructBreakdown } from "@/components/dashboard/WeeklyBarChart";
 import { EvidenceSection } from "@/components/dashboard/EvidenceCard";
+import { ReportActions } from "@/components/dashboard/ReportActions";
 import {
   getWeeklyScores,
   getRecentEvidence,
@@ -68,9 +69,11 @@ export default async function ParentDashboardPage({
   // ── render ─────────────────────────────────────────────────────────────────
   return (
     <main className="min-h-dvh bg-paper text-ink">
-      <SiteHeader label={liveMode ? "학부모 리포트 · 실데이터" : "학부모 리포트 · 목 데이터"} />
+      <div className="lp-no-print">
+        <SiteHeader label={liveMode ? "학부모 리포트 · 실데이터" : "학부모 리포트 · 목 데이터"} />
+      </div>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16">
+      <section className="lp-report-print mx-auto max-w-6xl px-6 pb-16">
         {/* ── headline ── */}
         <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/50">
           이번 주의 사고력 리포트
@@ -81,10 +84,24 @@ export default async function ParentDashboardPage({
         </h1>
         <p className="mt-4 max-w-2xl text-ink/70">
           학원이 점수를 책임진다면, 우리는 그 점수가 측정하지 못하는 사고력을
-          책임집니다. 아래 6개 구인은{" "}
-          <span className="font-serif">Pólya (1945)</span> 와 추론 연구에서
-          도출된 측정 지표입니다.
+          책임집니다. 아래 6개 구인은 인지과학·문제 해결 연구에서 도출된 측정
+          지표입니다.
         </p>
+
+        <ReportActions
+          data={{
+            generatedAt: new Date().toISOString().slice(0, 10),
+            weekLabel: currentWeek?.weekLabel ?? "this week",
+            sessionCount,
+            currentTotals,
+            prevTotals,
+            evidence: evidence.map((e) => ({
+              construct: e.construct,
+              quote: e.quote,
+              rationale: e.rationale,
+            })),
+          }}
+        />
 
         {/* ── summary stats ── */}
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">

@@ -641,3 +641,14 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-rise { animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ── parent report: print to PDF ── */
+@media print {
+  /* Hide chrome and interactive controls; print only the report body. */
+  .lp-no-print { display: none !important; }
+  body { background: #fff !important; }
+  .lp-report-print { padding: 0 !important; }
+  /* Avoid clipping charts/cards across page breaks. */
+  .lp-report-print .rounded-3xl,
+  .lp-report-print .rounded-2xl { break-inside: avoid; }
+}

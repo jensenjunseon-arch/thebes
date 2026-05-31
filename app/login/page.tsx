@@ -12,6 +12,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/";
+  const oauthError = searchParams.get("error");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,6 +47,11 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {oauthError && (
+        <div className="rounded-xl border border-accent/40 bg-accent-soft/40 px-4 py-3 text-sm text-ink/80">
+          로그인에 실패했어요. <span className="text-ink/60">{oauthError}</span>
+        </div>
+      )}
       <AuthInput
         label="이메일"
         type="email"
