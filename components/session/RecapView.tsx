@@ -1,7 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buildRecap, traceMatchPercent } from "@/lib/recap";
+import {
+  ttsSupported,
+  sttSupported,
+  speak,
+  stopSpeaking,
+  createRecognizer,
+  type Recognizer,
+} from "@/lib/speech";
 import type { Coaching } from "@/lib/problems";
 import type { EvidenceByConstruct } from "@/components/session/DiagnosticResult";
 import { cn } from "@/lib/cn";
@@ -12,20 +20,20 @@ interface Props {
   onBack: () => void;
 }
 
-// "Coming soon" pill for the audio features we're previewing, not shipping yet.
-function SoonButton({ icon, label, note }: { icon: string; label: string; note: string }) {
+// Fallback "coming soon" pill when a device lacks the Web Speech API.
+function SoonPill({ icon, label, note }: { icon: string; label: string; note: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper px-3.5 py-1.5 text-[13px] text-ink/70 transition hover:border-accent/50"
+        className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper px-3.5 py-1.5 text-[13px] text-ink/50 transition hover:border-ink/30"
       >
         <span aria-hidden>{icon}</span>
         {label}
-        <span className="rounded-full bg-accent-soft px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-tighter2 text-accent">
-          곧
+        <span className="rounded-full bg-ink/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-tighter2 text-ink/45">
+          미지원
         </span>
       </button>
       {open && <p className="mt-1.5 text-[12px] leading-relaxed text-ink/45">{note}</p>}
@@ -37,6 +45,49 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
   const recap = buildRecap(coaching, evidenceByConstruct);
   const [draft, setDraft] = useState("");
   const pct = traceMatchPercent(draft, recap.paragraph);
+
+  // Feature flags resolved on the client to avoid SSR mismatch.
+  const [tts, setTts] = useState(false);
+  const [stt, setStt] = useState(false);
+  useEffect(() => {
+    setTts(ttsSupported());
+    setStt(sttSupported());
+    return () => stopSpeaking();
+  }, []);
+
+  // Read-aloud (listening)
+  const [speaking, setSpeaking] = useState(false);
+  function toggleSpeak() {
+    if (speaking) {
+      stopSpeaking();
+      setSpeaking(false);
+    } else {
+      setSpeaking(true);
+      speak(recap.paragraph, () => setSpeaking(false));
+    }
+  }
+
+  // Read-back (speaking)
+  const [listening, setListening] = useState(false);
+  const [heard, setHeard] = useState<string | null>(null);
+  const recRef = useRef<Recognizer | null>(null);
+  function toggleListen() {
+    if (listening) {
+      recRef.current?.stop();
+      setListening(false);
+      return;
+    }
+    const rec = createRecognizer(
+      (transcript) => setHeard(transcript),
+      () => setListening(false),
+    );
+    if (!rec) return;
+    recRef.current = rec;
+    setHeard(null);
+    setListening(true);
+    rec.start();
+  }
+  const heardPct = heard ? traceMatchPercent(heard, recap.paragraph) : 0;
 
   return (
     <section className="mx-auto max-w-2xl px-4 pb-24 sm:px-6">
@@ -56,22 +107,34 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
           자신의 생각을, 하나의 영어 문단으로
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-ink/60">
-          방금 나눈 대화 전체가 이렇게 한 편의 영어 추론이 됩니다. 읽고, 따라 쓰면서
-          문장을 내 것으로 만들어요.
+          방금 나눈 대화 전체가 이렇게 한 편의 영어 추론이 됩니다. 듣고, 따라 쓰고,
+          소리 내어 읽으며 문장을 자신의 것으로 만들어요.
         </p>
       </div>
 
-      {/* Model paragraph + audio (coming soon) */}
+      {/* Model paragraph + read-aloud */}
       <div className="mt-6 rounded-3xl border border-ink/12 bg-paper-2 p-5">
         <div className="flex items-center justify-between">
           <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
             Model paragraph
           </p>
-          <SoonButton
-            icon="▶"
-            label="읽어주기"
-            note="원어민 음성으로 읽어주는 리스닝 기능이 곧 추가됩니다."
-          />
+          {tts ? (
+            <button
+              type="button"
+              onClick={toggleSpeak}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition",
+                speaking
+                  ? "bg-accent text-on-dark"
+                  : "border border-accent/40 bg-accent-soft/40 text-accent hover:bg-accent-soft/70",
+              )}
+            >
+              <span aria-hidden>{speaking ? "■" : "▶"}</span>
+              {speaking ? "정지" : "읽어주기"}
+            </button>
+          ) : (
+            <SoonPill icon="▶" label="읽어주기" note="이 브라우저는 음성 읽기를 지원하지 않아요. 크롬/사파리에서 들을 수 있어요." />
+          )}
         </div>
         <p className="mt-3 text-[16px] leading-[1.7] text-ink">{recap.paragraph}</p>
       </div>
@@ -102,17 +165,56 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
           rows={5}
           className="mt-3 w-full resize-none rounded-2xl border border-ink/15 bg-paper px-4 py-3 text-[15px] leading-relaxed outline-none placeholder:text-ink/35 focus:border-accent"
         />
-        {pct >= 90 ? (
+        {pct >= 90 && (
           <p className="mt-2 text-[13px] font-medium text-accent">
             완벽해요! 이 문장들이 이제 자신의 표현이에요. 🎉
           </p>
-        ) : (
-          <div className="mt-2">
-            <SoonButton
-              icon="🎤"
-              label="따라 읽기"
-              note="네가 소리 내어 읽으면 발음을 평가해 주는 스피킹 기능이 곧 추가됩니다."
-            />
+        )}
+      </div>
+
+      {/* Read-back (speaking) */}
+      <div className="mt-5 rounded-3xl border border-ink/12 bg-paper-2 p-5">
+        <div className="flex items-center justify-between">
+          <p className="font-kr text-sm font-semibold text-ink/80">소리 내어 읽기</p>
+          {stt ? (
+            <button
+              type="button"
+              onClick={toggleListen}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition",
+                listening
+                  ? "bg-accent text-on-dark"
+                  : "border border-accent/40 bg-accent-soft/40 text-accent hover:bg-accent-soft/70",
+              )}
+            >
+              <span aria-hidden>🎤</span>
+              {listening ? "듣는 중…" : "따라 읽기"}
+            </button>
+          ) : (
+            <SoonPill icon="🎤" label="따라 읽기" note="이 브라우저는 음성 인식을 지원하지 않아요. 크롬/사파리에서 말하기 연습을 할 수 있어요." />
+          )}
+        </div>
+        {stt && !heard && (
+          <p className="mt-2 text-[13px] leading-relaxed text-ink/45">
+            🎤를 누르고 위 문단을 영어로 소리 내어 읽어보세요. 얼마나 똑같이 읽었는지 들려드릴게요.
+          </p>
+        )}
+        {heard && (
+          <div className="mt-3">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/40">
+                들린 내용
+              </span>
+              <span
+                className={cn(
+                  "font-mono text-sm tabular-nums",
+                  heardPct >= 80 ? "text-accent" : "text-ink/45",
+                )}
+              >
+                {heardPct}% 일치
+              </span>
+            </div>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-ink/70">“{heard}”</p>
           </div>
         )}
       </div>
