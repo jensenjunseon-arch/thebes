@@ -5,7 +5,7 @@ import { ReportPreview } from "@/components/landing/ReportPreview";
 export const metadata = {
   title: "Thebes AI — AI 시대의 사고력을 가르칩니다",
   description:
-    "영어로 수학을 풀게 하며, 점수가 아니라 AI 시대의 사고력을 키웁니다. 폴리아의 4단계 × 6개 사고력 구인 × 학부모 진단 리포트.",
+    "답이 아니라 사고를 봅니다. 문제를 영어로 ‘어떻게 생각하는가’ — 사고를 넓히는 5단계 × 6개 사고력 구인 × AI 인재 리포트.",
 };
 
 /* ── SVG brand mark ────────────────────────────────────────── */
@@ -81,10 +81,11 @@ export default function LandingPage() {
             풀지는 못할까요?
           </h1>
           <p className="hero-sub">
-            Thebes AI는 영어로 수학을 풀게 하며,
+            답은 AI가 냅니다. Thebes AI는 답이 아니라,
             <br />
-            점수가 아니라{" "}
-            <b>AI 시대의 사고력</b>을 키웁니다.
+            문제를 영어로 <b>‘어떻게 생각하는가’</b>
+            <br />
+            — AI 시대의 사고력을 키웁니다.
           </p>
           <div className="hero-cta lp-hero-cta">
             <Link href="/session/demo" className="lp-btn lp-btn-primary">
@@ -249,18 +250,17 @@ export default function LandingPage() {
           <div className="lp-section-head">
             <div className="lp-eyebrow">
               <span className="dot" />
-              How it works · 폴리아의 4단계
+              How it works · 사고를 넓히는 5단계
             </div>
             <h2>
-              좋은 질문의 구조는,
+              답을 구하지 않습니다.
               <br />
-              좋은 수학 풀이의 구조와 같습니다.
+              생각을 바깥으로 넓혀갑니다.
             </h2>
             <p className="lede">
-              1945년, 헝가리 수학자 George Pólya는 문제 해결을 네 단계로 정리했습니다.
-              Thebes AI는 매 세션 이 네 단계를{" "}
-              <b>영어 대화로</b> 함께 밟습니다.
-              한 단계씩 눌러보세요 — 실제 학습이 어떻게 흐르는지 보실 수 있습니다.
+              재정의 → 구성 요소 → 관계 → 나에게의 의미 → 세상으로의 확장.
+              AI 코치가 매 세션 이 다섯 단계를 <b>영어 대화로</b> 함께 넓혀갑니다.
+              한 단계씩 눌러보세요 — 실제 진단이 어떻게 흐르는지 보실 수 있습니다.
             </p>
           </div>
           <PolyaDemo />
@@ -345,7 +345,7 @@ export default function LandingPage() {
             <p className="lede">
               &#8216;사고력&#8217;이라는 모호한 단어를, 측정 가능한{" "}
               <b>6개 구인(構因)</b>으로 분해했습니다.
-              자녀의 풀이 과정을 그 기준으로 평가하고, 시계열로 보여드립니다.
+              자녀의 사고 과정을 그 기준으로 평가하고, 시계열로 보여드립니다.
               구인을 클릭해 보세요 — 어디서 어떻게 자라고 있는지 보실 수 있습니다.
             </p>
           </div>
@@ -353,11 +353,11 @@ export default function LandingPage() {
           <div className="lp-validity-grid">
             <div className="lp-validity-item">
               <div className="ttl">신뢰도</div>
-              <div className="desc">동일 풀이에 대한 채점의 일관성을 반복 측정으로 확보.</div>
+              <div className="desc">동일 답변에 대한 채점의 일관성을 반복 측정으로 확보.</div>
             </div>
             <div className="lp-validity-item">
               <div className="ttl">내용 타당도</div>
-              <div className="desc">6개 구인이 Pólya 이론과 문제 해결 연구에 근거.</div>
+              <div className="desc">6개 구인이 인지과학·문제 해결 연구에 근거.</div>
             </div>
             <div className="lp-validity-item">
               <div className="ttl">준거 타당도</div>
@@ -453,7 +453,7 @@ export default function LandingPage() {
               </div>
               <p>
                 제품의 학문적 정당성.<br />
-                폴리아식 문제 해결 체계를 실제 커리큘럼과<br />
+                사고력 측정 체계를 실제 커리큘럼과<br />
                 문제 풀로 구현하고, 영어 수학<br />
                 어휘·표현의 정확성을 책임집니다.
               </p>
@@ -527,7 +527,7 @@ export default function LandingPage() {
       {/* ── Footer ───────────────────────────────────────────── */}
       <footer className="lp-footer">
         <div className="lp-container inner">
-          <div>© 2026 Thebes AI · 영어로 수학을 풀게 하는 사고력 코치</div>
+          <div>© 2026 Thebes AI · 답이 아니라 사고를 키우는 AI 코치</div>
           <div style={{ display: "flex", gap: 18 }}>
             <a href="#">개인정보처리방침</a>
             <a href="#">이용약관</a>

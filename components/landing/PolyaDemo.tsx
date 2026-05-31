@@ -2,54 +2,56 @@
 
 import { useState } from "react";
 
-type Step = 0 | 1 | 2 | 3;
+type Step = 0 | 1 | 2 | 3 | 4;
 
+// The widening-arc demo (formerly the Pólya 4-step demo). The coach never asks
+// for the answer — it widens the student's thinking outward.
 const STEPS = [
-  { n: "STEP 01", t: "Frame it", sub: "문제 파악" },
-  { n: "STEP 02", t: "Plan it", sub: "계획 세우기" },
-  { n: "STEP 03", t: "Work it", sub: "풀이" },
-  { n: "STEP 04", t: "Look back", sub: "검토" },
+  { n: "01", t: "Reframe", sub: "재정의" },
+  { n: "02", t: "Decompose", sub: "구성요소" },
+  { n: "03", t: "Relate", sub: "관계" },
+  { n: "04", t: "Relevance", sub: "실생활" },
+  { n: "05", t: "Transfer", sub: "확장" },
 ];
 
 type Bubble = { role: "ai" | "you"; text: string; anno?: string };
 
 const CHATS: Bubble[][] = [
-  // Frame it
+  // Reframe
   [
-    { role: "ai", text: "Read the problem once more. In your own words — what are you being asked to find?", anno: "REDEFINE" },
-    { role: "you", text: "I need to find how far the train will travel in 8 hours." },
-    { role: "ai", text: "Good. And what information does the problem give you?", anno: "ASSUME" },
-    { role: "you", text: "It travels 240 km in 5 hours. And the speed stays the same." },
+    { role: "ai", text: "Forget the answer — any AI gets that in seconds. In your own words: what is this situation actually about?", anno: "REFRAME" },
+    { role: "you", text: "It's about a car making a round trip, but driving a different speed each way." },
   ],
-  // Plan it
+  // Decompose
   [
-    { role: "ai", text: "Good. What relationship connects distance, speed, and time?" },
-    { role: "you", text: "distance = speed × time" },
-    { role: "ai", text: "Exactly. Walk me through your plan — what will you calculate first?", anno: "PATHS" },
-    { role: "you", text: "First I'll find the speed using the 240 km and 5 hours. Then use that speed for 8 hours." },
+    { role: "ai", text: "Nice — you saw it your own way. Now, what are the key things that matter here?", anno: "DECOMPOSE" },
+    { role: "you", text: "The two speeds, the distance, and the total time of the trip." },
   ],
-  // Work it
+  // Relate
   [
-    { role: "ai", text: "Good plan. Now execute it — show each step clearly." },
-    { role: "you", text: "Speed = 240 ÷ 5 = 48 km/h\nDistance = 48 × 8 = 384 km" },
-    { role: "ai", text: "Nice. You found the speed first, then applied it. Is your answer labelled with units?", anno: "VERIFY" },
-    { role: "you", text: "Yes — 384 km." },
+    { role: "ai", text: "Here's the interesting part — how do those things affect each other?", anno: "RELATE" },
+    { role: "you", text: "When the car drives slower on the way back, that part takes more time." },
   ],
-  // Look back
+  // Relevance
   [
-    { role: "ai", text: "Great. Now verify — does your answer make sense? Check it a different way." },
-    { role: "you", text: "If 240 km takes 5 hours, then 8 hours is 8/5 times as far. 240 × 8/5 = 384 ✓", anno: "LOGIC" },
-    { role: "ai", text: "Excellent — you used proportional reasoning to verify independently. That's the mark of a strong solver.", anno: "ENGLISH" },
+    { role: "ai", text: "Step back from the numbers — where in your own life would understanding this actually help you?", anno: "RELEVANCE" },
+    { role: "you", text: "Planning when to leave so I'm not late, even when traffic changes my speed." },
+  ],
+  // Transfer
+  [
+    { role: "ai", text: "Last one — zoom all the way out. If lots of people could think like this?", anno: "TRANSFER" },
+    { role: "you", text: "They'd make smarter decisions instead of just trusting the first number they see." },
+    { role: "ai", text: "That's the leap from solving to thinking — and you did it in English.", anno: "ENGLISH" },
   ],
 ];
 
 const SKILLS = [
-  { key: "REDEFINE",  label: "문제 재정의",  pcts: [38, 55, 67, 72] },
-  { key: "ASSUME",    label: "가정 명시",    pcts: [20, 45, 60, 68] },
-  { key: "PATHS",     label: "풀이 경로",    pcts: [15, 30, 62, 75] },
-  { key: "VERIFY",    label: "검증",         pcts: [10, 22, 55, 80] },
-  { key: "LOGIC",     label: "논리 흐름",    pcts: [25, 40, 58, 70] },
-  { key: "ENGLISH",   label: "영어 표현",    pcts: [42, 55, 65, 78] },
+  { key: "REDEFINE",  label: "문제 재정의",   pcts: [60, 62, 64, 66, 68] },
+  { key: "DECOMPOSE", label: "구성 요소 분해", pcts: [18, 64, 66, 68, 70] },
+  { key: "RELATE",    label: "관계 파악",     pcts: [12, 28, 70, 72, 74] },
+  { key: "RELEVANCE", label: "실생활 연결",   pcts: [8, 12, 18, 68, 70] },
+  { key: "TRANSFER",  label: "확장적 사고",   pcts: [8, 10, 14, 20, 74] },
+  { key: "ENGLISH",   label: "영어 표현",     pcts: [42, 52, 60, 66, 76] },
 ];
 
 export function PolyaDemo() {
@@ -60,7 +62,7 @@ export function PolyaDemo() {
       {/* top bar */}
       <div className="lp-demo-top">
         <div className="left">
-          <span className="pill">중2 · 비율과 비례</span>
+          <span className="pill">중2 · 속력</span>
           <span>B1 English</span>
         </div>
         <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.14em", color: "var(--ink-4)", textTransform: "uppercase" }}>
@@ -76,7 +78,7 @@ export function PolyaDemo() {
             className={`stp${step === i ? " active" : ""}${step > i ? " done" : ""}`}
             onClick={() => setStep(i as Step)}
           >
-            <div className="n">{s.n}</div>
+            <div className="n">STEP {s.n}</div>
             <div className="t">
               {s.t}
               <small>{s.sub}</small>
@@ -103,8 +105,8 @@ export function PolyaDemo() {
           <div className="lbl">문제</div>
           <div className="problem">
             <span className="num">Q. </span>
-            A train travels <strong>240 km</strong> in <strong>5 hours</strong> at a constant speed.
-            How far will it travel in <strong>8 hours</strong>?
+            A car travels from A to B at <strong>40 km/h</strong> and returns at{" "}
+            <strong>60 km/h</strong>. What is its average speed?
           </div>
 
           <div className="lp-skills" style={{ marginTop: 24 }}>
@@ -135,7 +137,7 @@ export function PolyaDemo() {
           </button>
           <button
             className="primary"
-            disabled={step === 3}
+            disabled={step === 4}
             onClick={() => setStep((step + 1) as Step)}
           >
             다음 단계 →

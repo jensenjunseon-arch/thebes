@@ -14,9 +14,9 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Thebes AI — 영어로 수학을 풀게 하는 1:1 AI 코치",
+  title: "Thebes AI — 답이 아니라 사고를 키우는 AI 코치",
   description:
-    "영어로 수학을 풀게 하며, 점수가 아니라 AI 시대의 사고력을 키웁니다.",
+    "답은 AI가 냅니다. Thebes AI는 답이 아니라, 문제를 영어로 ‘어떻게 생각하는가’ — AI 시대의 사고력을 키웁니다.",
 };
 
 export default function RootLayout({
