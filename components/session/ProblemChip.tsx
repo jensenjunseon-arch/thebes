@@ -7,6 +7,8 @@ interface Props {
   koreanSupport?: string;
   topic: string;
   difficulty: string;
+  // When the student uploaded a photo of their own problem.
+  imageUrl?: string;
 }
 
 // Mobile-first problem display: a sticky chip that expands on tap, so the
@@ -16,6 +18,7 @@ export function ProblemChip({
   koreanSupport,
   topic,
   difficulty,
+  imageUrl,
 }: Props) {
   const [open, setOpen] = useState(true);
 
@@ -41,11 +44,22 @@ export function ProblemChip({
 
       {open && (
         <div className="border-t border-ink/10 px-4 pb-4 pt-3">
-          <p className="text-[17px] leading-relaxed text-ink">{englishStatement}</p>
-          {koreanSupport && (
-            <p className="mt-3 border-t border-ink/10 pt-3 text-sm text-ink/55">
-              {koreanSupport}
-            </p>
+          {imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl}
+              alt="업로드한 문제"
+              className="w-full rounded-xl border border-ink/10"
+            />
+          ) : (
+            <>
+              <p className="text-[17px] leading-relaxed text-ink">{englishStatement}</p>
+              {koreanSupport && (
+                <p className="mt-3 border-t border-ink/10 pt-3 text-sm text-ink/55">
+                  {koreanSupport}
+                </p>
+              )}
+            </>
           )}
         </div>
       )}

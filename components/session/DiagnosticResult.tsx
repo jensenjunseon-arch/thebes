@@ -30,9 +30,15 @@ interface Props {
   totals: Record<ConstructId, number>;
   evidenceByConstruct: EvidenceByConstruct;
   onRestart: () => void;
+  onRecap: () => void;
 }
 
-export function DiagnosticResult({ totals, evidenceByConstruct, onRestart }: Props) {
+export function DiagnosticResult({
+  totals,
+  evidenceByConstruct,
+  onRestart,
+  onRecap,
+}: Props) {
   // Headline strength/growth are chosen among the five REASONING constructs
   // (english is shown on the radar but never headlines — it rarely carries a
   // quote and a reasoning headline is more compelling). english stays on radar.
@@ -157,10 +163,23 @@ export function DiagnosticResult({ totals, evidenceByConstruct, onRestart }: Pro
         </p>
       </div>
 
+      {/* English recap — turn the whole conversation into one paragraph to trace. */}
+      <button
+        type="button"
+        onClick={onRecap}
+        className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-accent/40 bg-accent-soft/40 py-3.5 font-kr text-sm font-semibold text-accent transition hover:bg-accent-soft/70"
+      >
+        영어로 정리하고 따라 쓰기
+        <span className="font-mono text-xs">→</span>
+      </button>
+      <p className="mt-2 text-center text-[12px] leading-relaxed text-ink/45">
+        오늘 사고 과정을 한 편의 영어 문단으로 — 따라 쓰고, 곧 듣고 말하기까지
+      </p>
+
       <button
         type="button"
         onClick={onRestart}
-        className="mt-4 w-full rounded-xl border border-ink/15 bg-paper py-3 font-kr text-sm text-ink/70 transition hover:border-accent/50"
+        className="mt-5 w-full rounded-xl border border-ink/15 bg-paper py-3 font-kr text-sm text-ink/70 transition hover:border-accent/50"
       >
         다른 문제로 다시 진단하기 ↻
       </button>

@@ -7,6 +7,8 @@ import { ProblemChip } from "@/components/session/ProblemChip";
 import { LiveEvidenceCard, type LiveEvidence } from "@/components/session/LiveEvidenceCard";
 import { ProfileGauge, DetectedTally } from "@/components/session/DiagnosticHud";
 import { DiagnosticIntro } from "@/components/session/DiagnosticIntro";
+import { RecapView } from "@/components/session/RecapView";
+import { GENERIC_COACHING } from "@/lib/recap";
 import {
   DiagnosticResult,
   type EvidenceByConstruct,
@@ -78,8 +80,14 @@ export function SessionView({
   scripted = false,
 }: Props) {
   const [problemId, setProblemId] = useState(initialProblemId);
+  // Student-uploaded photo problem (client-only; never sent anywhere).
+  const [customProblem, setCustomProblem] = useState<
+    (Omit<PublicProblem, "level"> & { level: string; imageUrl?: string }) | null
+  >(null);
   // Phase 0 intro gate — skipped when resuming a session with history.
   const [started, setStarted] = useState(initialTurns.length > 0);
+  // English recap phase (reached from the result screen).
+  const [recap, setRecap] = useState(false);
   // Dialogue-engine cursor: which stage of the step, and retries on that stage.
   const stageRef = useRef(0);
   const attemptsRef = useRef(0);
@@ -100,8 +108,8 @@ export function SessionView({
   );
 
   const current = useMemo(
-    () => problems.find((p) => p.id === problemId) ?? problems[0],
-    [problems, problemId],
+    () => customProblem ?? problems.find((p) => p.id === problemId) ?? problems[0],
+    [customProblem, problems, problemId],
   );
 
   // Levels that actually have problems, in canonical order.
@@ -142,7 +150,8 @@ export function SessionView({
 
   function pickLevel(level: Level) {
     const first = problems.find((p) => p.level === level);
-    if (!first || first.id === problemId) return;
+    if (!first) return;
+    setCustomProblem(null);
     setProblemId(first.id);
     resetSession();
   }
@@ -154,6 +163,21 @@ export function SessionView({
     const next = sameLevel[(idx + 1) % sameLevel.length];
     setProblemId(next.id);
     resetSession();
+  }
+
+  function handleUpload(file: File) {
+    const imageUrl = URL.createObjectURL(file);
+    setCustomProblem({
+      id: "custom-photo",
+      level: "내 문제",
+      topic: "내가 올린 문제",
+      englishStatement: "",
+      koreanSupport: "",
+      coaching: GENERIC_COACHING,
+      imageUrl,
+    });
+    resetSession();
+    setStarted(true);
   }
 
   function handleStudentSubmit(content: string) {
@@ -297,7 +321,19 @@ export function SessionView({
   }
 
   if (!started) {
-    return <DiagnosticIntro onStart={() => setStarted(true)} />;
+    return (
+      <DiagnosticIntro onStart={() => setStarted(true)} onUploadStart={handleUpload} />
+    );
+  }
+
+  if (recap) {
+    return (
+      <RecapView
+        coaching={current.coaching}
+        evidenceByConstruct={evidenceByConstruct}
+        onBack={() => setRecap(false)}
+      />
+    );
   }
 
   if (done) {
@@ -306,6 +342,7 @@ export function SessionView({
         totals={totals}
         evidenceByConstruct={evidenceByConstruct}
         onRestart={() => resetSession()}
+        onRecap={() => setRecap(true)}
       />
     );
   }
@@ -327,7 +364,7 @@ export function SessionView({
         정답이 아니라 ‘어떻게 생각하는지’를 봅니다.
       </p>
 
-      {enablePicker && availableLevels.length > 1 && (
+      {enablePicker && !customProblem && availableLevels.length > 1 && (
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
             난이도
@@ -366,6 +403,7 @@ export function SessionView({
         difficulty={current.level}
         englishStatement={current.englishStatement}
         koreanSupport={current.koreanSupport}
+        imageUrl={customProblem?.imageUrl}
       />
 
       <div className="mt-5">

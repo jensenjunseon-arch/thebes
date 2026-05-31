@@ -1,12 +1,21 @@
 "use client";
 
+import { useRef } from "react";
 import { CONSTRUCTS } from "@/lib/constructs";
 
 // Phase 0 — a fast, punchy framing screen. One tap to start. The point is to
 // reframe BEFORE the unfamiliar English-math begins: answers are commoditized,
 // thinking is the skill, and here are the 6 dimensions we measure. The staggered
 // reveal of the six constructs is the wow — it reads as a real instrument.
-export function DiagnosticIntro({ onStart }: { onStart: () => void }) {
+export function DiagnosticIntro({
+  onStart,
+  onUploadStart,
+}: {
+  onStart: () => void;
+  onUploadStart: (file: File) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+
   return (
     <section className="mx-auto max-w-2xl px-5 pb-28 pt-4 sm:px-6">
       <p
@@ -59,14 +68,37 @@ export function DiagnosticIntro({ onStart }: { onStart: () => void }) {
         className="animate-rise mt-10 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink py-4 font-kr text-base font-semibold text-on-dark transition hover:bg-accent"
         style={{ animationDelay: "820ms" }}
       >
-        진단 시작
+        예시 문제로 진단 시작
         <span className="font-mono text-sm">→</span>
       </button>
-      <p
-        className="animate-rise mt-3 text-center text-[12px] leading-relaxed text-ink/45"
-        style={{ animationDelay: "900ms" }}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onUploadStart(f);
+          e.target.value = "";
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        className="animate-rise mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl border border-ink/15 bg-paper py-3.5 font-kr text-sm font-medium text-ink/80 transition hover:border-accent/50"
+        style={{ animationDelay: "880ms" }}
       >
-        로그인 없이 바로 시작 · 약 5분 · 영어가 막히면 한국어로 시작해도 좋아요
+        <span aria-hidden>📷</span>
+        내가 막힌 문제를 사진으로 올리기
+      </button>
+      <p
+        className="animate-rise mt-2 text-center text-[12px] leading-relaxed text-ink/45"
+        style={{ animationDelay: "940ms" }}
+      >
+        이미 풀어본 문제도 좋아요 — 같은 문제를 영어로 사고하면 무엇이 달라지는지 보여드릴게요.
+        <br />
+        사진은 기기 안에서만 쓰이고 어디에도 전송되지 않아요 · 로그인 불필요
       </p>
     </section>
   );
