@@ -10,11 +10,13 @@ import {
 } from "recharts";
 import { CONSTRUCTS, type ConstructId } from "@/lib/constructs";
 
-const SESSION_MAX = 20;
+// Per-construct ceiling for the radar — one stage scores each construct 1–5
+// (english accrues up to ~5 too), so 6 gives a touch of headroom.
+const SESSION_MAX = 6;
 
 // One-line growth tip per construct (rule-based v0).
 const GROWTH_TIP: Record<ConstructId, string> = {
-  redefine: "상황을 더 자주 ‘네 말로’ 바꿔 말해보면 좋아요.",
+  redefine: "상황을 더 자주 ‘자신의 말로’ 바꿔 말해보면 좋아요.",
   decompose: "상황 속에 어떤 요소들이 있는지 한 번 더 또렷이 짚어보면 좋아요.",
   relate: "요소들이 서로 어떻게 영향을 주는지 연결해보면 좋아요.",
   relevance: "이 사고가 내 삶 어디에 쓸모 있을지 떠올려보면 좋아요.",
@@ -65,10 +67,10 @@ export function DiagnosticResult({
     <section className="mx-auto max-w-2xl px-4 pb-24 sm:px-6">
       <div className="pt-2 text-center">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent">
-          Diagnostic complete
+          AI Talent Report
         </p>
         <h1 className="mt-2 font-kr text-2xl font-semibold tracking-tighter2 sm:text-3xl">
-          너의 사고력 스냅샷
+          AI 인재 리포트
         </h1>
       </div>
 
@@ -116,6 +118,19 @@ export function DiagnosticResult({
         )}
       </p>
 
+      {/* English recap — the headline next action, kept high on the page. */}
+      <button
+        type="button"
+        onClick={onRecap}
+        className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-4 font-kr text-base font-semibold text-on-dark transition hover:opacity-90"
+      >
+        영어로 정리하고 따라 쓰기
+        <span className="font-mono text-sm">→</span>
+      </button>
+      <p className="mt-2 text-center text-[13px] leading-relaxed text-ink/55">
+        오늘의 사고 과정을 한 편의 영어 문단으로 — 따라 쓰고, 곧 듣고 말하기까지
+      </p>
+
       {/* Strength */}
       <div className="mt-8 rounded-3xl border border-accent/30 bg-accent-soft/30 p-5">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent">
@@ -149,7 +164,7 @@ export function DiagnosticResult({
         <p className="mt-2 font-kr text-lg font-semibold leading-relaxed">
           매주 이렇게 쌓이면,
           <br />
-          아이의 사고력 성장 리포트가 됩니다.
+          아이의 AI 인재 리포트가 됩니다.
         </p>
         <Link
           href="/signup"
@@ -163,23 +178,10 @@ export function DiagnosticResult({
         </p>
       </div>
 
-      {/* English recap — turn the whole conversation into one paragraph to trace. */}
-      <button
-        type="button"
-        onClick={onRecap}
-        className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-accent/40 bg-accent-soft/40 py-3.5 font-kr text-sm font-semibold text-accent transition hover:bg-accent-soft/70"
-      >
-        영어로 정리하고 따라 쓰기
-        <span className="font-mono text-xs">→</span>
-      </button>
-      <p className="mt-2 text-center text-[12px] leading-relaxed text-ink/45">
-        오늘 사고 과정을 한 편의 영어 문단으로 — 따라 쓰고, 곧 듣고 말하기까지
-      </p>
-
       <button
         type="button"
         onClick={onRestart}
-        className="mt-5 w-full rounded-xl border border-ink/15 bg-paper py-3 font-kr text-sm text-ink/70 transition hover:border-accent/50"
+        className="mt-6 w-full rounded-xl border border-ink/15 bg-paper py-3 font-kr text-sm text-ink/70 transition hover:border-accent/50"
       >
         다른 문제로 다시 진단하기 ↻
       </button>

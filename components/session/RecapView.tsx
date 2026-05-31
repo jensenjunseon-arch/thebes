@@ -53,7 +53,7 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
           English Recap · 영어로 정리하기
         </p>
         <h1 className="mt-2 font-kr text-2xl font-semibold tracking-tighter2 sm:text-3xl">
-          너의 생각을, 하나의 영어 문단으로
+          자신의 생각을, 하나의 영어 문단으로
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-ink/60">
           방금 나눈 대화 전체가 이렇게 한 편의 영어 추론이 됩니다. 읽고, 따라 쓰면서
@@ -104,7 +104,7 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
         />
         {pct >= 90 ? (
           <p className="mt-2 text-[13px] font-medium text-accent">
-            완벽해요! 이 문장들이 이제 너의 표현이에요. 🎉
+            완벽해요! 이 문장들이 이제 자신의 표현이에요. 🎉
           </p>
         ) : (
           <div className="mt-2">

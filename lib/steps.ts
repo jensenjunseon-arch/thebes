@@ -35,7 +35,7 @@ export const POLYA_STEPS: readonly PolyaStep[] = [
     intent:
       "Get the student to restate the situation, name its key components, and see how those components relate — without computing anything.",
     studentHint:
-      "답을 구하는 게 아니에요. 이 상황이 ‘무엇에 대한 건지’ 네 눈으로 보면 돼요. 영어가 막히면 한국어로 시작해도 좋아요.",
+      "정답을 맞히는 게 아니에요. 이 상황이 ‘무엇에 대한 건지’ 자신의 눈으로 보면 돼요. 한 문장이면 충분하고, 영어가 막히면 한국어로 시작해도 괜찮아요.",
     greeting:
       "Here's the thing — any AI can compute the answer in 5 seconds, so forget the answer. I want to see how YOU see this. In your own words: what is this situation actually about?",
     primaryConstructs: ["redefine", "decompose", "relate", "english"],
@@ -48,7 +48,7 @@ export const POLYA_STEPS: readonly PolyaStep[] = [
     intent:
       "Widen the student's thinking outward — why understanding this helps them personally, and how the idea extends to the people around them and their future.",
     studentHint:
-      "이제 숫자에서 벗어나, 이 생각이 ‘나’와 ‘세상’에 어떤 의미인지 넓혀가요. 정답은 없어요.",
+      "이제 숫자에서 벗어나, 이 생각이 ‘나’와 ‘세상’에 어떤 의미인지 편하게 넓혀가요. 정답은 없으니 떠오르는 대로 적으면 돼요.",
     greeting:
       "Now let's zoom out. Step away from the numbers for a moment — if you really understood a situation like this, where in your own life would it actually help you?",
     primaryConstructs: ["relevance", "transfer", "english"],

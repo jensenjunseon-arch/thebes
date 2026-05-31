@@ -67,7 +67,7 @@ export function ChatPanel({ turns, onStudentSubmit, disabled, pending, frames }:
         {showFrames && (
           <div className="mb-2.5 flex flex-wrap gap-2">
             <span className="self-center font-mono text-[10px] uppercase tracking-tighter2 text-ink/35">
-              시작 문장
+              이렇게 시작해 보세요
             </span>
             {frames!.map((f) => (
               <button
@@ -127,7 +127,7 @@ function EmptyState() {
           문제가 무엇을 묻고 있나요?
         </p>
         <p className="mt-3 text-sm text-ink/55">
-          답을 서두르지 말고, 문제를 네 말로 다시 설명해봐.
+          답을 서두르지 말고, 이 문제가 무엇에 대한 건지 자신의 말로 설명해 보세요.
         </p>
       </div>
     </div>

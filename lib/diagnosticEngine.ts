@@ -79,44 +79,66 @@ function englishBonus(text: string): number {
   return wordCount(text) >= 7 ? 1 : 0;
 }
 
+// Graduated quality (1–5) — replaces the old flat strong=4/partial=2 (which gave
+// almost every reply a 4). A richer answer — on-topic, a real sentence,
+// elaborated, with a concrete detail/example — scores higher, so the report
+// actually differentiates students.
+function qualityScore(kind: StageKind, text: string): number {
+  const t = text.trim();
+  const wc = wordCount(t);
+  const hasMarker = MARKERS[kind].test(t);
+  const hasDetail = /\d|because|since|for example|such as|,|—/i.test(t);
+
+  let q = 1; // any genuine attempt floors at 1
+  if (hasMarker) q += wc >= 3 ? 2 : 1; // on-topic (more if not a bare word)
+  if (wc >= 6) q += 1; // a real sentence
+  if (wc >= 12) q += 1; // elaborated
+  if (hasMarker && hasDetail) q += 1; // gives a reason, example, or specifics
+
+  return Math.max(1, Math.min(5, q));
+}
+
 // ── coach copy ─────────────────────────────────────────────────────────────
 
 // Questions for stages that are NOT openers. (reframe & relevance are asked by
 // the step greetings in lib/steps.ts.)
 const ASK: Partial<Record<StageKind, string>> = {
   decompose:
-    "Good. Now look closely — what are the key things or quantities in this situation? Name what matters.",
+    "Nice. Now — what are the important things or numbers in this? (Things like an amount, a speed, a length, a time…) Even naming just one is a great start.",
   relate:
-    "Here's the interesting part — how do those things affect each other? If one changes, what happens to another?",
+    "Here's the fun part — how do those things affect each other? For example, when one gets bigger, does another get bigger or smaller? Your best guess is totally fine.",
   transfer:
-    "Last one — zoom all the way out. If lots of people could think like this, how might it change the people around you, or the future?",
+    "Last one, and there's no wrong answer — zoom way out: if lots of people learned to think like this, how might it help the people around them, or the future?",
 };
 
+// Three warmth tiers (strong / partial / gentle). The 'stuck' slot is the gentle
+// tier — it covers both a short-but-genuine answer and a forced advance, so it's
+// written to be encouraging, never dismissive.
 const PRAISE: Record<StageKind, Record<Signal, string>> = {
   reframe: {
-    strong: "Good — you described the situation in your own words, not the textbook's.",
-    partial: "Okay — you're pointing at what this is about. Let's go deeper.",
-    stuck: "No problem — we named what it's about together.",
+    strong: "Love it — you put the whole situation in your own words.",
+    partial: "Good start — you're looking right at what this is about.",
+    stuck: "That's perfectly okay — we've got a starting point together.",
   },
   decompose: {
-    strong: "Nice — you pulled out the pieces that actually matter here.",
-    partial: "Right, those are some of the moving parts.",
-    stuck: "Good — now the key pieces are on the table.",
+    strong: "Yes — you spotted the pieces that really matter.",
+    partial: "Nice — that's one of the key pieces.",
+    stuck: "Good — even one piece is a great start.",
   },
   relate: {
     strong: "That's the real insight — you saw how the pieces push on each other.",
-    partial: "Good — there's a connection there worth noticing.",
-    stuck: "Exactly the kind of connection that matters.",
+    partial: "Good — there's a real connection there.",
+    stuck: "That's exactly the kind of link that matters — nice.",
   },
   relevance: {
-    strong: "Love that — you connected this to your own life, which is the whole point.",
-    partial: "Good — I can see where this touches real life for you.",
-    stuck: "That's a real place this kind of thinking shows up.",
+    strong: "I love that — you tied this straight to your own life.",
+    partial: "Good — I can see how this touches your life.",
+    stuck: "That's a real place this shows up — nice connection.",
   },
   transfer: {
-    strong: "Beautiful — you took one situation and stretched it to the whole world.",
+    strong: "Beautiful — you stretched one idea out to the whole world.",
     partial: "Nice — you're seeing how this reaches beyond the page.",
-    stuck: "That's a great way it could ripple outward.",
+    stuck: "That's a lovely way it could ripple outward.",
   },
 };
 
@@ -229,29 +251,29 @@ export function evaluate(
     };
   }
 
-  const signal = classify(stage.kind, text);
-
   // Stuck on the first try → scaffold and give one more attempt.
-  if (signal === "stuck" && attempts < 1) {
+  if (classify(stage.kind, text) === "stuck" && attempts < 1) {
     return {
       reply: scaffold(stage.kind, coaching),
       construct: stage.construct,
       delta: 0,
       englishDelta: 0,
       rationale: RATIONALE[stage.kind],
-      signal,
+      signal: "stuck",
       recordEvidence: false,
       advanceStage: false,
       completeStep: false,
     };
   }
 
-  const delta = signal === "strong" ? 4 : signal === "partial" ? 2 : 1;
-  const englishDelta = signal === "stuck" ? 0 : englishBonus(text);
+  // Graduated score, and a warmth tier derived from it.
+  const delta = qualityScore(stage.kind, text);
+  const tier: Signal = delta >= 4 ? "strong" : delta === 3 ? "partial" : "stuck";
+  const englishDelta = englishBonus(text);
   const nextStage = STAGES[step][stageIndex + 1];
   const completeStep = !nextStage;
 
-  const praise = PRAISE[stage.kind][signal];
+  const praise = PRAISE[stage.kind][tier];
   const reply =
     !completeStep && nextStage && ASK[nextStage.kind]
       ? `${praise} ${ASK[nextStage.kind]}`
@@ -263,8 +285,8 @@ export function evaluate(
     delta,
     englishDelta,
     rationale: RATIONALE[stage.kind],
-    signal,
-    recordEvidence: signal !== "stuck",
+    signal: tier,
+    recordEvidence: delta >= 3,
     advanceStage: true,
     completeStep,
   };
