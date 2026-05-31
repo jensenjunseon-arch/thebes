@@ -12,7 +12,7 @@ import {
 } from "@/components/session/DiagnosticResult";
 import { TOTAL_STEPS, stepById, type StepId } from "@/lib/steps";
 import { submitTurn } from "@/app/session/[id]/actions";
-import { beatFor } from "@/lib/demoScript";
+import { evaluate, stagesForStep, starterFramesFor } from "@/lib/diagnosticEngine";
 import { LEVELS, type Level, type PublicProblem } from "@/lib/problems";
 import type { TutorMessage } from "@/lib/ai/tutor";
 import type { ConstructId } from "@/lib/constructs";
@@ -72,8 +72,10 @@ export function SessionView({
   scripted = false,
 }: Props) {
   const [problemId, setProblemId] = useState(initialProblemId);
-  // Per-step submission counter for the scripted demo engine.
-  const beatRef = useRef(0);
+  // Dialogue-engine cursor: which stage of the step, and retries on that stage.
+  const stageRef = useRef(0);
+  const attemptsRef = useRef(0);
+  const [frames, setFrames] = useState<string[]>(starterFramesFor(initialStep, 0));
   const [step, setStep] = useState<StepId>(initialStep);
   const [turns, setTurns] = useState<Turn[]>(
     initialTurns.length > 0 ? initialTurns : [greetingTurn(initialStep)],
@@ -106,7 +108,8 @@ export function SessionView({
   }));
 
   function resetSession(nextStep: StepId = 1) {
-    beatRef.current = 0;
+    stageRef.current = 0;
+    attemptsRef.current = 0;
     setStep(nextStep);
     setTurns([greetingTurn(nextStep)]);
     setTotals(EMPTY_TOTALS);
@@ -116,6 +119,7 @@ export function SessionView({
     setCompleted(false);
     setDone(false);
     setBanner(null);
+    setFrames(starterFramesFor(nextStep, 0));
   }
 
   function recordEvidence(
@@ -148,39 +152,58 @@ export function SessionView({
     const studentTurnId = crypto.randomUUID();
     setTurns((prev) => [...prev, { id: studentTurnId, speaker: "student", content }]);
 
-    // ── scripted demo: no API, runs entirely client-side ──────────────────
+    // ── scripted demo: content-aware engine, no API, runs client-side ─────
     if (scripted) {
       startTransition(async () => {
-        await delay(700); // let the typing indicator breathe — sells "AI thinking"
-        const beat = beatFor(step, beatRef.current);
+        await delay(650); // let the typing indicator breathe — sells "AI thinking"
+        const out = evaluate(
+          step,
+          stageRef.current,
+          attemptsRef.current,
+          content,
+          current.coaching,
+        );
 
         setTurns((prev) => [
           ...prev,
-          { id: crypto.randomUUID(), speaker: "coach", content: beat.coachReply },
+          { id: crypto.randomUUID(), speaker: "coach", content: out.reply },
         ]);
 
-        applyScore(beat.deltas as Record<ConstructId, number>);
-        recordEvidence(
-          beat.evidenceConstruct,
-          beat.deltas[beat.evidenceConstruct] ?? 1,
-          truncateQuote(content), // the student's ACTUAL words
-          beat.rationale,
-        );
+        if (out.delta > 0 || out.englishDelta > 0) {
+          applyScore({
+            [out.construct]: out.delta,
+            english: out.englishDelta,
+          } as Record<ConstructId, number>);
+        }
+        if (out.recordEvidence) {
+          recordEvidence(out.construct, out.delta, truncateQuote(content), out.rationale);
+        }
 
-        if (beat.advance && step < TOTAL_STEPS) {
+        if (!out.advanceStage) {
+          // Stuck — scaffold shown, stay on this stage for one more try.
+          attemptsRef.current += 1;
+          setBanner(null);
+          return;
+        }
+
+        if (out.completeStep && step < TOTAL_STEPS) {
           const next = (step + 1) as StepId;
-          beatRef.current = 0;
+          stageRef.current = 0;
+          attemptsRef.current = 0;
           setStep(next);
           setTurns((prev) => [...prev, greetingTurn(next)]);
+          setFrames(starterFramesFor(next, 0));
           setBanner({
             kind: "advance",
             text: `${stepById(step).englishLabel} 완료 — 다음 단계로`,
           });
-        } else if (beat.advance && step === TOTAL_STEPS) {
+        } else if (out.completeStep && step === TOTAL_STEPS) {
           setBanner({ kind: "advance", text: "진단 완료!" });
           setCompleted(true);
         } else {
-          beatRef.current += 1;
+          stageRef.current += 1;
+          attemptsRef.current = 0;
+          setFrames(starterFramesFor(step, stageRef.current));
           setBanner(null);
         }
       });
@@ -231,6 +254,7 @@ export function SessionView({
           const next = (step + 1) as StepId;
           setStep(next);
           setTurns((prev) => [...prev, greetingTurn(next)]);
+          setFrames(starterFramesFor(next, 0));
           setBanner({
             kind: "advance",
             text: `${stepById(step).englishLabel} 완료 — 다음 단계로`,
@@ -349,6 +373,7 @@ export function SessionView({
           onStudentSubmit={handleStudentSubmit}
           disabled={pending || completed}
           pending={pending}
+          frames={frames}
         />
       </div>
 

@@ -14,11 +14,14 @@ interface Props {
   onStudentSubmit?: (content: string) => void;
   disabled?: boolean;
   pending?: boolean;
+  // Sentence-starter chips for the current question.
+  frames?: string[];
 }
 
-export function ChatPanel({ turns, onStudentSubmit, disabled, pending }: Props) {
+export function ChatPanel({ turns, onStudentSubmit, disabled, pending, frames }: Props) {
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-scroll to the newest turn.
   useEffect(() => {
@@ -31,6 +34,13 @@ export function ChatPanel({ turns, onStudentSubmit, disabled, pending }: Props) 
     onStudentSubmit?.(trimmed);
     setDraft("");
   }
+
+  function useFrame(frame: string) {
+    setDraft(frame.replace(/…$/, " "));
+    inputRef.current?.focus();
+  }
+
+  const showFrames = !!frames?.length && !draft.trim() && !disabled;
 
   return (
     <div className="flex h-full min-h-[60dvh] flex-col rounded-3xl border border-ink/10 bg-paper-2 lg:min-h-[520px]">
@@ -54,8 +64,26 @@ export function ChatPanel({ turns, onStudentSubmit, disabled, pending }: Props) 
       </div>
 
       <div className="border-t border-ink/10 p-3 sm:px-4 sm:py-4">
+        {showFrames && (
+          <div className="mb-2.5 flex flex-wrap gap-2">
+            <span className="self-center font-mono text-[10px] uppercase tracking-tighter2 text-ink/35">
+              시작 문장
+            </span>
+            {frames!.map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => useFrame(f)}
+                className="rounded-full border border-accent/30 bg-accent-soft/40 px-3 py-1 text-[13px] text-ink/75 transition hover:border-accent/60 hover:bg-accent-soft/70"
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="flex items-end gap-2">
           <textarea
+            ref={inputRef}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {

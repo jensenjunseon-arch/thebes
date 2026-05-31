@@ -222,3 +222,52 @@ components/diagnostic/
 |------|------|------|--------------------|
 | 1 | 이해 & 계획 (Understand) | 재진술·가정·접근 | redefine, assume, paths, english |
 | 2 | 풀이 & 검증 (Solve) | 단계 논리·검증 | logic, verify, english |
+
+---
+
+## 10. 대화 엔진 — 질문 흐름과 측정 방식 (the core)
+
+`lib/diagnosticEngine.ts`. 무API, 클라이언트에서 실행. 실 AI로 전환해도 동일한 5단계 골격.
+
+### 단계 → 질문 → 측정 구인
+
+| Step | Stage | 코치 질문 (영어) | 측정 구인 |
+|------|-------|------------------|-----------|
+| 1 | restate | "what is this problem actually asking? Say it in your own words." | redefine |
+| 1 | assume | "what are you assuming that the problem doesn't say out loud?" | assume |
+| 1 | plan | "how would you get there? Is there more than one way?" | paths |
+| 2 | reason | "walk me through your first step — and why that step?" | logic |
+| 2 | verify | "you've reached an answer. how could you check it a different way?" | verify |
+| 전 단계 | — | (영어 문장 품질) | english (보너스) |
+
+restate·reason은 각 step의 greeting이 던지고, 코치 응답이 다음 stage 질문을 이어 붙임 → 한 메시지 = 한 질문, 끊김 없는 흐름.
+
+### 측정 = 분류 (strong / partial / stuck)
+
+학생 발화의 **언어적 마커**로 분류. 이게 곧 점수.
+- **stuck**: "idk / 모르 / ? / 1단어 이하" → 점수 0, 그 문제에 맞는 **비계** 제시, 1회 더 기회
+- **partial**: 마커는 있으나 짧음 → +2
+- **strong**: 마커 + 충분한 길이(≥5–6단어) → +4
+- **english 보너스**: 7단어 이상 완결 영어 문장 → +1 (헤드라인에선 제외)
+
+마커 예: assume = `assume/suppose/if/same/constant/both…`, reason = `because/since/so/=/divide…`, verify = `check/units/makes sense/between…`.
+
+### 비계 (stuck일 때, 문제별 — `Problem.coaching`)
+
+- restate → `"${restateFrame}"` 채움형 프레임
+- assume → `keyAssumption` 을 질문으로 ("그거 당연하게 여기고 있지 않아?")
+- plan → `approaches[0]` vs `approaches[1]` 두 경로 제시 → 고르게
+- verify → `verifyHint` (답은 절대 노출 안 함)
+
+→ 비계가 "그 문제를 깊이 아는 코치"처럼 느껴짐. 답 숫자는 클라이언트에 안 나감(서버 전용 `forbiddenAnswerTokens`), 비계는 답-free라 안전.
+
+### 진입장벽 ↓ + 흥미 유지 (와우 포인트)
+
+- **시작 문장 칩**("I'm assuming that…", "One way is to…") → 빈 영어창 공포 제거 + 영어 추론 패턴을 *가르치며* 측정
+- **실시간 증거 카드**: 학생이 친 실제 문장 → 감지된 구인 → +점수
+- **막혀도 끝까지 간다**: stuck 2회면 자동 진행 → 데모가 절대 멈추지 않음
+- **결과 헤드라인은 추론 구인**(증거 인용 보장) + balanced 분기
+
+### 문제 풀
+
+18문제 (초등 저/고학년 · 중1/2/3 · 고1, 각 3문제), 전부 `coaching` 메타데이터 보유. 난이도 칩 + "다른 문제 ↻"로 전환.

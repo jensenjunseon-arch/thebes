@@ -33,9 +33,19 @@ interface Props {
 }
 
 export function DiagnosticResult({ totals, evidenceByConstruct, onRestart }: Props) {
-  const entries = CONSTRUCTS.map((c) => ({ c, total: totals[c.id] ?? 0 }));
-  const top = entries.reduce((a, b) => (b.total > a.total ? b : a));
-  const bottom = entries.reduce((a, b) => (b.total < a.total ? b : a));
+  // Headline strength/growth are chosen among the five REASONING constructs
+  // (english is shown on the radar but never headlines — it rarely carries a
+  // quote and a reasoning headline is more compelling). english stays on radar.
+  const reasoning = CONSTRUCTS.filter((c) => c.id !== "english").map((c) => ({
+    c,
+    total: totals[c.id] ?? 0,
+  }));
+  // Stable sort by score desc → top = strongest, bottom = weakest. Sorting
+  // (not reduce-min/max) guarantees top !== bottom even when scores tie.
+  const sorted = [...reasoning].sort((a, b) => b.total - a.total);
+  const top = sorted[0];
+  const bottom = sorted[sorted.length - 1];
+  const balanced = top.total === bottom.total;
 
   const radarData = CONSTRUCTS.map((c) => ({
     subject: c.koreanName,
@@ -84,10 +94,20 @@ export function DiagnosticResult({ totals, evidenceByConstruct, onRestart }: Pro
 
       {/* One-sentence profile */}
       <p className="mt-6 text-center font-kr text-xl font-semibold leading-relaxed text-ink sm:text-2xl">
-        가장 두드러진 강점은{" "}
-        <span className="text-accent">{top.c.koreanName}</span>,
-        <br />
-        다음 목표는 <span className="text-accent">{bottom.c.koreanName}</span>.
+        {balanced ? (
+          <>
+            여섯 가지 사고력이 고르게 단단해요.
+            <br />
+            다음엔 <span className="text-accent">{bottom.c.koreanName}</span>을 한 단계 더 깊이.
+          </>
+        ) : (
+          <>
+            가장 두드러진 강점은{" "}
+            <span className="text-accent">{top.c.koreanName}</span>,
+            <br />
+            다음 목표는 <span className="text-accent">{bottom.c.koreanName}</span>.
+          </>
+        )}
       </p>
 
       {/* Strength */}
