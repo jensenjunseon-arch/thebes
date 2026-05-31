@@ -329,10 +329,10 @@ function SignupGate({
 
       <div className="absolute inset-0 flex items-start justify-center px-2 pt-6">
         <div className="w-full max-w-md break-keep rounded-3xl border border-ink/15 bg-paper/95 p-6 text-center shadow-[0_8px_40px_rgba(20,17,12,0.12)] backdrop-blur-sm">
-          <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
-            전체 리포트 · 잠금
-          </p>
-          <h2 className="mt-2 font-kr text-xl font-bold tracking-tighter2 text-ink">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-ink text-on-dark">
+            <span aria-hidden className="text-lg">🔒</span>
+          </div>
+          <h2 className="mt-4 font-kr text-xl font-bold tracking-tighter2 text-ink">
             그래서, 무엇부터 하면 될까요?
           </h2>
           <p className="mt-2 text-[14px] leading-relaxed text-ink/65">
