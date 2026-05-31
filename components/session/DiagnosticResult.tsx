@@ -6,37 +6,48 @@ import { CONSTRUCTS, type ConstructId } from "@/lib/constructs";
 // Per-construct ceiling — one stage scores each construct 1–5 (english ~5 too).
 const SESSION_MAX = 6;
 
-// Strength reading — what kind of thinker this makes you, and how to learn.
-const PERSONA: Record<ConstructId, { tendency: string; study: string }> = {
+// Strength reading. NOT a label restatement — a recognizable behavior signature,
+// the shadow side of that strength (the non-obvious part that earns credibility),
+// and what this kind of thinker becomes in the AI era.
+const PERSONA: Record<
+  ConstructId,
+  { signature: string; shadow: string; edge: string }
+> = {
   redefine: {
-    tendency:
-      "남이 던진 문제를 그대로 받지 않고 ‘진짜 묻는 게 뭐지?’부터 되묻는 타입이에요. 정보를 자기 언어로 다시 짜야 직성이 풀립니다.",
-    study: "개념을 통째로 외우기보다 ‘왜 이렇게 정의했을까’를 파고드는 학습이 잘 맞아요.",
+    signature:
+      "시험지를 받으면 곧장 풀기 전에 ‘이거 결국 뭘 묻는 거지?’를 한 번 곱씹죠. 남이 정해준 틀을 그대로 삼키지 않아요.",
+    shadow: "대신, 정의에 오래 머물다 ‘시작이 느리다’는 말을 듣기도 해요.",
+    edge: "AI 시대에 가장 비싼 능력이에요. 답은 AI가 내지만, ‘무엇을 물을지’ 정하는 사람은 따로 있거든요.",
   },
   decompose: {
-    tendency:
-      "복잡한 걸 보면 일단 잘게 쪼개는 본능이 있어요. 큰 덩어리보다 ‘뭐가 들어있나’를 먼저 봅니다.",
-    study: "긴 문제·프로젝트를 작은 단위로 나눠 하나씩 정복하는 방식이 효과적이에요.",
+    signature:
+      "복잡한 게 닥치면 일단 ‘뭐랑 뭐로 나뉘지?’부터 쪼개고 보죠. 전체 그림보다 부품을 먼저 봅니다.",
+    shadow: "대신, 쪼개는 데 빠져 ‘그래서 전체가 뭐였지’를 놓칠 때가 있어요.",
+    edge: "AI에게 일을 시키는 시대엔, 문제를 어떻게 나눠 맡길지 아는 사람이 결국 AI를 부립니다.",
   },
   relate: {
-    tendency:
-      "낱개 사실보다 ‘이게 저것과 어떻게 연결되지?’를 보는 눈이 있어요. 패턴과 인과를 잘 잡습니다.",
-    study: "공식 암기보다 ‘왜 이게 성립하지’를 연결망으로 익히면 실력이 폭발적으로 늘어요.",
+    signature:
+      "한 가지를 배우면 ‘이거 아까 그거랑 비슷한데?’ 하고 자꾸 엮어보죠. 따로따로 외우는 걸 답답해해요.",
+    shadow: "대신, 연결이 빨라 가끔 근거를 건너뛰고 ‘느낌상 맞다’고 확신할 때가 있어요.",
+    edge: "정보는 AI가 무한히 쏟아내요. 그걸 ‘그래서 뭐?’로 꿰는 사람만 끝까지 살아남습니다.",
   },
   relevance: {
-    tendency:
-      "배운 걸 ‘그래서 나한테 무슨 의미?’로 끌어오는 힘이 있어요. 이유가 분명할 때 가장 잘 배웁니다.",
-    study: "실생활·관심사와 엮은 프로젝트형 학습이 잘 맞아요.",
+    signature:
+      "‘이걸 왜 배워?’가 풀려야 비로소 엔진이 켜지는 타입이죠. 의미 없는 반복은 못 견뎌요.",
+    shadow: "대신, 흥미가 안 붙는 주제는 손도 안 대 ‘편식’이 생기기 쉬워요.",
+    edge: "스스로 동기를 찾는 힘 — AI가 다 해주는 시대에 끝까지 배우는 사람의 거의 유일한 공통점이에요.",
   },
   transfer: {
-    tendency:
-      "하나를 배우면 ‘그럼 이것도 되겠네?’로 뻗어나가는 타입이에요. 응용과 일반화에 강합니다.",
-    study: "한 문제를 여러 상황에 옮겨 적용해보는 학습이 잘 맞아요.",
+    signature:
+      "하나 배우면 ‘그럼 이건? 저건?’ 하고 자꾸 딴 데로 튀죠. ‘한 우물만 파라’는 말을 들어봤을 거예요.",
+    shadow: "대신, 넓게 뻗다 한 군데를 끝까지 안 파 마무리가 약할 때가 있어요.",
+    edge: "한 분야 지식은 AI가 곧 따라잡아요. 분야를 ‘건너뛰며 연결’하는 사람은 못 따라잡습니다.",
   },
   english: {
-    tendency:
-      "생각을 영어로 옮기는 데 거리낌이 적어요. 글로벌 무대에서 사고를 전할 잠재력이 보입니다.",
-    study: "영어로 ‘사고하는’ 훈련을 늘리면 가장 큰 무기가 됩니다.",
+    signature:
+      "한국어로 떠오른 생각도 영어로 옮기는 데 큰 거부감이 없죠. 일단 영어로 내뱉어 봅니다.",
+    shadow: "대신, 표현에 신경 쓰다 정작 논리가 얕아질 때가 있어요.",
+    edge: "수학을 영어로 사고하는 순간, 전 세계 어디서든 통하는 무기가 됩니다. 대부분은 이 둘을 따로 배우거든요.",
   },
 };
 
@@ -186,16 +197,24 @@ export function DiagnosticResult({
         )}
       </div>
 
-      {/* ── Persona reading: how this student thinks + how to learn ── */}
+      {/* ── Persona reading: recognition → shadow → AI-era edge ── */}
       <div className="mt-4 rounded-3xl border border-ink/10 bg-paper-2 p-5">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
-          사고 성향 분석
+          사고 성향 분석 · {strength.englishName}
         </p>
-        <h2 className="mt-1 font-kr text-lg font-bold">이렇게 사고하는 사람이에요</h2>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink/80">{persona.tendency}</p>
-        <div className="mt-4 rounded-2xl border border-accent/25 bg-accent-soft/40 px-4 py-3">
-          <p className="font-kr text-[13px] font-semibold text-accent">📚 이렇게 배우면 폭발해요</p>
-          <p className="mt-1 text-[14px] leading-relaxed text-ink/80">{persona.study}</p>
+        <h2 className="mt-1 font-kr text-lg font-bold">이런 순간, 당신이죠</h2>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink/85">{persona.signature}</p>
+
+        <div className="mt-4 flex items-start gap-2.5 border-t border-ink/10 pt-4">
+          <span aria-hidden className="mt-0.5">🔎</span>
+          <p className="text-[14px] leading-relaxed text-ink/65">
+            <b className="font-semibold text-ink/80">강점의 그림자 </b>
+            {persona.shadow}
+          </p>
+        </div>
+        <div className="mt-3 rounded-2xl border border-accent/25 bg-accent-soft/40 px-4 py-3">
+          <p className="font-kr text-[13px] font-semibold text-accent">⚡ AI 시대의 무기</p>
+          <p className="mt-1 text-[14.5px] leading-relaxed text-ink/85">{persona.edge}</p>
         </div>
       </div>
 
