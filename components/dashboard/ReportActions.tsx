@@ -53,14 +53,14 @@ export function ReportActions({ data }: { data: ReportData }) {
         onClick={() => window.print()}
         className="inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 font-kr text-sm font-semibold text-on-dark transition hover:bg-accent"
       >
-        <span aria-hidden>⤓</span> 리포트 PDF로 받기
+        리포트 PDF로 받기
       </button>
       <button
         type="button"
         onClick={downloadJson}
         className="inline-flex items-center gap-2 rounded-xl border border-ink/15 bg-paper px-4 py-2.5 font-kr text-sm font-medium text-ink/75 transition hover:border-accent/50"
       >
-        <span aria-hidden className="font-mono">{"{ }"}</span> 데이터(JSON) 내보내기
+        데이터(JSON) 내보내기
       </button>
     </div>
   );

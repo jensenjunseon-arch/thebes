@@ -15,12 +15,10 @@ interface Props {
 
 // "Coming soon" / unsupported pill.
 function SoonPill({
-  icon,
   label,
   note,
   badge = "SOON",
 }: {
-  icon: string;
   label: string;
   note: string;
   badge?: string;
@@ -33,7 +31,6 @@ function SoonPill({
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper px-3.5 py-1.5 text-[13px] text-ink/50 transition hover:border-ink/30"
       >
-        <span aria-hidden>{icon}</span>
         {label}
         <span className="rounded-full bg-ink/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-tighter2 text-ink/45">
           {badge}
@@ -108,7 +105,6 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
             Model paragraph
           </p>
           <SoonPill
-            icon="▶"
             label="읽어주기"
             note="자연스러운 원어민 음성으로 읽어주는 리스닝 기능을 준비 중이에요. (고품질 음성 적용 예정)"
           />
@@ -144,7 +140,7 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
         />
         {pct >= 90 && (
           <p className="mt-2 text-[13px] font-medium text-accent">
-            완벽해요! 이 문장들이 이제 자신의 표현이에요. 🎉
+            완벽해요. 이 문장들이 이제 자신의 표현이에요.
           </p>
         )}
       </div>
@@ -164,16 +160,17 @@ export function RecapView({ coaching, evidenceByConstruct, onBack }: Props) {
                   : "border border-accent/40 bg-accent-soft/40 text-accent hover:bg-accent-soft/70",
               )}
             >
-              <span aria-hidden>🎤</span>
               {listening ? "듣는 중…" : "따라 읽기"}
             </button>
           ) : (
-            <SoonPill icon="🎤" label="따라 읽기" badge="미지원" note="이 브라우저는 음성 인식을 지원하지 않아요. 크롬/사파리에서 말하기 연습을 할 수 있어요." />
+            <SoonPill label="따라 읽기" badge="미지원" note="이 브라우저는 음성 인식을 지원하지 않아요. 크롬/사파리에서 말하기 연습을 할 수 있어요." />
           )}
         </div>
         {stt && !heard && (
           <p className="mt-2 text-[13px] leading-relaxed text-ink/45">
-            🎤를 누르고 위 문단을 영어로 소리 내어 읽어보세요. 얼마나 똑같이 읽었는지 들려드릴게요.
+            ‘따라 읽기’를 누르고 위 문단을 영어로 소리 내어 읽어보세요.
+            <br />
+            얼마나 똑같이 읽었는지 들려드릴게요.
           </p>
         )}
         {heard && (

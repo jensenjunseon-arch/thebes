@@ -98,6 +98,24 @@ const RISK: Record<ConstructId, { weak: string; crisis: string }> = {
   },
 };
 
+// Student-facing next move — concrete, empowering, second person. (Mutually
+// exclusive from the parent content: the student gets identity + action, the
+// parent gets assessment + risk + decision.)
+const STUDENT_MOVE: Record<ConstructId, string> = {
+  redefine:
+    "문제를 받으면 풀기 전에 ‘이게 진짜 뭘 묻지?’를 한 줄로 적어보세요. 그 한 줄이, 시키는 대로 푸는 사람과 무엇을 풀지 정하는 사람을 가릅니다.",
+  decompose:
+    "막막한 과제를 만나면 가장 먼저 ‘이건 몇 조각으로 나뉘지?’를 적어보세요. 큰 문제 앞에서 얼지 않는 사람이 됩니다.",
+  relate:
+    "새로 배운 걸 ‘예전에 배운 무엇과 닮았지?’로 한 번씩 엮어보세요. 외울 양이 절반으로 줄어듭니다.",
+  relevance:
+    "배우기 전에 ‘이게 나한테 왜 쓸모 있지?’를 먼저 물어보세요. 동기가 켜지면 누구도 당신을 멈출 수 없습니다.",
+  transfer:
+    "한 문제를 풀면 ‘이 방법, 또 어디에 쓸 수 있지?’를 떠올려보세요. 하나를 배워 열을 쓰는 사람이 됩니다.",
+  english:
+    "떠오른 생각을 짧게라도 영어로 먼저 적어보세요. 영어로 ‘사고’하는 순간, 세계 어디서든 통하는 무기가 됩니다.",
+};
+
 function indexBand(n: number): string {
   if (n >= 75) return "AI 시대가 요구하는 사고력을 갖춰가는 중";
   if (n >= 55) return "탄탄한 토대 — 방향만 잡으면 빠르게 큽니다";
@@ -150,7 +168,7 @@ export function DiagnosticResult({
   const risk = RISK[weak.id];
 
   return (
-    <section className="mx-auto max-w-2xl px-4 pb-24 sm:px-6">
+    <section className="mx-auto max-w-2xl break-keep px-4 pb-24 sm:px-6">
       <p className="pt-2 text-center font-mono text-[11px] uppercase tracking-tighter2 text-accent">
         AI Talent Report · AI 인재 리포트
       </p>
@@ -182,62 +200,93 @@ export function DiagnosticResult({
         </div>
       </div>
 
-      {/* ── English recap — right under the score ── */}
-      <button
-        type="button"
-        onClick={onRecap}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-4 font-kr text-base font-semibold text-on-dark transition hover:opacity-90"
-      >
-        영어로 정리하고 따라 쓰기
-        <span className="font-mono text-sm">→</span>
-      </button>
-      <p className="mt-2 text-center text-[13px] leading-relaxed text-ink/55">
-        오늘의 사고 과정을 한 편의 영어 문단으로 — 따라 쓰고, 소리 내어 읽으며
+      {/* Neutral one-line summary (shared) */}
+      <p className="mt-5 text-center font-kr text-lg font-semibold leading-relaxed text-ink sm:text-xl">
+        가장 두드러진 강점은 <span className="text-accent">{strength.koreanName}</span>,
+        <br />
+        먼저 키울 곳은 <span className="text-accent">{weak.koreanName}</span>입니다.
       </p>
 
-      {/* ── 강점 분석: 내 말(①) + 평균 대조(①) + 강점×약점 패턴(②) + 부모(④) ── */}
-      <div className="mt-7 rounded-3xl border border-accent/30 bg-accent-soft/30 p-5">
+      {/* ───────────── 학생에게 ───────────── */}
+      <div className="mt-9 flex items-center gap-3">
+        <span className="whitespace-nowrap font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
+          학생에게 · For the student
+        </span>
+        <span className="h-px flex-1 bg-ink/10" />
+      </div>
+
+      <div className="mt-4 rounded-3xl border border-accent/30 bg-accent-soft/30 p-5">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent">
-          가장 두드러진 강점 · {strength.englishName}
+          너의 가장 큰 무기 · {strength.englishName}
         </p>
         <h2 className="mt-1 font-kr text-xl font-bold tracking-tighter2">
           {strength.koreanName}
         </h2>
-
         {topEvidence && (
           <blockquote className="mt-3 border-l-2 border-accent pl-3 text-[15px] leading-relaxed text-ink/85">
             “{topEvidence.quote}”
           </blockquote>
         )}
         <p className="mt-3 text-[15px] leading-relaxed text-ink/80">{reading.contrast}</p>
-
-        {/* ② 강점×약점 상호작용 패턴 */}
-        <div className="mt-4 border-t border-accent/20 pt-4">
-          <p className="font-kr text-[13px] font-semibold text-ink/70">🧬 지금 보이는 패턴</p>
-          <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink/80">
-            ‘{strength.koreanName}’은 또래보다 앞서는데, 받쳐줄{" "}
-            <b className="font-semibold">‘{weak.koreanName}’</b>이 아직 따라오지 못했어요.
-            그래서 {reading.consequence}{" "}
-            <span className="text-ink/55">
-              다행히 이건 머리가 아니라 ‘습관’의 문제라, 가장 빨리 자라는 부분이에요.
-            </span>
+        <div className="mt-4 rounded-2xl border border-accent/25 bg-paper px-4 py-3.5">
+          <p className="font-kr text-[13px] font-semibold text-accent">이렇게 해보세요</p>
+          <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink/85">
+            {STUDENT_MOVE[strength.id]}
           </p>
-        </div>
-
-        {/* ④ 학부모 번역 */}
-        <div className="mt-4 rounded-2xl border border-ink/15 bg-paper px-4 py-3.5">
-          <p className="font-kr text-[13px] font-semibold text-ink">👪 부모님께</p>
-          <p className="mt-1.5 text-[14px] leading-relaxed text-ink/75">{reading.parentNote}</p>
         </div>
       </div>
 
-      {/* ── Crisis: the weakness, framed as AI-era readiness (visceral) ── */}
+      {/* student action — English recap */}
+      <button
+        type="button"
+        onClick={onRecap}
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-4 font-kr text-base font-semibold text-on-dark transition hover:opacity-90"
+      >
+        영어로 정리하고 따라 쓰기
+        <span className="font-mono text-sm">→</span>
+      </button>
+      <p className="mt-2 text-center text-[13px] leading-relaxed text-ink/55">
+        오늘 한 사고를 한 편의 영어 문단으로 —
+        <br />
+        따라 쓰고, 소리 내어 읽으며 내 것으로.
+      </p>
+
+      {/* ───────────── 학부모에게 ───────────── */}
+      <div className="mt-10 flex items-center gap-3">
+        <span className="whitespace-nowrap font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
+          학부모에게 · For parents
+        </span>
+        <span className="h-px flex-1 bg-ink/10" />
+      </div>
+
+      <div className="mt-4 rounded-3xl border border-ink/10 bg-paper-2 p-5">
+        <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
+          진단 소견
+        </p>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink/80">
+          ‘{strength.koreanName}’이 또렷한 강점입니다. 다만 그 힘을 받쳐줄{" "}
+          <b className="font-semibold">‘{weak.koreanName}’</b>이 아직 약해,
+          <br />
+          {reading.consequence}
+        </p>
+        <p className="mt-2 text-[13.5px] leading-relaxed text-ink/55">
+          머리가 아니라 ‘습관’의 문제라, 환경만 맞으면 가장 빨리 자라는 부분입니다.
+        </p>
+      </div>
+
       <div className="mt-4 rounded-3xl border border-ink/15 bg-ink p-6 text-on-dark">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent-soft">
-          ⚠ 지금 놓치면, AI 시대 준비가 늦어요
+          지금 점검하지 않으면
         </p>
-        <h2 className="mt-2 font-kr text-lg font-bold">{risk.weak}</h2>
+        <h3 className="mt-2 font-kr text-lg font-bold">{risk.weak}</h3>
         <p className="mt-2 text-[14.5px] leading-relaxed text-on-dark/75">{risk.crisis}</p>
+      </div>
+
+      <div className="mt-4 rounded-3xl border border-ink/10 bg-paper-2 p-5">
+        <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
+          이 아이에게 맞는 학습 환경
+        </p>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink/80">{reading.parentNote}</p>
       </div>
 
       {/* ── Gate / unlocked ── */}
@@ -279,27 +328,28 @@ function SignupGate({
       <div className="pointer-events-none absolute inset-x-0 -top-8 h-20 bg-gradient-to-b from-paper to-transparent" />
 
       <div className="absolute inset-0 flex items-start justify-center px-2 pt-6">
-        <div className="w-full max-w-md rounded-3xl border border-ink/15 bg-paper/95 p-6 text-center shadow-[0_8px_40px_rgba(20,17,12,0.12)] backdrop-blur-sm">
-          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-ink text-on-dark">
-            <span aria-hidden className="text-lg">🔒</span>
-          </div>
-          <h2 className="mt-4 font-kr text-xl font-bold tracking-tighter2 text-ink">
+        <div className="w-full max-w-md break-keep rounded-3xl border border-ink/15 bg-paper/95 p-6 text-center shadow-[0_8px_40px_rgba(20,17,12,0.12)] backdrop-blur-sm">
+          <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
+            전체 리포트 · 잠금
+          </p>
+          <h2 className="mt-2 font-kr text-xl font-bold tracking-tighter2 text-ink">
             그래서, 무엇부터 하면 될까요?
           </h2>
           <p className="mt-2 text-[14px] leading-relaxed text-ink/65">
-            <b className="text-ink">‘{weakName}’</b>을 강점으로 바꾸는 처방과, 또래 중 내
-            위치까지 — 진짜 리포트는 여기서부터예요.
+            <b className="text-ink">‘{weakName}’</b>을 강점으로 바꾸는 처방과,
+            <br />
+            또래 중 내 위치까지 — 진짜 리포트는 여기서부터입니다.
           </p>
 
-          <ul className="mx-auto mt-5 max-w-xs space-y-2 text-left">
+          <ul className="mx-auto mt-5 max-w-xs space-y-2.5 text-left">
             {[
-              ["🧭", "맞춤 학습 처방", `‘${weakName}’을 키우는 구체적 행동 3가지`],
-              ["🎯", "또래 비교", "내 AI 인재 지수가 상위 몇 %인지"],
-              ["📈", "12주 성장 로드맵", "지금 → 미래, 어떻게 자라는지"],
-              ["👨‍👩‍👧", "부모님 리포트", "매주 갱신되는 성장 기록"],
-            ].map(([icon, t, d]) => (
+              ["맞춤 학습 처방", `‘${weakName}’을 키우는 구체적 행동 3가지`],
+              ["또래 비교", "내 AI 인재 지수가 상위 몇 %인지"],
+              ["12주 성장 로드맵", "지금의 사고가 어떻게 자라는지"],
+              ["부모님 리포트", "매주 갱신되는 성장 기록"],
+            ].map(([t, d]) => (
               <li key={t} className="flex items-start gap-2.5">
-                <span aria-hidden className="mt-0.5">{icon}</span>
+                <span aria-hidden className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                 <span className="text-[13.5px] leading-snug">
                   <b className="font-semibold text-ink">{t}</b>
                   <span className="text-ink/55"> · {d}</span>

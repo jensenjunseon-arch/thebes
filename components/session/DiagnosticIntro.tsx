@@ -113,7 +113,6 @@ export function DiagnosticIntro({
         className="animate-rise mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl border border-ink/15 bg-paper py-3.5 font-kr text-sm font-medium text-ink/80 transition hover:border-accent/50"
         style={{ animationDelay: "880ms" }}
       >
-        <span aria-hidden>📷</span>
         내가 막힌 문제를 사진으로 올리기
       </button>
       <p
