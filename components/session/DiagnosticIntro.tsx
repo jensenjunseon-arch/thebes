@@ -10,14 +10,33 @@ import { CONSTRUCTS } from "@/lib/constructs";
 export function DiagnosticIntro({
   onStart,
   onUploadStart,
+  hasSaved = false,
+  onViewSaved,
 }: {
   onStart: () => void;
   onUploadStart: (file: File) => void;
+  hasSaved?: boolean;
+  onViewSaved?: () => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
     <section className="mx-auto max-w-2xl px-5 pb-28 pt-4 sm:px-6">
+      {hasSaved && onViewSaved && (
+        <button
+          type="button"
+          onClick={onViewSaved}
+          className="animate-rise mb-5 flex w-full items-center justify-between rounded-2xl border border-accent/30 bg-accent-soft/30 px-4 py-3 text-left transition hover:bg-accent-soft/60"
+        >
+          <span className="font-kr text-sm font-medium text-ink/80">
+            지난 진단 결과가 저장되어 있어요
+          </span>
+          <span className="font-kr text-sm font-semibold text-accent">
+            다시 보기 →
+          </span>
+        </button>
+      )}
+
       <p
         className="animate-rise font-mono text-[11px] uppercase tracking-tighter2 text-accent"
         style={{ animationDelay: "0ms" }}

@@ -173,8 +173,8 @@ export function DiagnosticResult({
           결과 저장하고 부모님 리포트 받기
           <span className="font-mono text-xs">→</span>
         </Link>
-        <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-tighter2 text-on-dark/40">
-          로그인은 결과를 저장할 때만
+        <p className="mt-3 text-center text-[11px] leading-relaxed text-on-dark/45">
+          이 결과는 기기에 저장돼 있어요 · 가입하면 부모님 리포트로 이어집니다
         </p>
       </div>
 

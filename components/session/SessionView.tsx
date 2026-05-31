@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { StepIndicator } from "@/components/session/StepIndicator";
 import { ChatPanel, type Turn } from "@/components/session/ChatPanel";
 import { ProblemChip } from "@/components/session/ProblemChip";
@@ -22,6 +22,11 @@ import { TOTAL_STEPS, stepById, type StepId } from "@/lib/steps";
 import { submitTurn } from "@/app/session/[id]/actions";
 import { evaluate, stagesForStep, starterFramesFor } from "@/lib/diagnosticEngine";
 import { LEVELS, type Level, type PublicProblem } from "@/lib/problems";
+import {
+  saveResult,
+  getLatestResult,
+  type DiagnosticRecord,
+} from "@/lib/resultStore";
 import type { TutorMessage } from "@/lib/ai/tutor";
 import type { ConstructId } from "@/lib/constructs";
 import { cn } from "@/lib/cn";
@@ -102,6 +107,11 @@ export function SessionView({
   const [evidenceByConstruct, setEvidenceByConstruct] = useState<EvidenceByConstruct>({});
   const [completed, setCompleted] = useState(false);
   const [done, setDone] = useState(false);
+  // Persistence + "see your last report".
+  const savedRef = useRef(false);
+  const [savedView, setSavedView] = useState<DiagnosticRecord | null>(null);
+  const [hasSaved, setHasSaved] = useState(false);
+  useEffect(() => setHasSaved(!!getLatestResult()), []);
   const [pending, startTransition] = useTransition();
   const [banner, setBanner] = useState<{ kind: "advance" | "error"; text: string } | null>(
     null,
@@ -123,7 +133,33 @@ export function SessionView({
     content: t.content,
   }));
 
+  // Persist the finished result (localStorage) and reveal it. Saved once per run.
+  function goToResult() {
+    if (!savedRef.current) {
+      saveResult({
+        at: Date.now(),
+        topic: current.topic,
+        level: String(current.level),
+        totals,
+        evidence: evidenceByConstruct,
+        coaching: current.coaching,
+      });
+      savedRef.current = true;
+      setHasSaved(true);
+    }
+    setDone(true);
+  }
+
+  function viewSaved() {
+    const r = getLatestResult();
+    if (!r) return;
+    setSavedView(r);
+    setStarted(true);
+  }
+
   function resetSession(nextStep: StepId = 1) {
+    savedRef.current = false;
+    setSavedView(null);
     stageRef.current = 0;
     attemptsRef.current = 0;
     setStep(nextStep);
@@ -322,16 +358,33 @@ export function SessionView({
 
   if (!started) {
     return (
-      <DiagnosticIntro onStart={() => setStarted(true)} onUploadStart={handleUpload} />
+      <DiagnosticIntro
+        onStart={() => setStarted(true)}
+        onUploadStart={handleUpload}
+        hasSaved={hasSaved}
+        onViewSaved={viewSaved}
+      />
     );
   }
 
   if (recap) {
     return (
       <RecapView
-        coaching={current.coaching}
-        evidenceByConstruct={evidenceByConstruct}
+        coaching={savedView?.coaching ?? current.coaching}
+        evidenceByConstruct={savedView?.evidence ?? evidenceByConstruct}
         onBack={() => setRecap(false)}
+      />
+    );
+  }
+
+  // Viewing a previously saved result (retention hook).
+  if (savedView) {
+    return (
+      <DiagnosticResult
+        totals={savedView.totals}
+        evidenceByConstruct={savedView.evidence}
+        onRestart={() => resetSession()}
+        onRecap={() => setRecap(true)}
       />
     );
   }
@@ -453,7 +506,7 @@ export function SessionView({
           <div className="mx-auto max-w-2xl">
             <button
               type="button"
-              onClick={() => setDone(true)}
+              onClick={goToResult}
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 font-kr text-sm font-semibold text-on-dark transition hover:opacity-90"
             >
               진단 결과 보기
