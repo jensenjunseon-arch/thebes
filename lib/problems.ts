@@ -203,6 +203,54 @@ export const PROBLEMS: readonly Problem[] = [
       verifyHint: "your cups-per-person should be the same for 2 people and for 6 people.",
     },
   },
+  {
+    id: "elem-high-area",
+    level: "초등 고학년",
+    topic: "넓이",
+    englishStatement:
+      "A rectangle is 6 cm wide and 4 cm tall. What is its area?",
+    koreanSupport:
+      "직사각형의 가로가 6cm, 세로가 4cm입니다. 이 직사각형의 넓이는 몇 cm²일까요?",
+    forbiddenAnswerTokens: ["24 cm", "24cm", "= 24"],
+    coaching: {
+      restateFrame: "The rectangle is ___ wide and ___ tall, and I want its ___.",
+      keyAssumption: "area means the space inside, not the distance around it.",
+      approaches: ["count the 1-cm squares row by row", "multiply the width by the height"],
+      verifyHint: "your area should be bigger than either side on its own.",
+    },
+  },
+  {
+    id: "elem-high-outfits",
+    level: "초등 고학년",
+    topic: "경우의 수",
+    englishStatement:
+      "You have 3 shirts and 2 pairs of pants. How many different outfits (one shirt and one pair of pants) can you make?",
+    koreanSupport:
+      "셔츠 3벌과 바지 2벌이 있어요. 셔츠 1벌과 바지 1벌로 만들 수 있는 서로 다른 옷차림은 모두 몇 가지일까요?",
+    forbiddenAnswerTokens: ["6 outfits", "= 6", "is 6"],
+    coaching: {
+      restateFrame: "There are ___ shirts and ___ pairs of pants, and each outfit is one of each.",
+      keyAssumption: "any shirt can be worn with any pair of pants.",
+      approaches: ["list every shirt-and-pants pair", "multiply the number of shirts by the pants"],
+      verifyHint: "one shirt makes 2 outfits — and there are 3 shirts.",
+    },
+  },
+  {
+    id: "elem-high-elapsed",
+    level: "초등 고학년",
+    topic: "시간 경과",
+    englishStatement:
+      "A movie starts at 2:30 and lasts 90 minutes. What time does it end?",
+    koreanSupport:
+      "영화가 2시 30분에 시작해서 90분 동안 상영해요. 영화는 몇 시에 끝날까요?",
+    forbiddenAnswerTokens: ["4:00", "4 o'clock", "= 4"],
+    coaching: {
+      restateFrame: "It starts at ___ and runs for ___ minutes.",
+      keyAssumption: "90 minutes is the same as 1 hour and 30 minutes.",
+      approaches: ["add 1 hour first, then 30 more minutes", "turn 90 minutes into hours and minutes"],
+      verifyHint: "from your end time, going back 90 minutes should reach 2:30.",
+    },
+  },
 
   // ── 중1 ──────────────────────────────────────────────────────────────
   {
@@ -253,6 +301,38 @@ export const PROBLEMS: readonly Problem[] = [
       verifyHint: "the average must land somewhere between 75 and 91.",
     },
   },
+  {
+    id: "angle-triangle",
+    level: "중1",
+    topic: "도형 각도",
+    englishStatement:
+      "Two angles of a triangle are 50° and 60°. What is the third angle?",
+    koreanSupport:
+      "삼각형의 두 각이 각각 50°와 60°입니다. 나머지 한 각의 크기는 몇 도일까요?",
+    forbiddenAnswerTokens: ["70°", "70 degrees", "= 70", "is 70"],
+    coaching: {
+      restateFrame: "Two angles are ___ and ___, and the three must add to a fixed total.",
+      keyAssumption: "the three angles of any triangle always add up to 180°.",
+      approaches: ["add the two known angles, then take that from 180", "subtract each known angle from 180 one at a time"],
+      verifyHint: "all three angles together should make exactly 180°.",
+    },
+  },
+  {
+    id: "integer-temp",
+    level: "중1",
+    topic: "정수",
+    englishStatement:
+      "The temperature was −3°C in the morning. By noon it rose by 8°C. What is the temperature at noon?",
+    koreanSupport:
+      "아침 기온이 −3°C였어요. 정오까지 8°C 올랐어요. 정오의 기온은 몇 °C일까요?",
+    forbiddenAnswerTokens: ["5°c", "5 °c", "5 degrees", "= 5", "is 5"],
+    coaching: {
+      restateFrame: "It starts at ___ degrees and goes up by ___ degrees.",
+      keyAssumption: "'rose by 8' means add 8 — even though we start below zero.",
+      approaches: ["count up 8 steps from −3 on a number line", "add 8 to negative 3"],
+      verifyHint: "your answer should be warmer (higher) than −3.",
+    },
+  },
 
   // ── 중2 ──────────────────────────────────────────────────────────────
   {
@@ -299,6 +379,38 @@ export const PROBLEMS: readonly Problem[] = [
       keyAssumption: "x is one number that stays the same throughout.",
       approaches: ["undo the −5 first, then the ×3", "isolate the x-term, then divide"],
       verifyHint: "put your x back into 3x − 5 and check that it gives 22.",
+    },
+  },
+  {
+    id: "prob-marbles",
+    level: "중2",
+    topic: "확률",
+    englishStatement:
+      "A bag has 3 red marbles and 2 blue marbles. If you draw one without looking, what is the probability it is red?",
+    koreanSupport:
+      "주머니에 빨간 구슬 3개와 파란 구슬 2개가 있어요. 보지 않고 하나를 뽑을 때, 빨간 구슬일 확률은 얼마일까요?",
+    forbiddenAnswerTokens: ["3/5"],
+    coaching: {
+      restateFrame: "There are ___ red out of ___ marbles in total.",
+      keyAssumption: "every marble is equally likely to be drawn.",
+      approaches: ["put favorable outcomes over total outcomes", "write red-to-total as a fraction"],
+      verifyHint: "the chance of red and the chance of blue should add up to one whole.",
+    },
+  },
+  {
+    id: "linear-taxi",
+    level: "중2",
+    topic: "일차함수",
+    englishStatement:
+      "A taxi charges 3,000 won to start, plus 1,000 won for each kilometer. What is the fare for a 5 km trip?",
+    koreanSupport:
+      "택시 요금은 기본 3,000원에, 1km마다 1,000원이 추가돼요. 5km를 가면 요금은 얼마일까요?",
+    forbiddenAnswerTokens: ["8000", "8,000"],
+    coaching: {
+      restateFrame: "There's a fixed ___ won, plus ___ won for every km, over ___ km.",
+      keyAssumption: "the per-km charge applies to each kilometer equally.",
+      approaches: ["find the distance cost, then add the base fare", "write it as 3000 + 1000 × distance"],
+      verifyHint: "at 0 km the fare should be just the 3,000 base — does your method give that?",
     },
   },
 
@@ -351,6 +463,36 @@ export const PROBLEMS: readonly Problem[] = [
       verifyHint: "multiply your two consecutive integers — do you get 72?",
     },
   },
+  {
+    id: "factor-quadratic",
+    level: "중3",
+    topic: "인수분해",
+    englishStatement:
+      "Solve x² − 5x + 6 = 0. What is the larger of the two solutions?",
+    koreanSupport:
+      "방정식 x² − 5x + 6 = 0 을 푸세요. 두 해 중 더 큰 값은 얼마일까요?",
+    forbiddenAnswerTokens: ["x = 3", "= 3", "is 3", "and 3"],
+    coaching: {
+      restateFrame: "I need the x-values that make ___ equal zero, then the bigger one.",
+      keyAssumption: "if two factors multiply to zero, at least one of them is zero.",
+      approaches: ["factor it into two brackets", "find two numbers that multiply to 6 and add to 5"],
+      verifyHint: "put your solution back into x² − 5x + 6 — it should give 0.",
+    },
+  },
+  {
+    id: "function-eval",
+    level: "중3",
+    topic: "함수값",
+    englishStatement: "For the function f(x) = 2x + 1, what is f(4)?",
+    koreanSupport: "함수 f(x) = 2x + 1 에 대하여, f(4) 의 값은 얼마일까요?",
+    forbiddenAnswerTokens: ["= 9", "is 9", "f(4) = 9", "equals 9"],
+    coaching: {
+      restateFrame: "I replace x with ___ in the rule ___.",
+      keyAssumption: "f(4) means put 4 everywhere x appears.",
+      approaches: ["substitute 4 for x and compute", "build a small table of x and f(x)"],
+      verifyHint: "watch the order — multiply by 2 first, then add 1.",
+    },
+  },
 
   // ── 고1 ──────────────────────────────────────────────────────────────
   {
@@ -397,6 +539,36 @@ export const PROBLEMS: readonly Problem[] = [
       keyAssumption: "the slope is constant everywhere on a straight line.",
       approaches: ["use rise over run between the two points", "find how much y changes for each step in x"],
       verifyHint: "going from x = 1 to x = 4 is 3 steps — does y rise by 3 times your slope?",
+    },
+  },
+  {
+    id: "arith-sequence",
+    level: "고1",
+    topic: "수열",
+    englishStatement:
+      "An arithmetic sequence starts at 3 and increases by 4 each time. What is the 5th term?",
+    koreanSupport:
+      "등차수열의 첫째 항이 3이고 매번 4씩 커집니다. 다섯째 항은 얼마일까요?",
+    forbiddenAnswerTokens: ["19"],
+    coaching: {
+      restateFrame: "The sequence begins at ___ and grows by ___ each step.",
+      keyAssumption: "the same amount is added at every step (a constant difference).",
+      approaches: ["list the terms one by one", "use first term plus the number of steps times the difference"],
+      verifyHint: "from the 1st term to the 5th is 4 steps, not 5 — count the gaps.",
+    },
+  },
+  {
+    id: "log-base2",
+    level: "고1",
+    topic: "로그",
+    englishStatement: "What is the value of log₂ 8?",
+    koreanSupport: "log₂ 8 의 값은 얼마일까요? (2를 몇 번 곱해야 8이 되는지)",
+    forbiddenAnswerTokens: ["= 3", "is 3", "equals 3"],
+    coaching: {
+      restateFrame: "I'm asking: 2 to what power gives ___?",
+      keyAssumption: "a logarithm asks for the exponent, not the final number.",
+      approaches: ["write 8 as a power of 2", "keep multiplying 2 and count the steps to reach 8"],
+      verifyHint: "raise 2 to your answer — you should land on 8.",
     },
   },
 ] as const;
