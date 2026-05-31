@@ -91,7 +91,8 @@
       "Bash(git commit -m 'fix\\(landing\\): realign to the widening-arc narrative \\(P0\\) *)",
       "Bash(git commit -m 'feat\\(recap\\): wire real TTS/STT via Web Speech API \\(P1\\) *)",
       "Bash(git commit -m 'feat\\(diagnostic\\): persist result + signup-capture funnel \\(P0, localStorage v0\\) *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(unlocked)"
     ]
   }
 }
