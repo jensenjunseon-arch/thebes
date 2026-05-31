@@ -6,48 +6,61 @@ import { CONSTRUCTS, type ConstructId } from "@/lib/constructs";
 // Per-construct ceiling — one stage scores each construct 1–5 (english ~5 too).
 const SESSION_MAX = 6;
 
-// Strength reading. NOT a label restatement — a recognizable behavior signature,
-// the shadow side of that strength (the non-obvious part that earns credibility),
-// and what this kind of thinker becomes in the AI era.
-const PERSONA: Record<
+// Strength reading, built to feel personal and expert — not a label restatement:
+//   contrast    : how the average student handles this vs. how THEY did (①)
+//   consequence : the failure pattern when this strength outruns the weak area (②)
+//   parentNote  : what learning environment fits / what to avoid (④, buyer-facing)
+const STRENGTH_READING: Record<
   ConstructId,
-  { signature: string; shadow: string; edge: string }
+  { contrast: string; consequence: string; parentNote: string }
 > = {
   redefine: {
-    signature:
-      "시험지를 받으면 곧장 풀기 전에 ‘이거 결국 뭘 묻는 거지?’를 한 번 곱씹죠. 남이 정해준 틀을 그대로 삼키지 않아요.",
-    shadow: "대신, 정의에 오래 머물다 ‘시작이 느리다’는 말을 듣기도 해요.",
-    edge: "AI 시대에 가장 비싼 능력이에요. 답은 AI가 내지만, ‘무엇을 물을지’ 정하는 사람은 따로 있거든요.",
+    contrast:
+      "대부분의 학생은 문제를 ‘유형’으로 봐요 — ‘아, 이거 속력 문제네’ 하고. 당신은 그걸 ‘상황’으로 다시 봤습니다.",
+    consequence:
+      "시작은 누구보다 정확한데, 마무리에서 한 번 더 확인하지 않아 아깝게 흘리는 일이 생겨요.",
+    parentNote:
+      "이 아이에겐 ‘유형 반복 풀이’ 학원이 오히려 독일 수 있어요. 스스로 문제를 다시 정의하려는 본능을 ‘시키는 대로 풀어’가 눌러버리거든요. 필요한 건 더 많은 문제가 아니라, 더 깊은 질문입니다.",
   },
   decompose: {
-    signature:
-      "복잡한 게 닥치면 일단 ‘뭐랑 뭐로 나뉘지?’부터 쪼개고 보죠. 전체 그림보다 부품을 먼저 봅니다.",
-    shadow: "대신, 쪼개는 데 빠져 ‘그래서 전체가 뭐였지’를 놓칠 때가 있어요.",
-    edge: "AI에게 일을 시키는 시대엔, 문제를 어떻게 나눠 맡길지 아는 사람이 결국 AI를 부립니다.",
+    contrast:
+      "대부분은 눈에 띄는 숫자만 주워 담아요. 당신은 ‘무엇이 무엇과 엮여 있는지’ 구조를 먼저 봤습니다.",
+    consequence:
+      "분석은 잔뜩 해놓고 ‘그래서 결론이 뭐냐’가 안 나오는 일이 생겨요.",
+    parentNote:
+      "정답 ‘속도’만 재는 환경은 이 아이의 강점을 죽여요. 큰 과제를 스스로 쪼개 설계해보는 경험에서 훨씬 크게 자랍니다.",
   },
   relate: {
-    signature:
-      "한 가지를 배우면 ‘이거 아까 그거랑 비슷한데?’ 하고 자꾸 엮어보죠. 따로따로 외우는 걸 답답해해요.",
-    shadow: "대신, 연결이 빨라 가끔 근거를 건너뛰고 ‘느낌상 맞다’고 확신할 때가 있어요.",
-    edge: "정보는 AI가 무한히 쏟아내요. 그걸 ‘그래서 뭐?’로 꿰는 사람만 끝까지 살아남습니다.",
+    contrast:
+      "대부분은 값을 구하는 데 곧장 직진해요. 당신은 ‘이게 바뀌면 저건 어떻게 되지?’를 봤습니다.",
+    consequence:
+      "빠르게 연결하다 근거를 건너뛰고 헛다리를 짚는 일이 생겨요.",
+    parentNote:
+      "암기·반복 위주 학원은 이 아이에겐 지루함이자 손해예요. 개념을 ‘연결해 설명’하게 하는 환경에서 폭발합니다.",
   },
   relevance: {
-    signature:
-      "‘이걸 왜 배워?’가 풀려야 비로소 엔진이 켜지는 타입이죠. 의미 없는 반복은 못 견뎌요.",
-    shadow: "대신, 흥미가 안 붙는 주제는 손도 안 대 ‘편식’이 생기기 쉬워요.",
-    edge: "스스로 동기를 찾는 힘 — AI가 다 해주는 시대에 끝까지 배우는 사람의 거의 유일한 공통점이에요.",
+    contrast:
+      "대부분은 ‘그래서 답이 뭐’에서 멈춰요. 당신은 ‘이게 내 삶에 무슨 의미인지’까지 갔습니다.",
+    consequence:
+      "꽂힌 것만 깊게 파고 나머지는 손도 안 대는 ‘편식’이 굳어지기 쉬워요.",
+    parentNote:
+      "‘일단 외워’식 주입은 이 아이의 엔진을 꺼버려요. 왜 배우는지가 보이는 프로젝트형 학습이 답입니다.",
   },
   transfer: {
-    signature:
-      "하나 배우면 ‘그럼 이건? 저건?’ 하고 자꾸 딴 데로 튀죠. ‘한 우물만 파라’는 말을 들어봤을 거예요.",
-    shadow: "대신, 넓게 뻗다 한 군데를 끝까지 안 파 마무리가 약할 때가 있어요.",
-    edge: "한 분야 지식은 AI가 곧 따라잡아요. 분야를 ‘건너뛰며 연결’하는 사람은 못 따라잡습니다.",
+    contrast:
+      "대부분은 이 문제 하나로 끝내요. 당신은 ‘그럼 다른 데서도 되겠네?’로 넓혔습니다.",
+    consequence:
+      "여기저기 건드리다 정작 한 군데도 끝을 못 보는 일이 생겨요.",
+    parentNote:
+      "한 문제집만 반복시키면 이 아이는 금세 흥미를 잃어요. 배운 걸 다른 분야로 옮겨보게 하는 ‘폭’이 필요합니다.",
   },
   english: {
-    signature:
-      "한국어로 떠오른 생각도 영어로 옮기는 데 큰 거부감이 없죠. 일단 영어로 내뱉어 봅니다.",
-    shadow: "대신, 표현에 신경 쓰다 정작 논리가 얕아질 때가 있어요.",
-    edge: "수학을 영어로 사고하는 순간, 전 세계 어디서든 통하는 무기가 됩니다. 대부분은 이 둘을 따로 배우거든요.",
+    contrast:
+      "대부분은 한국어로 풀고 영어는 단어만 외워요. 당신은 생각 자체를 영어로 굴렸습니다.",
+    consequence:
+      "말은 유창한데 정작 속 논리가 얕아 보이는 함정에 빠질 수 있어요.",
+    parentNote:
+      "영어와 수학을 ‘따로’ 시키는 건 이 아이에겐 두 배로 비효율이에요. 영어로 사고하는 환경 하나면, 둘이 동시에 자랍니다.",
   },
 };
 
@@ -133,7 +146,7 @@ export function DiagnosticResult({
       100,
   );
 
-  const persona = PERSONA[strength.id];
+  const reading = STRENGTH_READING[strength.id];
   const risk = RISK[weak.id];
 
   return (
@@ -182,7 +195,7 @@ export function DiagnosticResult({
         오늘의 사고 과정을 한 편의 영어 문단으로 — 따라 쓰고, 소리 내어 읽으며
       </p>
 
-      {/* ── Strength (with own words) ── */}
+      {/* ── 강점 분석: 내 말(①) + 평균 대조(①) + 강점×약점 패턴(②) + 부모(④) ── */}
       <div className="mt-7 rounded-3xl border border-accent/30 bg-accent-soft/30 p-5">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent">
           가장 두드러진 강점 · {strength.englishName}
@@ -190,31 +203,31 @@ export function DiagnosticResult({
         <h2 className="mt-1 font-kr text-xl font-bold tracking-tighter2">
           {strength.koreanName}
         </h2>
+
         {topEvidence && (
           <blockquote className="mt-3 border-l-2 border-accent pl-3 text-[15px] leading-relaxed text-ink/85">
             “{topEvidence.quote}”
           </blockquote>
         )}
-      </div>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink/80">{reading.contrast}</p>
 
-      {/* ── Persona reading: recognition → shadow → AI-era edge ── */}
-      <div className="mt-4 rounded-3xl border border-ink/10 bg-paper-2 p-5">
-        <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
-          사고 성향 분석 · {strength.englishName}
-        </p>
-        <h2 className="mt-1 font-kr text-lg font-bold">이런 순간, 당신이죠</h2>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink/85">{persona.signature}</p>
-
-        <div className="mt-4 flex items-start gap-2.5 border-t border-ink/10 pt-4">
-          <span aria-hidden className="mt-0.5">🔎</span>
-          <p className="text-[14px] leading-relaxed text-ink/65">
-            <b className="font-semibold text-ink/80">강점의 그림자 </b>
-            {persona.shadow}
+        {/* ② 강점×약점 상호작용 패턴 */}
+        <div className="mt-4 border-t border-accent/20 pt-4">
+          <p className="font-kr text-[13px] font-semibold text-ink/70">🧬 지금 보이는 패턴</p>
+          <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink/80">
+            ‘{strength.koreanName}’은 또래보다 앞서는데, 받쳐줄{" "}
+            <b className="font-semibold">‘{weak.koreanName}’</b>이 아직 따라오지 못했어요.
+            그래서 {reading.consequence}{" "}
+            <span className="text-ink/55">
+              다행히 이건 머리가 아니라 ‘습관’의 문제라, 가장 빨리 자라는 부분이에요.
+            </span>
           </p>
         </div>
-        <div className="mt-3 rounded-2xl border border-accent/25 bg-accent-soft/40 px-4 py-3">
-          <p className="font-kr text-[13px] font-semibold text-accent">⚡ AI 시대의 무기</p>
-          <p className="mt-1 text-[14.5px] leading-relaxed text-ink/85">{persona.edge}</p>
+
+        {/* ④ 학부모 번역 */}
+        <div className="mt-4 rounded-2xl border border-ink/15 bg-paper px-4 py-3.5">
+          <p className="font-kr text-[13px] font-semibold text-ink">👪 부모님께</p>
+          <p className="mt-1.5 text-[14px] leading-relaxed text-ink/75">{reading.parentNote}</p>
         </div>
       </div>
 
