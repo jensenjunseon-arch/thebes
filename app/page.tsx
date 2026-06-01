@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { PolyaDemo } from "@/components/landing/PolyaDemo";
 import { ReportPreview } from "@/components/landing/ReportPreview";
+import { CountUpSavings } from "@/components/landing/CountUpSavings";
+import { WhyCards } from "@/components/landing/WhyCards";
 
 export const metadata = {
   title: "Thebes AI — AI 시대의 사고력을 가르칩니다",
@@ -127,7 +129,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="save">
-                <span className="save-num">연간 1,701만원 절약</span>
+                <CountUpSavings target={1701} className="save-num" />
                 <span className="save-lbl">기존 학원 대비 95% 절감</span>
               </div>
             </div>
@@ -286,37 +288,7 @@ export default function LandingPage() {
               왜 수학을 영어로 사고해야 하는지, 세 가지 이유.
             </p>
           </div>
-          <div className="lp-why-three">
-            <div className="lp-why-card">
-              <div className="ord">i.</div>
-              <h3>AI는 속으로 영어로 사고합니다</h3>
-              <p>
-                Claude·GPT 같은 모델은 한국어로 물어도 내부에선 영어로 바꿔 생각한 뒤
-                답을 내놓습니다. 영어로 사고하는 사람이, AI를 가장 정확히 부립니다.
-              </p>
-              <div className="quote">"수학을 영어로 사고하는 순간, AI의 모국어로 사고하게 됩니다."</div>
-            </div>
-            <div className="lp-why-card">
-              <div className="ord">ii.</div>
-              <h3>&#8216;괜찮다&#8217;는 Okay일까, No thanks일까</h3>
-              <p>
-                한국어는 맥락에 기대는 고맥락 언어라, 같은 말도 상황 따라 뜻이 갈립니다.
-                AI는 그 맥락을 못 읽어요. 영어로 사고하면 &#8216;무엇을·왜&#8217;를
-                또박또박 드러낼 수밖에 없고, 그게 사고를 명확하게 만듭니다.
-              </p>
-              <div className="quote">"&#8216;알아서 해줘&#8217;는 AI에게 가장 약한 말입니다."</div>
-            </div>
-            <div className="lp-why-card">
-              <div className="ord">iii.</div>
-              <h3>언어로 사고하는 힘이, AI 시대의 직업이 됩니다</h3>
-              <p>
-                AI를 &#8216;언어로 다루는&#8217; 새 직업(프롬프트 엔지니어)이 학력·전공·경력
-                무관으로 채용돼 화제가 됐습니다 — 시작 연봉 최대 1억 원. 사고를 또렷한
-                언어로 표현하는 힘이, 앞으로의 무기입니다.
-              </p>
-              <div className="quote">"기술은 1년이면 바뀝니다. 변하지 않는 건, 자신의 언어로 사고하는 힘입니다."</div>
-            </div>
-          </div>
+          <WhyCards />
           <div className="lp-bilingual-note">
             <div className="lbl">정직하게 짚을 제약</div>
             <p>
@@ -351,20 +323,6 @@ export default function LandingPage() {
             </p>
           </div>
           <ReportPreview />
-          <div className="lp-validity-grid">
-            <div className="lp-validity-item">
-              <div className="ttl">신뢰도</div>
-              <div className="desc">동일 답변에 대한 채점의 일관성을 반복 측정으로 확보.</div>
-            </div>
-            <div className="lp-validity-item">
-              <div className="ttl">내용 타당도</div>
-              <div className="desc">6개 구인이 인지과학·문제 해결 연구에 근거.</div>
-            </div>
-            <div className="lp-validity-item">
-              <div className="ttl">준거 타당도</div>
-              <div className="desc">서술형 평가·추론 문항 성취와의 상관을 단계적으로 검증.</div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -434,13 +392,10 @@ export default function LandingPage() {
               만든 사람들
             </div>
             <h2>
-              수학자, 심리측정학자,
+              AI 인재를 양성하기 위한
               <br />
-              <span className="em">그리고 엔지니어</span>가 만났습니다.
+              <span className="em">전문가들</span>이 모였습니다.
             </h2>
-            <p className="lede">
-              <b>AI 인재를 양성하기 위한 전문가들이 모였습니다.</b>
-            </p>
           </div>
           <div className="lp-team-grid lp-team-grid-3">
             <div className="lp-member">
