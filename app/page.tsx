@@ -282,38 +282,39 @@ export default function LandingPage() {
               <span style={{ whiteSpace: "nowrap" }}>한 칸씩</span> 짚게 됩니다.
             </h2>
             <p className="lede">
-              외국어로 사고를 서술하면 자연스럽게 느려집니다.
-              이 &#8216;느려짐&#8217;은 버그가 아니라 <b>기능</b>입니다 —
-              메타인지 훈련에는 적당한 인지적 마찰이 오히려 도움이 됩니다.
+              AI 시대에 영어는 &#8216;과목&#8217;이 아니라 <b>사고의 언어</b>입니다.
+              왜 수학을 영어로 사고해야 하는지, 세 가지 이유.
             </p>
           </div>
           <div className="lp-why-three">
             <div className="lp-why-card">
               <div className="ord">i.</div>
-              <h3>AI·기술 사고의 1차 언어는 영어다</h3>
+              <h3>AI는 속으로 영어로 사고합니다</h3>
               <p>
-                최전선 모델, 문서, 추론 관행, 기술 어휘는 영어를 기준으로 형성됩니다.
-                사고 절차를 처음부터 영어로 익히면 &#8216;번역 손실&#8217; 없이 작동합니다.
+                Claude·GPT 같은 모델은 한국어로 물어도 내부에선 영어로 바꿔 생각한 뒤
+                답을 내놓습니다. 영어로 사고하는 사람이, AI를 가장 정확히 부립니다.
               </p>
-              <div className="quote">"Frame it. Plan it. Work it. Look back."</div>
+              <div className="quote">"수학을 영어로 사고하는 순간, AI의 모국어로 사고하게 됩니다."</div>
             </div>
             <div className="lp-why-card">
               <div className="ord">ii.</div>
-              <h3>제2언어는 사고를 명시적으로 만든다</h3>
+              <h3>&#8216;괜찮다&#8217;는 Okay일까, No thanks일까</h3>
               <p>
-                모국어로는 직관에 기대 건너뛰던 단계를, 영어로 서술하면
-                한 칸씩 또박또박 짚게 됩니다. 가정을 끝까지 드러내야 문장이 완성됩니다.
+                한국어는 맥락에 기대는 고맥락 언어라, 같은 말도 상황 따라 뜻이 갈립니다.
+                AI는 그 맥락을 못 읽어요. 영어로 사고하면 &#8216;무엇을·왜&#8217;를
+                또박또박 드러낼 수밖에 없고, 그게 사고를 명확하게 만듭니다.
               </p>
-              <div className="quote">"I'm assuming the distance is the same — let me call it d."</div>
+              <div className="quote">"&#8216;알아서 해줘&#8217;는 AI에게 가장 약한 말입니다."</div>
             </div>
             <div className="lp-why-card">
               <div className="ord">iii.</div>
-              <h3>두 학원의 예산이 하나로 묶인다</h3>
+              <h3>언어로 사고하는 힘이, AI 시대의 직업이 됩니다</h3>
               <p>
-                학부모는 영어와 수학에 따로 돈을 씁니다. Thebes는 둘을 통합합니다 —
-                어느 쪽으로 보든 가치를 설명할 수 있습니다.
+                AI를 &#8216;언어로 다루는&#8217; 새 직업(프롬프트 엔지니어)이 학력·전공·경력
+                무관으로 채용돼 화제가 됐습니다 — 시작 연봉 최대 1억 원. 사고를 또렷한
+                언어로 표현하는 힘이, 앞으로의 무기입니다.
               </p>
-              <div className="quote">"두 학원이 못 가르치는 것을, 한 자리에서."</div>
+              <div className="quote">"기술은 1년이면 바뀝니다. 변하지 않는 건, 자신의 언어로 사고하는 힘입니다."</div>
             </div>
           </div>
           <div className="lp-bilingual-note">
