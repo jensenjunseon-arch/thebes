@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import "katex/dist/katex.min.css";
+import { ResultSync } from "@/components/ResultSync";
 
 const instrumentSerif = Instrument_Serif({
   weight: "400",
@@ -29,7 +30,10 @@ export default function RootLayout({
       lang="ko"
       className={`${instrumentSerif.variable} ${GeistSans.variable} ${GeistMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <ResultSync />
+      </body>
     </html>
   );
 }

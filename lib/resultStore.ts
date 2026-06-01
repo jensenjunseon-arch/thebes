@@ -9,16 +9,25 @@ import type { Coaching } from "@/lib/problems";
 import type { EvidenceByConstruct } from "@/components/session/DiagnosticResult";
 
 export interface DiagnosticRecord {
-  at: number; // epoch ms
+  at: number; // epoch ms — also the local key for sync de-dup
   topic: string;
   level: string;
   totals: Record<ConstructId, number>;
   evidence: EvidenceByConstruct;
   coaching: Coaching; // kept so the English recap works from a saved result
+  synced?: boolean; // true once written to the account (diagnostic_results)
 }
 
 const KEY = "thebes.results.v1";
 const MAX = 20;
+
+function writeAll(all: DiagnosticRecord[]): void {
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(all.slice(0, MAX)));
+  } catch {
+    // storage full / disabled — non-fatal
+  }
+}
 
 export function getAllResults(): DiagnosticRecord[] {
   if (typeof window === "undefined") return [];
@@ -35,10 +44,17 @@ export function getLatestResult(): DiagnosticRecord | null {
 
 export function saveResult(record: DiagnosticRecord): void {
   if (typeof window === "undefined") return;
-  try {
-    const all = [record, ...getAllResults()].slice(0, MAX);
-    window.localStorage.setItem(KEY, JSON.stringify(all));
-  } catch {
-    // storage full / disabled — non-fatal; the in-session result still shows.
-  }
+  writeAll([record, ...getAllResults()]);
+}
+
+// Records not yet captured into the signed-in account.
+export function getUnsyncedResults(): DiagnosticRecord[] {
+  return getAllResults().filter((r) => !r.synced);
+}
+
+// Mark the given records (by `at`) as synced so we never double-insert.
+export function markResultsSynced(ats: number[]): void {
+  if (typeof window === "undefined") return;
+  const set = new Set(ats);
+  writeAll(getAllResults().map((r) => (set.has(r.at) ? { ...r, synced: true } : r)));
 }
