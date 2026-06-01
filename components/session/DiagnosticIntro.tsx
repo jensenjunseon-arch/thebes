@@ -3,10 +3,10 @@
 import { useRef } from "react";
 import { CONSTRUCTS } from "@/lib/constructs";
 
-// Phase 0 — a fast, punchy framing screen. One tap to start. The point is to
-// reframe BEFORE the unfamiliar English-math begins: answers are commoditized,
-// thinking is the skill, and here are the 6 dimensions we measure. The staggered
-// reveal of the six constructs is the wow — it reads as a real instrument.
+// Phase 0 — mobile-first & decision-first. The hook + free CTA sit high so the
+// start is one tap away even on a small screen; the proof (live-magic teaser +
+// the 6 constructs) sits below for anyone who hesitates and scrolls. break-keep
+// keeps Korean wrapping at word boundaries on narrow screens.
 export function DiagnosticIntro({
   onStart,
   onUploadStart,
@@ -21,19 +21,17 @@ export function DiagnosticIntro({
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
-    <section className="mx-auto max-w-2xl px-5 pb-28 pt-4 sm:px-6">
+    <section className="mx-auto max-w-2xl break-keep px-5 pb-24 pt-4 sm:px-6">
       {hasSaved && onViewSaved && (
         <button
           type="button"
           onClick={onViewSaved}
-          className="animate-rise mb-5 flex w-full items-center justify-between rounded-2xl border border-accent/30 bg-accent-soft/30 px-4 py-3 text-left transition hover:bg-accent-soft/60"
+          className="animate-rise mb-5 flex w-full items-center justify-between gap-3 rounded-2xl border border-accent/30 bg-accent-soft/30 px-4 py-3 text-left transition hover:bg-accent-soft/60"
         >
           <span className="font-kr text-sm font-medium text-ink/80">
-            지난 진단 결과가 저장되어 있어요
+            지난 진단 결과가 저장돼 있어요
           </span>
-          <span className="font-kr text-sm font-semibold text-accent">
-            다시 보기 →
-          </span>
+          <span className="shrink-0 font-kr text-sm font-semibold text-accent">다시 보기 →</span>
         </button>
       )}
 
@@ -45,8 +43,8 @@ export function DiagnosticIntro({
       </p>
 
       <h1
-        className="animate-rise mt-4 font-kr text-3xl font-bold leading-[1.18] tracking-tighter2 sm:text-[40px]"
-        style={{ animationDelay: "70ms" }}
+        className="animate-rise mt-4 font-kr text-[28px] font-bold leading-[1.2] tracking-tighter2 sm:text-[40px]"
+        style={{ animationDelay: "60ms" }}
       >
         AI가 답을 내는 시대,
         <br />
@@ -54,48 +52,43 @@ export function DiagnosticIntro({
       </h1>
 
       <p
-        className="animate-rise mt-5 text-[17px] leading-relaxed text-ink/70"
-        style={{ animationDelay: "140ms" }}
+        className="animate-rise mt-4 text-[16px] leading-relaxed text-ink/70 sm:text-[17px]"
+        style={{ animationDelay: "120ms" }}
       >
-        답은 AI가 5초면 냅니다.
-        <br />
-        그래서 우리는{" "}
-        <b className="font-semibold text-accent">정답이 아니라 ‘생각하는 힘’</b>을 봅니다.
-        <br />
-        <br />
-        지금부터 약 5분, AI 코치가 당신이
-        <br />
-        <b className="font-semibold">어떻게 생각하는지</b>를 — 영어로 — 진단합니다.
+        답은 AI가 5초면 냅니다. 우리는 ‘정답’이 아니라{" "}
+        <b className="font-semibold text-accent">‘생각하는 힘’</b>을 봅니다.
       </p>
 
+      {/* Decision-first: free CTA high on the page */}
+      <button
+        type="button"
+        onClick={onStart}
+        className="animate-rise mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink py-4 font-kr text-base font-semibold text-on-dark transition hover:bg-accent"
+        style={{ animationDelay: "200ms" }}
+      >
+        무료로 진단 시작
+        <span className="font-mono text-sm">→</span>
+      </button>
       <p
-        className="animate-rise mt-9 font-mono text-[11px] uppercase tracking-tighter2 text-ink/45"
-        style={{ animationDelay: "210ms" }}
+        className="animate-rise mt-2.5 text-center text-[12.5px] leading-relaxed text-ink/50"
+        style={{ animationDelay: "260ms" }}
       >
-        측정하는 6가지 사고력
+        약 5분 · 끝나면 <b className="font-medium text-ink/70">너의 AI 인재 지수</b> · 로그인 불필요
       </p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {CONSTRUCTS.map((c, i) => (
-          <span
-            key={c.id}
-            className="animate-rise rounded-full border border-accent/25 bg-accent-soft/30 px-3.5 py-1.5 font-kr text-sm font-medium text-ink/80"
-            style={{ animationDelay: `${260 + i * 80}ms` }}
-          >
-            {c.koreanName}
-          </span>
-        ))}
-      </div>
 
-      {/* WOW teaser — show the magic before they start (not just tell) */}
+      {/* WOW teaser — show the magic for anyone who scrolls before deciding */}
       <div
         className="animate-rise mt-8 rounded-2xl border border-accent/30 bg-accent-soft/30 p-4"
-        style={{ animationDelay: "720ms" }}
+        style={{ animationDelay: "360ms" }}
       >
         <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/45">
           진단 중엔 — 실시간으로
         </p>
         <p className="mt-2 text-[14px] leading-relaxed text-ink/80">
-          나: <span className="font-sans text-ink/70">“It’s a round trip where the speed changes each way.”</span>
+          나:{" "}
+          <span className="font-sans text-ink/70">
+            “It’s a round trip where the speed changes each way.”
+          </span>
         </p>
         <div className="mt-2.5 flex items-center gap-2">
           <span className="font-mono text-[11px] text-ink/40">↓ AI가 감지</span>
@@ -106,24 +99,26 @@ export function DiagnosticIntro({
         </div>
       </div>
 
-      {/* Payoff tease — anticipation for the score */}
+      {/* The 6 constructs */}
       <p
-        className="animate-rise mt-7 text-center font-kr text-[14px] leading-relaxed text-ink/60"
-        style={{ animationDelay: "840ms" }}
+        className="animate-rise mt-7 font-mono text-[11px] uppercase tracking-tighter2 text-ink/45"
+        style={{ animationDelay: "440ms" }}
       >
-        5분 뒤, <b className="font-semibold text-ink">너의 AI 인재 지수</b>와 사고 성향 리포트를 받아요.
+        측정하는 6가지 사고력
       </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {CONSTRUCTS.map((c, i) => (
+          <span
+            key={c.id}
+            className="animate-rise rounded-full border border-accent/25 bg-accent-soft/30 px-3.5 py-1.5 font-kr text-sm font-medium text-ink/80"
+            style={{ animationDelay: `${480 + i * 45}ms` }}
+          >
+            {c.koreanName}
+          </span>
+        ))}
+      </div>
 
-      <button
-        type="button"
-        onClick={onStart}
-        className="animate-rise mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink py-4 font-kr text-base font-semibold text-on-dark transition hover:bg-accent"
-        style={{ animationDelay: "920ms" }}
-      >
-        예시 문제로 진단 시작
-        <span className="font-mono text-sm">→</span>
-      </button>
-
+      {/* Secondary: bring your own problem */}
       <input
         ref={fileRef}
         type="file"
@@ -138,18 +133,16 @@ export function DiagnosticIntro({
       <button
         type="button"
         onClick={() => fileRef.current?.click()}
-        className="animate-rise mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl border border-ink/15 bg-paper py-3.5 font-kr text-sm font-medium text-ink/80 transition hover:border-accent/50"
-        style={{ animationDelay: "880ms" }}
+        className="animate-rise mt-7 flex w-full items-center justify-center gap-2 rounded-2xl border border-ink/15 bg-paper py-3.5 font-kr text-sm font-medium text-ink/75 transition hover:border-accent/50"
+        style={{ animationDelay: "760ms" }}
       >
         내가 막힌 문제를 사진으로 올리기
       </button>
       <p
         className="animate-rise mt-2 text-center text-[12px] leading-relaxed text-ink/45"
-        style={{ animationDelay: "940ms" }}
+        style={{ animationDelay: "820ms" }}
       >
-        이미 풀어본 문제도 좋아요 — 같은 문제를 영어로 사고하면 무엇이 달라지는지 보여드릴게요.
-        <br />
-        사진은 기기 안에서만 쓰이고 어디에도 전송되지 않아요 · 로그인 불필요
+        사진은 기기 안에서만 쓰이고 어디에도 전송되지 않아요
       </p>
     </section>
   );

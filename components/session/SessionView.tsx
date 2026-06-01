@@ -116,6 +116,10 @@ export function SessionView({
   const [banner, setBanner] = useState<{ kind: "advance" | "error"; text: string } | null>(
     null,
   );
+  // First-detection micro-celebration — fires once, the moment the AI catches
+  // the student's first real thinking signal. Cleared on their next message.
+  const firstDetectRef = useRef(false);
+  const [celebrate, setCelebrate] = useState(false);
 
   const current = useMemo(
     () => customProblem ?? problems.find((p) => p.id === problemId) ?? problems[0],
@@ -172,6 +176,8 @@ export function SessionView({
     setDone(false);
     setBanner(null);
     setFrames(starterFramesFor(nextStep, 0));
+    firstDetectRef.current = false;
+    setCelebrate(false);
   }
 
   function recordEvidence(
@@ -182,6 +188,10 @@ export function SessionView({
   ) {
     setEvidence({ quote, topConstruct: construct, topDelta: delta, rationale });
     setEvidenceByConstruct((prev) => ({ ...prev, [construct]: { quote, rationale } }));
+    if (!firstDetectRef.current) {
+      firstDetectRef.current = true;
+      setCelebrate(true);
+    }
   }
 
   function pickLevel(level: Level) {
@@ -217,6 +227,7 @@ export function SessionView({
   }
 
   function handleStudentSubmit(content: string) {
+    setCelebrate(false);
     const studentTurnId = crypto.randomUUID();
     setTurns((prev) => [...prev, { id: studentTurnId, speaker: "student", content }]);
 
@@ -493,6 +504,20 @@ export function SessionView({
           frames={frames}
         />
       </div>
+
+      {celebrate && evidence && (
+        <div className="animate-pop mt-4 flex items-center gap-3 rounded-2xl border border-accent/45 bg-accent-soft/60 px-4 py-3">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent font-mono text-base font-bold text-on-dark">
+            1
+          </span>
+          <div className="break-keep">
+            <p className="font-kr text-sm font-semibold text-ink">첫 사고력이 감지됐어요</p>
+            <p className="mt-0.5 font-kr text-[12.5px] leading-relaxed text-ink/60">
+              방금 한 말에서 AI가 생각의 신호를 잡았어요 — 이대로 계속 가볼까요?
+            </p>
+          </div>
+        </div>
+      )}
 
       {evidence && (
         <div className="mt-4">
