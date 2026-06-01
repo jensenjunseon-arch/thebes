@@ -3,6 +3,7 @@ import { PolyaDemo } from "@/components/landing/PolyaDemo";
 import { ReportPreview } from "@/components/landing/ReportPreview";
 import { CountUp } from "@/components/landing/CountUp";
 import { WhyCards } from "@/components/landing/WhyCards";
+import { TravelAlternatives } from "@/components/landing/TravelAlternatives";
 
 export const metadata = {
   title: "Thebes AI — AI 시대의 사고력을 가르칩니다",
@@ -143,11 +144,7 @@ export default function LandingPage() {
               Thebes가 아낀 <strong>1,701만원</strong>이면,<br />
               학원이 가르치지 못하는 세상을 자녀에게 직접 보여줄 수 있습니다.
             </p>
-            <div className="examples">
-              <span>미국 여름캠프 한 달 · 약 1,100만원</span>
-              <span>유럽 어학연수 한 달 · 약 630만원</span>
-              <span>4인 가족 동남아 두 달 · 약 1,000만원</span>
-            </div>
+            <TravelAlternatives />
           </div>
 
           {/* EVIDENCE — 1,800만원이 어디서 나왔는지 설명 */}
