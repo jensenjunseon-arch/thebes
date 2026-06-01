@@ -2,13 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Slot-machine count-up for the headline savings number. Runs once when it
-// scrolls into view; respects reduced-motion.
-export function CountUpSavings({
-  target = 1701,
+// Counts up to `end` when scrolled into view. `jitter` adds a slot-machine
+// digit-shake that settles into the final value; without it, a clean odometer
+// roll. Respects reduced-motion.
+export function CountUp({
+  end,
+  prefix = "",
+  suffix = "",
+  jitter = false,
+  duration = 1500,
   className,
 }: {
-  target?: number;
+  end: number;
+  prefix?: string;
+  suffix?: string;
+  jitter?: boolean;
+  duration?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -23,7 +32,7 @@ export function CountUpSavings({
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
-      setN(target);
+      setN(end);
       return;
     }
 
@@ -31,14 +40,22 @@ export function CountUpSavings({
       (entries) => {
         if (!entries[0].isIntersecting || started.current) return;
         started.current = true;
-        const duration = 1500;
         const start = performance.now();
+        const shake = Math.max(8, Math.round(end * 0.08));
         const step = (now: number) => {
           const p = Math.min(1, (now - start) / duration);
           const eased = 1 - Math.pow(1 - p, 3); // ease-out
-          setN(Math.round(eased * target));
-          if (p < 1) requestAnimationFrame(step);
-          else setN(target);
+          if (p < 1) {
+            let v = Math.round(eased * end);
+            if (jitter) {
+              // shrinking random shake on the trailing digits
+              v = Math.max(0, v + Math.round((Math.random() - 0.5) * 2 * (1 - p) * shake));
+            }
+            setN(v);
+            requestAnimationFrame(step);
+          } else {
+            setN(end);
+          }
         };
         requestAnimationFrame(step);
       },
@@ -46,11 +63,13 @@ export function CountUpSavings({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [target]);
+  }, [end, jitter, duration]);
 
   return (
     <span ref={ref} className={className}>
-      연간 <span className="tabular-nums">{n.toLocaleString()}</span>만원 절약
+      {prefix}
+      <span className="tabular-nums">{n.toLocaleString()}</span>
+      {suffix}
     </span>
   );
 }

@@ -223,7 +223,7 @@ export function DiagnosticResult({
           {strength.koreanName}
         </h2>
         {topEvidence && (
-          <blockquote className="mt-3 border-l-2 border-accent pl-3 text-[15px] leading-relaxed text-ink/85">
+          <blockquote className="mt-3 border-l-2 border-accent pl-3 font-sans text-[15px] leading-relaxed text-ink/85">
             “{topEvidence.quote}”
           </blockquote>
         )}

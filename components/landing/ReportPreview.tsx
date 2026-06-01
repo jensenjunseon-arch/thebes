@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CountUp } from "@/components/landing/CountUp";
 
 type ConstructKey = "redefine" | "decompose" | "relate" | "relevance" | "transfer" | "english";
 
@@ -156,7 +157,7 @@ export function ReportPreview() {
         </div>
         <div className="period">
           5월 3주차 · 2026-05-12 – 05-19
-          <span className="delta">+17pt 성장</span>
+          <CountUp end={17} prefix="+" suffix="pt 성장" className="delta" />
         </div>
       </div>
 

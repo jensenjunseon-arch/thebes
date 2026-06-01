@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PolyaDemo } from "@/components/landing/PolyaDemo";
 import { ReportPreview } from "@/components/landing/ReportPreview";
-import { CountUpSavings } from "@/components/landing/CountUpSavings";
+import { CountUp } from "@/components/landing/CountUp";
 import { WhyCards } from "@/components/landing/WhyCards";
 
 export const metadata = {
@@ -129,7 +129,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="save">
-                <CountUpSavings target={1701} className="save-num" />
+                <CountUp end={1701} prefix="연간 " suffix="만원 절약" jitter className="save-num" />
                 <span className="save-lbl">기존 학원 대비 95% 절감</span>
               </div>
             </div>
@@ -401,46 +401,29 @@ export default function LandingPage() {
             <div className="lp-member">
               <div className="role">Mathematics · 수학 담당</div>
               <div className="school">
-                NYU
+                New York University
                 <br />
                 Department of Mathematics
               </div>
-              <p>
-                제품의 학문적 정당성.<br />
-                사고력 측정 체계를 실제 커리큘럼과<br />
-                문제 풀로 구현하고, 영어 수학<br />
-                어휘·표현의 정확성을 책임집니다.
-              </p>
+              <p>사고력의 학문적 근거와, 영어·수학 콘텐츠의 정확성을 책임집니다.</p>
             </div>
             <div className="lp-member">
               <div className="role">Psychometrics · 진단 담당</div>
               <div className="school">
-                U. Minnesota · Psychology
+                University of Minnesota
                 <br />
-                John Jay · Forensic Psych.
+                John Jay College
               </div>
-              <p>
-                학습 경험 설계, 그리고 — 결정적으로 —<br />
-                측정 모델의 설계.<br />
-                심리측정·진단 전문성이<br />
-                &#8220;추론 절차의 질을 구인으로 분해하고<br />
-                채점·타당화한다&#8221;는 해자를 직접 만듭니다.
-              </p>
+              <p>&#8216;사고력&#8217;이라는 모호한 말을, 측정 가능한 기준으로 바꿉니다.</p>
             </div>
             <div className="lp-member">
               <div className="role">Engineering · 개발 담당</div>
               <div className="school">
-                UC Davis
+                University of California, Davis
                 <br />
                 Computer Science (B.S.)
               </div>
-              <p>
-                AI 파이프라인·스코어링 시스템·<br />
-                학부모 리포트 데이터 레이어까지<br />
-                제품의 기술 인프라 전체를 설계합니다.<br />
-                측정 모델이 실제로 작동하도록 만드는 것이<br />
-                이 팀의 역할입니다.
-              </p>
+              <p>측정과 진단이, 실제로 작동하는 제품이 되게 만듭니다.</p>
             </div>
           </div>
           <blockquote className="lp-team-quote">
