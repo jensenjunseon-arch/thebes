@@ -86,11 +86,39 @@ export function DiagnosticIntro({
         ))}
       </div>
 
+      {/* WOW teaser — show the magic before they start (not just tell) */}
+      <div
+        className="animate-rise mt-8 rounded-2xl border border-accent/30 bg-accent-soft/30 p-4"
+        style={{ animationDelay: "720ms" }}
+      >
+        <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/45">
+          진단 중엔 — 실시간으로
+        </p>
+        <p className="mt-2 text-[14px] leading-relaxed text-ink/80">
+          나: <span className="font-sans text-ink/70">“It’s a round trip where the speed changes each way.”</span>
+        </p>
+        <div className="mt-2.5 flex items-center gap-2">
+          <span className="font-mono text-[11px] text-ink/40">↓ AI가 감지</span>
+          <span className="rounded-full bg-accent px-3 py-1 font-kr text-[13px] font-semibold text-on-dark">
+            관계 파악
+          </span>
+          <span className="font-mono text-sm font-semibold text-accent">+4</span>
+        </div>
+      </div>
+
+      {/* Payoff tease — anticipation for the score */}
+      <p
+        className="animate-rise mt-7 text-center font-kr text-[14px] leading-relaxed text-ink/60"
+        style={{ animationDelay: "840ms" }}
+      >
+        5분 뒤, <b className="font-semibold text-ink">너의 AI 인재 지수</b>와 사고 성향 리포트를 받아요.
+      </p>
+
       <button
         type="button"
         onClick={onStart}
-        className="animate-rise mt-10 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink py-4 font-kr text-base font-semibold text-on-dark transition hover:bg-accent"
-        style={{ animationDelay: "820ms" }}
+        className="animate-rise mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink py-4 font-kr text-base font-semibold text-on-dark transition hover:bg-accent"
+        style={{ animationDelay: "920ms" }}
       >
         예시 문제로 진단 시작
         <span className="font-mono text-sm">→</span>
