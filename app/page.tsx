@@ -464,9 +464,10 @@ export default function LandingPage() {
       <footer className="lp-footer">
         <div className="lp-container inner">
           <div>© 2026 Thebes AI · 답이 아니라 사고를 키우는 AI 코치</div>
-          <div style={{ display: "flex", gap: 18 }}>
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
+            <Link href="/methodology">측정 방법론</Link>
+            <Link href="/connect">개발자·연동</Link>
             <a href="#">개인정보처리방침</a>
-            <a href="#">이용약관</a>
             <a href="mailto:hello@thebes.ai">문의</a>
           </div>
         </div>

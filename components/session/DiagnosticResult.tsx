@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { CONSTRUCTS, type ConstructId } from "@/lib/constructs";
 
 // Per-construct ceiling — one stage scores each construct 1–5 (english ~5 too).
@@ -167,6 +168,28 @@ export function DiagnosticResult({
   const reading = STRENGTH_READING[strength.id];
   const risk = RISK[weak.id];
 
+  // Shareable thinking card — viral loop. navigator.share on mobile, clipboard fallback.
+  const [copied, setCopied] = useState(false);
+  async function handleShare() {
+    const text = `나의 AI 인재 지수 ${composite}/100 · 강점은 ‘${strength.koreanName}’.\nAI는 답을 내고, 나는 생각을 키운다 — Thebes AI`;
+    const url = "https://thebes-nine.vercel.app/session/demo";
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: "나의 AI 인재 리포트", text, url });
+        return;
+      }
+    } catch {
+      return; // user cancelled the share sheet
+    }
+    try {
+      await navigator.clipboard.writeText(`${text}\n무료 진단: ${url}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
   return (
     <section className="mx-auto max-w-2xl break-keep px-4 pb-24 sm:px-6">
       <p className="pt-2 text-center font-mono text-[11px] uppercase tracking-tighter2 text-accent">
@@ -250,6 +273,14 @@ export function DiagnosticResult({
         <br />
         따라 쓰고, 소리 내어 읽으며 내 것으로.
       </p>
+
+      <button
+        type="button"
+        onClick={handleShare}
+        className="mt-3 w-full rounded-2xl border border-ink/15 bg-paper py-3 font-kr text-sm font-medium text-ink/70 transition hover:border-accent/50"
+      >
+        {copied ? "결과가 복사됐어요" : "내 AI 인재 지수 공유하기"}
+      </button>
 
       {/* ───────────── 학부모에게 ───────────── */}
       <div className="mt-10 flex items-center gap-3">

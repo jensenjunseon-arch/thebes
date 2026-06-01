@@ -59,8 +59,37 @@ export function aboutPayload() {
       (v, i, a) => a.indexOf(v) === i,
     ),
     levels: LEVELS,
+    audience:
+      "이미 영어·수학 사교육을 받는 초등 저학년~고1 가정이 1차 대상입니다. 영어가 약하면 한국어로 시작해 영어로 옮기는 온램프를 제공합니다.",
+    howItWorks: [
+      "인트로 — 측정할 6가지 사고력을 미리 보여줍니다.",
+      "5단계 영어 대화 — 재정의→구성요소→관계→실생활→확장. 숫자 답은 절대 묻지 않습니다.",
+      "AI 인재 리포트 — AI 인재 지수, 강점(학생이 실제로 한 말 인용), 성향 분석, 학습 환경 제안.",
+      "영어 정리 — 대화 전체가 한 편의 영어 문단이 되어 읽기·쓰기·듣기·말하기로 이어집니다.",
+      "내 문제 업로드 — 막힌 문제를 사진으로 올려 그대로 진단받을 수 있습니다.",
+    ],
+    differentiators: {
+      vsCramSchool:
+        "학원은 점수를 책임지고, Thebes는 점수 뒤의 사고를 책임집니다. 두 학원이 못 가르치는 ‘AI 시대 사고력’을 한 자리에서 다룹니다.",
+      vsChatbot:
+        "ChatGPT는 답을 주거나 소크라테스식으로 묻습니다. Thebes는 사고를 6구인으로 ‘측정·진단’하고 매주 시계열로 쌓아 성장 리포트로 만듭니다.",
+    },
+    pricing: {
+      thebesYearlyWon: 990000,
+      twoAcademiesYearlyWon: 18000000,
+      savingsPercent: 95,
+      note: "영어·수학 두 학원 합계 연 약 1,800만원 → Thebes 연 약 99만원. 무료 진단으로 먼저 체험할 수 있습니다.",
+    },
+    roadmap: [
+      "또래 비교(상위 %) — 코호트 데이터 누적 중",
+      "12주 성장 로드맵",
+      "주간 갱신 부모님 리포트",
+      "원어민 음성 읽어주기/따라 말하기(리스닝·스피킹)",
+    ],
+    demoUrl: `${CANONICAL_URL}/session/demo`,
     url: CANONICAL_URL,
     docs: `${CANONICAL_URL}/connect`,
+    methodology_doc: `${CANONICAL_URL}/methodology`,
   };
 }
 
