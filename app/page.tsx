@@ -129,7 +129,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="save">
-                <CountUp end={1701} prefix="연간 " suffix="만원 절약" jitter className="save-num" />
+                <CountUp end={1701} prefix="연간 " suffix="만원 절약" easing="expo" duration={2000} className="save-num" />
                 <span className="save-lbl">기존 학원 대비 95% 절감</span>
               </div>
             </div>

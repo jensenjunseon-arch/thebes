@@ -2,21 +2,31 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Counts up to `end` when scrolled into view. `jitter` adds a slot-machine
-// digit-shake that settles into the final value; without it, a clean odometer
-// roll. Respects reduced-motion.
+// Easing functions.
+// expo-out: starts fast, decelerates exponentially — the most refined feel for
+// a number "landing". Identical to CSS ease (but controllable in rAF).
+function easeOutExpo(p: number): number {
+  return p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+}
+// Smooth cubic ease-out for the odometer roll (smaller numbers).
+function easeOutCubic(p: number): number {
+  return 1 - Math.pow(1 - p, 3);
+}
+
 export function CountUp({
   end,
   prefix = "",
   suffix = "",
-  jitter = false,
-  duration = 1500,
+  // "expo"  — fast then graceful deceleration (savings headline)
+  // "cubic" — smooth roll (small numbers like +17pt)
+  easing = "expo",
+  duration = 1800,
   className,
 }: {
   end: number;
   prefix?: string;
   suffix?: string;
-  jitter?: boolean;
+  easing?: "expo" | "cubic";
   duration?: number;
   className?: string;
 }) {
@@ -36,22 +46,17 @@ export function CountUp({
       return;
     }
 
+    const ease = easing === "expo" ? easeOutExpo : easeOutCubic;
+
     const io = new IntersectionObserver(
       (entries) => {
         if (!entries[0].isIntersecting || started.current) return;
         started.current = true;
         const start = performance.now();
-        const shake = Math.max(8, Math.round(end * 0.08));
         const step = (now: number) => {
           const p = Math.min(1, (now - start) / duration);
-          const eased = 1 - Math.pow(1 - p, 3); // ease-out
           if (p < 1) {
-            let v = Math.round(eased * end);
-            if (jitter) {
-              // shrinking random shake on the trailing digits
-              v = Math.max(0, v + Math.round((Math.random() - 0.5) * 2 * (1 - p) * shake));
-            }
-            setN(v);
+            setN(Math.round(ease(p) * end));
             requestAnimationFrame(step);
           } else {
             setN(end);
@@ -59,11 +64,11 @@ export function CountUp({
         };
         requestAnimationFrame(step);
       },
-      { threshold: 0.6 },
+      { threshold: 0.5 },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [end, jitter, duration]);
+  }, [end, easing, duration]);
 
   return (
     <span ref={ref} className={className}>

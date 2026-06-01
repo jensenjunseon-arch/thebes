@@ -157,7 +157,7 @@ export function ReportPreview() {
         </div>
         <div className="period">
           5월 3주차 · 2026-05-12 – 05-19
-          <CountUp end={17} prefix="+" suffix="pt 성장" className="delta" />
+          <CountUp end={17} prefix="+" suffix="pt 성장" easing="cubic" duration={1200} className="delta" />
         </div>
       </div>
 
