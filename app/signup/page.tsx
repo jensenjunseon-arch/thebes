@@ -32,7 +32,7 @@ export default function SignupPage() {
       password,
       options: {
         data: { role, name },
-        emailRedirectTo: `${location.origin}/auth/callback`,
+        emailRedirectTo: `${location.origin}/auth/callback?next=/report`,
       },
     });
 
@@ -146,7 +146,7 @@ export default function SignupPage() {
           <div className="h-px flex-1 bg-ink/10" />
         </div>
 
-        <GoogleSSOButton label="Google로 가입하기" />
+        <GoogleSSOButton label="Google로 가입하기" next="/report" />
       </form>
     </AuthCard>
   );

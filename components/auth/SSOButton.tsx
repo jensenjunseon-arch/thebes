@@ -5,19 +5,21 @@ import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   label?: string;
+  next?: string;
 }
 
-export function GoogleSSOButton({ label = "Google로 계속하기" }: Props) {
+export function GoogleSSOButton({ label = "Google로 계속하기", next }: Props) {
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
     setLoading(true);
     const supabase = createClient();
+    const callback = `${window.location.origin}/auth/callback${
+      next ? `?next=${encodeURIComponent(next)}` : ""
+    }`;
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { redirectTo: callback },
     });
     // Page will redirect — no need to setLoading(false)
   }
