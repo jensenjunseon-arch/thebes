@@ -35,21 +35,14 @@ export function DiagnosticIntro({
       </p>
 
       <h1
-        className="animate-rise mt-4 font-kr text-[28px] font-bold leading-[1.2] tracking-tighter2 sm:text-[40px]"
+        className="animate-rise mt-4 font-kr text-[26px] font-bold leading-[1.3] tracking-tighter2 sm:text-[36px]"
         style={{ animationDelay: "60ms" }}
       >
-        AI가 답을 내는 시대,
+        답은 AI가 5초면 냅니다.
         <br />
-        무엇을 길러야 할까요?
+        우리는 ‘정답’이 아니라{" "}
+        <b className="text-accent">‘생각하는 힘’</b>을 봅니다.
       </h1>
-
-      <p
-        className="animate-rise mt-4 text-[16px] leading-relaxed text-ink/70 sm:text-[17px]"
-        style={{ animationDelay: "120ms" }}
-      >
-        답은 AI가 5초면 냅니다. 우리는 ‘정답’이 아니라{" "}
-        <b className="font-semibold text-accent">‘생각하는 힘’</b>을 봅니다.
-      </p>
 
       {/* Two aphorisms — the two pillars: thinking, and English. */}
       <figure
@@ -74,6 +67,9 @@ export function DiagnosticIntro({
         <blockquote className="font-kr text-[15px] leading-relaxed text-ink/80">
           “AI 시대에 가장 필요한 능력은,{" "}
           <b className="font-semibold text-ink">영어</b>다.”
+          <span className="mt-1.5 block font-serif text-[15px] italic text-ink/55">
+            “The hottest new programming language is English.”
+          </span>
         </blockquote>
         <figcaption className="mt-2 font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
           Andrej Karpathy · OpenAI 창립 멤버
@@ -93,7 +89,7 @@ export function DiagnosticIntro({
         className="animate-rise mt-2.5 text-center text-[12.5px] leading-relaxed text-ink/50"
         style={{ animationDelay: "460ms" }}
       >
-        약 5분 · 끝나면 <b className="font-medium text-ink/70">AI 인재 점수 제공</b> · 로그인 불필요
+        약 5분 · <b className="font-medium text-ink/70">AI 인재 점수 제공</b> · 로그인 불필요
       </p>
     </section>
   );
