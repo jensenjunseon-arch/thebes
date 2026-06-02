@@ -7,7 +7,6 @@ import { ProblemChip } from "@/components/session/ProblemChip";
 import { LiveEvidenceCard, type LiveEvidence } from "@/components/session/LiveEvidenceCard";
 import { DiagnosticIntro } from "@/components/session/DiagnosticIntro";
 import { RecapView } from "@/components/session/RecapView";
-import { GENERIC_COACHING } from "@/lib/recap";
 import {
   DiagnosticResult,
   type EvidenceByConstruct,
@@ -90,10 +89,6 @@ export function SessionView({
   scripted = false,
 }: Props) {
   const [problemId, setProblemId] = useState(initialProblemId);
-  // Student-uploaded photo problem (client-only; never sent anywhere).
-  const [customProblem, setCustomProblem] = useState<
-    (Omit<PublicProblem, "level"> & { level: string; imageUrl?: string }) | null
-  >(null);
   // Phase 0 intro gate — skipped when resuming a session with history.
   const [started, setStarted] = useState(initialTurns.length > 0);
   // English recap phase (reached from the result screen).
@@ -128,8 +123,8 @@ export function SessionView({
   const [celebrate, setCelebrate] = useState(false);
 
   const current = useMemo(
-    () => customProblem ?? problems.find((p) => p.id === problemId) ?? problems[0],
-    [customProblem, problems, problemId],
+    () => problems.find((p) => p.id === problemId) ?? problems[0],
+    [problems, problemId],
   );
 
   // Levels that actually have problems, in canonical order.
@@ -204,7 +199,6 @@ export function SessionView({
   function pickLevel(level: Level) {
     const first = problems.find((p) => p.level === level);
     if (!first) return;
-    setCustomProblem(null);
     setProblemId(first.id);
     resetSession();
   }
@@ -216,21 +210,6 @@ export function SessionView({
     const next = sameLevel[(idx + 1) % sameLevel.length];
     setProblemId(next.id);
     resetSession();
-  }
-
-  function handleUpload(file: File) {
-    const imageUrl = URL.createObjectURL(file);
-    setCustomProblem({
-      id: "custom-photo",
-      level: "내 문제",
-      topic: "내가 올린 문제",
-      englishStatement: "",
-      koreanSupport: "",
-      coaching: GENERIC_COACHING,
-      imageUrl,
-    });
-    resetSession();
-    setStarted(true);
   }
 
   function handleStudentSubmit(content: string, usedExample = false) {
@@ -387,7 +366,6 @@ export function SessionView({
     return (
       <DiagnosticIntro
         onStart={() => setStarted(true)}
-        onUploadStart={handleUpload}
         hasSaved={hasSaved}
         onViewSaved={viewSaved}
       />
@@ -439,15 +417,11 @@ export function SessionView({
             difficulty={current.level}
             englishStatement={current.englishStatement}
             koreanSupport={current.koreanSupport}
-            imageUrl={customProblem?.imageUrl}
-            pickerEnabled={enablePicker && !customProblem}
+            pickerEnabled={enablePicker}
             levels={availableLevels}
             onPickLevel={(lv) => pickLevel(lv as Level)}
             onShuffle={shuffleWithinLevel}
-            canShuffle={
-              !customProblem &&
-              problems.filter((p) => p.level === current.level).length > 1
-            }
+            canShuffle={problems.filter((p) => p.level === current.level).length > 1}
           />
         </div>
 
