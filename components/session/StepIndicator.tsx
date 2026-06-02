@@ -3,22 +3,25 @@ import { cn } from "@/lib/cn";
 
 interface Props {
   activeStep: StepId;
+  // How many of the diagnostic's questions are done, and how many there are.
+  stagesDone: number;
+  totalStages: number;
 }
 
-// Compact 2-step progress. Mobile-first: a thin progress rail + the current
-// step's label, so students always see where they are and how far is left.
-export function StepIndicator({ activeStep }: Props) {
+// Progress device: a per-question rail (how far through the whole diagnostic the
+// student is) + the current phase label. Mobile-first and compact.
+export function StepIndicator({ activeStep, stagesDone, totalStages }: Props) {
   const current = POLYA_STEPS[activeStep - 1];
+  const currentQuestion = Math.min(stagesDone + 1, totalStages);
 
   return (
     <div>
-      <div className="flex items-center gap-3">
-        {POLYA_STEPS.map((step) => {
-          const state =
-            step.id < activeStep ? "done" : step.id === activeStep ? "active" : "future";
+      <div className="flex items-center gap-1.5">
+        {Array.from({ length: totalStages }).map((_, i) => {
+          const state = i < stagesDone ? "done" : i === stagesDone ? "active" : "future";
           return (
             <span
-              key={step.id}
+              key={i}
               className={cn(
                 "h-1.5 flex-1 rounded-full transition-all duration-500",
                 state === "done" && "bg-accent/50",
@@ -37,8 +40,10 @@ export function StepIndicator({ activeStep }: Props) {
             Step {activeStep}/{TOTAL_STEPS}
           </span>
         </p>
+        <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink/45">
+          질문 {currentQuestion}/{totalStages}
+        </span>
       </div>
-      <p className="mt-1 text-sm leading-relaxed text-ink/55">{current.studentHint}</p>
     </div>
   );
 }

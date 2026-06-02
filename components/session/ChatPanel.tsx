@@ -11,11 +11,14 @@ export interface Turn {
 
 interface Props {
   turns: ReadonlyArray<Turn>;
-  onStudentSubmit?: (content: string) => void;
+  // usedExample = the student sent a complete example verbatim (no composition).
+  onStudentSubmit?: (content: string, usedExample: boolean) => void;
   disabled?: boolean;
   pending?: boolean;
-  // Sentence-starter chips for the current question.
+  // Sentence-starter chips (partial — student finishes them).
   frames?: string[];
+  // Complete example answers (click-only safety net).
+  examples?: string[];
   // Rendered inside the scroll region, after the turns — keeps live feedback
   // (detection celebration, evidence card) in the conversation flow so the
   // whole session fits one mobile screen with no page scroll.
@@ -28,9 +31,11 @@ export function ChatPanel({
   disabled,
   pending,
   frames,
+  examples,
   afterTurns,
 }: Props) {
   const [draft, setDraft] = useState("");
+  const [showExamples, setShowExamples] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -42,13 +47,24 @@ export function ChatPanel({
   function submit() {
     const trimmed = draft.trim();
     if (!trimmed || disabled) return;
-    onStudentSubmit?.(trimmed);
+    // Did they send a complete example verbatim? Then they didn't compose it.
+    const usedExample = !!examples?.some(
+      (e) => e.trim().toLowerCase() === trimmed.toLowerCase(),
+    );
+    onStudentSubmit?.(trimmed, usedExample);
     setDraft("");
+    setShowExamples(false);
   }
 
   function useFrame(frame: string) {
     setDraft(frame.replace(/…$/, " "));
     inputRef.current?.focus();
+  }
+
+  // Click-only answering: drop a complete example straight into the box, ready
+  // to send with one tap. (No focus-to-type — the whole point is no typing.)
+  function useExample(text: string) {
+    setDraft(text);
   }
 
   const showFrames = !!frames?.length && !draft.trim() && !disabled;
@@ -77,20 +93,48 @@ export function ChatPanel({
 
       <div className="border-t border-ink/10 p-3 sm:px-4 sm:py-4">
         {showFrames && (
-          <div className="mb-2.5 flex flex-wrap gap-2">
-            <span className="self-center font-mono text-[10px] uppercase tracking-tighter2 text-ink/35">
-              이렇게 시작해 보세요
-            </span>
-            {frames!.map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => useFrame(f)}
-                className="rounded-full border border-accent/30 bg-accent-soft/40 px-3 py-1 text-[13px] text-ink/75 transition hover:border-accent/60 hover:bg-accent-soft/70"
-              >
-                {f}
-              </button>
-            ))}
+          <div className="mb-2.5 space-y-2.5">
+            <div className="flex flex-wrap gap-2">
+              <span className="self-center font-mono text-[10px] uppercase tracking-tighter2 text-ink/35">
+                이렇게 시작해 보세요
+              </span>
+              {frames!.map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => useFrame(f)}
+                  className="rounded-full border border-accent/30 bg-accent-soft/40 px-3 py-1 text-[13px] text-ink/75 transition hover:border-accent/60 hover:bg-accent-soft/70"
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+
+            {!!examples?.length && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowExamples((v) => !v)}
+                  className="font-mono text-[10px] uppercase tracking-tighter2 text-accent/80 transition hover:text-accent"
+                >
+                  {showExamples ? "예시 답안 닫기 ▴" : "영어가 막막하면 · 예시 답안 그대로 보내기 ▾"}
+                </button>
+                {showExamples && (
+                  <div className="mt-2 space-y-1.5">
+                    {examples.map((e) => (
+                      <button
+                        key={e}
+                        type="button"
+                        onClick={() => useExample(e)}
+                        className="block w-full rounded-xl border border-ink/12 bg-paper px-3 py-2 text-left text-[13px] leading-relaxed text-ink/75 transition hover:border-accent/50 hover:bg-accent-soft/30"
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
         <div className="flex items-end gap-2">

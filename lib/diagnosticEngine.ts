@@ -158,17 +158,51 @@ function scaffold(kind: StageKind, c: Coaching): string {
 }
 
 // Sentence-starter chips — lower the blank-box barrier and teach the patterns.
+// (Partial: the student finishes the sentence themselves → counts as composition.)
 export const STARTER_FRAMES: Record<StageKind, string[]> = {
-  reframe: ["This is about…", "Basically, it's asking…"],
-  decompose: ["The key things are…", "What matters here is…"],
-  relate: ["When ___ goes up,…", "These connect because…"],
-  relevance: ["This would help me…", "In my life,…"],
-  transfer: ["If everyone thought this way,…", "In the future,…"],
+  reframe: ["This is about…", "Basically, it's asking…", "The situation is…"],
+  decompose: ["The key things are…", "What matters here is…", "The important parts are…"],
+  relate: ["When ___ goes up,…", "These connect because…", "If one changes,…"],
+  relevance: ["This would help me…", "In my life,…", "I could use this when…"],
+  transfer: ["If everyone thought this way,…", "In the future,…", "This could help people…"],
 };
 
 export function starterFramesFor(step: StepId, stageIndex: number): string[] {
   const stage = STAGES[step][Math.min(stageIndex, STAGES[step].length - 1)];
   return STARTER_FRAMES[stage.kind];
+}
+
+// Complete, submittable example answers — the click-only safety net for a
+// student who finds writing math in English too daunting. Picking one VERBATIM
+// earns the stage's THINKING credit but NO English-expression credit (see
+// SessionView): the report then honestly shows that writing is the gap, because
+// they never actually composed a sentence themselves.
+export const EXAMPLE_ANSWERS: Record<StageKind, string[]> = {
+  reframe: [
+    "This problem is basically about how two amounts are related to each other.",
+    "It's asking me to compare two situations and figure out the result.",
+  ],
+  decompose: [
+    "The important things here are the numbers given and what each of them means.",
+    "The key pieces are the two values and the units they are measured in.",
+  ],
+  relate: [
+    "When one of these gets bigger, the other one changes as well.",
+    "These connect because changing one value affects the final result.",
+  ],
+  relevance: [
+    "This would help me make smarter decisions in my everyday life.",
+    "In my life, I could use this when I compare prices or plan my time.",
+  ],
+  transfer: [
+    "If everyone thought this way, people would make better choices together.",
+    "In the future, this kind of thinking could help solve bigger problems.",
+  ],
+};
+
+export function exampleAnswersFor(step: StepId, stageIndex: number): string[] {
+  const stage = STAGES[step][Math.min(stageIndex, STAGES[step].length - 1)];
+  return EXAMPLE_ANSWERS[stage.kind];
 }
 
 // ── bilingual on-ramp ───────────────────────────────────────────────────────

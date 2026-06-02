@@ -15,9 +15,17 @@ import {
 
 type ScoreTotals = Record<ConstructId, number>;
 
+// The diagnostic asks 5 questions total (Step 1: 3, Step 2: 2) — drives the
+// progress rail.
+const TOTAL_DIALOGUE_STAGES = 5;
+
 import { TOTAL_STEPS, stepById, type StepId } from "@/lib/steps";
 import { submitTurn } from "@/app/session/[id]/actions";
-import { evaluate, stagesForStep, starterFramesFor } from "@/lib/diagnosticEngine";
+import {
+  evaluate,
+  starterFramesFor,
+  exampleAnswersFor,
+} from "@/lib/diagnosticEngine";
 import { LEVELS, type Level, type PublicProblem } from "@/lib/problems";
 import {
   saveResult,
@@ -94,11 +102,13 @@ export function SessionView({
   const stageRef = useRef(0);
   const attemptsRef = useRef(0);
   const [frames, setFrames] = useState<string[]>(starterFramesFor(initialStep, 0));
+  const [examples, setExamples] = useState<string[]>(exampleAnswersFor(initialStep, 0));
   const [step, setStep] = useState<StepId>(initialStep);
   const [turns, setTurns] = useState<Turn[]>(
     initialTurns.length > 0 ? initialTurns : [greetingTurn(initialStep)],
   );
   const [totals, setTotals] = useState<ScoreTotals>(EMPTY_TOTALS);
+  const [stagesDone, setStagesDone] = useState(0);
   const [evidence, setEvidence] = useState<LiveEvidence | null>(null);
   const [evidenceByConstruct, setEvidenceByConstruct] = useState<EvidenceByConstruct>({});
   const [completed, setCompleted] = useState(false);
@@ -171,6 +181,8 @@ export function SessionView({
     setDone(false);
     setBanner(null);
     setFrames(starterFramesFor(nextStep, 0));
+    setExamples(exampleAnswersFor(nextStep, 0));
+    setStagesDone(0);
     firstDetectRef.current = false;
     setCelebrate(false);
   }
@@ -221,7 +233,7 @@ export function SessionView({
     setStarted(true);
   }
 
-  function handleStudentSubmit(content: string) {
+  function handleStudentSubmit(content: string, usedExample = false) {
     setCelebrate(false);
     const studentTurnId = crypto.randomUUID();
     setTurns((prev) => [...prev, { id: studentTurnId, speaker: "student", content }]);
@@ -243,10 +255,14 @@ export function SessionView({
           { id: crypto.randomUUID(), speaker: "coach", content: out.reply },
         ]);
 
-        if (out.delta > 0 || out.englishDelta > 0) {
+        // A clicked example earns the thinking credit but NO English-expression
+        // credit — if the student only ever clicks, the report shows writing as
+        // the gap (they never composed a sentence themselves).
+        const englishDelta = usedExample ? 0 : out.englishDelta;
+        if (out.delta > 0 || englishDelta > 0) {
           applyScore({
             [out.construct]: out.delta,
-            english: out.englishDelta,
+            english: englishDelta,
           } as Record<ConstructId, number>);
         }
         if (out.recordEvidence) {
@@ -260,6 +276,9 @@ export function SessionView({
           return;
         }
 
+        // A question was cleared — advance the progress rail.
+        setStagesDone((n) => Math.min(TOTAL_DIALOGUE_STAGES, n + 1));
+
         if (out.completeStep && step < TOTAL_STEPS) {
           const next = (step + 1) as StepId;
           stageRef.current = 0;
@@ -267,6 +286,7 @@ export function SessionView({
           setStep(next);
           setTurns((prev) => [...prev, greetingTurn(next)]);
           setFrames(starterFramesFor(next, 0));
+          setExamples(exampleAnswersFor(next, 0));
           setBanner({
             kind: "advance",
             text: `${stepById(step).englishLabel} 완료 — 다음 단계로`,
@@ -278,6 +298,7 @@ export function SessionView({
           stageRef.current += 1;
           attemptsRef.current = 0;
           setFrames(starterFramesFor(step, stageRef.current));
+          setExamples(exampleAnswersFor(step, stageRef.current));
           setBanner(null);
         }
       });
@@ -310,8 +331,11 @@ export function SessionView({
         ]);
 
         if (res.score) {
-          applyScore(res.score.construct_deltas);
-          const top = topMovedConstruct(res.score.construct_deltas);
+          const deltas = { ...res.score.construct_deltas };
+          if (usedExample) deltas.english = 0; // clicked example → no writing credit
+          applyScore(deltas);
+          setStagesDone((n) => Math.min(TOTAL_DIALOGUE_STAGES, n + 1));
+          const top = topMovedConstruct(deltas);
           if (top) {
             recordEvidence(
               top.id,
@@ -327,6 +351,7 @@ export function SessionView({
           setStep(next);
           setTurns((prev) => [...prev, greetingTurn(next)]);
           setFrames(starterFramesFor(next, 0));
+          setExamples(exampleAnswersFor(next, 0));
           setBanner({
             kind: "advance",
             text: `${stepById(step).englishLabel} 완료 — 다음 단계로`,
@@ -424,11 +449,23 @@ export function SessionView({
             englishStatement={current.englishStatement}
             koreanSupport={current.koreanSupport}
             imageUrl={customProblem?.imageUrl}
+            pickerEnabled={enablePicker && !customProblem}
+            levels={availableLevels}
+            onPickLevel={(lv) => pickLevel(lv as Level)}
+            onShuffle={shuffleWithinLevel}
+            canShuffle={
+              !customProblem &&
+              problems.filter((p) => p.level === current.level).length > 1
+            }
           />
         </div>
 
         <div className="mt-3 shrink-0">
-          <StepIndicator activeStep={step} />
+          <StepIndicator
+            activeStep={step}
+            stagesDone={stagesDone}
+            totalStages={TOTAL_DIALOGUE_STAGES}
+          />
         </div>
 
         {banner && (
@@ -451,6 +488,7 @@ export function SessionView({
             disabled={pending || completed}
             pending={pending}
             frames={frames}
+            examples={examples}
             afterTurns={
               evidence ? (
                 <div className="space-y-3 pt-1">
@@ -476,41 +514,6 @@ export function SessionView({
           />
         </div>
       </div>
-
-      {/* Below the fold — switch level / problem (demo only). */}
-      {enablePicker && !customProblem && availableLevels.length > 1 && (
-        <div className="flex flex-wrap items-center gap-2 border-t border-ink/10 py-6">
-          <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
-            난이도
-          </span>
-          {availableLevels.map((lv) => (
-            <button
-              key={lv}
-              type="button"
-              onClick={() => pickLevel(lv)}
-              disabled={pending}
-              className={cn(
-                "rounded-full border px-3 py-1 font-kr text-sm transition disabled:opacity-50",
-                current.level === lv
-                  ? "border-accent bg-accent text-on-dark"
-                  : "border-ink/15 bg-paper text-ink hover:border-accent/60",
-              )}
-            >
-              {lv}
-            </button>
-          ))}
-          {problems.filter((p) => p.level === current.level).length > 1 && (
-            <button
-              type="button"
-              onClick={shuffleWithinLevel}
-              disabled={pending}
-              className="ml-auto rounded-full border border-ink/15 bg-paper px-3 py-1 font-kr text-sm text-ink/70 transition hover:border-accent/60 disabled:opacity-50"
-            >
-              다른 문제 ↻
-            </button>
-          )}
-        </div>
-      )}
 
       {/* On completion, a thumb-reachable CTA to the result reveal. */}
       {completed && (
