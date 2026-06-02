@@ -172,14 +172,6 @@ export default function LandingPage() {
                 <span>월 평균 50–70만원 · 주 3회</span>
                 <span className="yearly">연간 840만원</span>
               </div>
-              <div className="what">
-                <ul>
-                  <li>단어 외우기</li>
-                  <li>문법 문제 풀기</li>
-                  <li>독해 지문 분석</li>
-                  <li>내신·수능 점수</li>
-                </ul>
-              </div>
             </div>
             <div className="lp-acad-card">
               <div className="tag">학원 B · 수학</div>
@@ -187,14 +179,6 @@ export default function LandingPage() {
               <div className="price">
                 <span>월 평균 50–80만원 · 주 3회</span>
                 <span className="yearly">연간 960만원</span>
-              </div>
-              <div className="what">
-                <ul>
-                  <li>공식 외우기</li>
-                  <li>유형별 문제 풀이</li>
-                  <li>속도 훈련</li>
-                  <li>내신·수능 점수</li>
-                </ul>
               </div>
             </div>
           </div>

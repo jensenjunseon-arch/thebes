@@ -254,18 +254,18 @@ body {
 .lp-acad-card {
   position: relative; background: var(--paper-2);
   border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 16px 22px; min-height: 0;
+  padding: 12px 20px; min-height: 0;
 }
 .lp-acad-card .tag {
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px;
 }
 .lp-acad-card .subj { font-family: var(--font-sans); font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 2px; }
 .lp-acad-card .price {
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--ink-3);
-  margin-bottom: 10px;
+  margin-bottom: 0;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -282,10 +282,6 @@ body {
   font-weight: 500;
   letter-spacing: 0.02em;
 }
-.lp-acad-card .what { font-size: 13.5px; color: var(--ink-2); line-height: 1.4; }
-.lp-acad-card .what ul { list-style: none; padding: 0; margin: 0; }
-.lp-acad-card .what li { display: flex; gap: 8px; align-items: baseline; padding: 1.5px 0; }
-.lp-acad-card .what li::before { content: "—"; color: var(--ink-4); }
 .lp-two-bridge {
   padding: 32px 36px;
   background: var(--ink); color: var(--on-dark);
@@ -542,7 +538,7 @@ body {
   .lp-counter { padding: 100px 0; }
   .lp-counter h2 { font-size: 30px; }
   .lp-counter-col { padding: 28px 24px; }
-  .lp-acad-card { padding: 28px 24px; min-height: 0; }
+  .lp-acad-card { padding: 12px 20px; min-height: 0; }
   .lp-why-card { padding: 26px 22px; }
   .lp-team-quote { padding: 24px; font-size: 18px; }
   .lp-closing { padding: 100px 0 110px; }
