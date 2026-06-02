@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Routes that require authentication.
-const PROTECTED_PREFIXES = ["/dashboard"];
+const PROTECTED_PREFIXES = ["/dashboard", "/subscribe", "/billing"];
 
 // Public demo routes — accessible without login (pre-launch; mock data only).
 const PUBLIC_DEMO = new Set(["/session/demo", "/dashboard/parent"]);

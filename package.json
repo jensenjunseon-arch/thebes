@@ -12,7 +12,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
     "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.45.4",
+    "@supabase/supabase-js": "^2.107.0",
+    "@tosspayments/payment-sdk": "^1.9.2",
     "clsx": "^2.1.1",
     "geist": "^1.7.1",
     "katex": "^0.16.11",
