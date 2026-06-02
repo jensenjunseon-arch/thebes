@@ -16,9 +16,20 @@ interface Props {
   pending?: boolean;
   // Sentence-starter chips for the current question.
   frames?: string[];
+  // Rendered inside the scroll region, after the turns — keeps live feedback
+  // (detection celebration, evidence card) in the conversation flow so the
+  // whole session fits one mobile screen with no page scroll.
+  afterTurns?: React.ReactNode;
 }
 
-export function ChatPanel({ turns, onStudentSubmit, disabled, pending, frames }: Props) {
+export function ChatPanel({
+  turns,
+  onStudentSubmit,
+  disabled,
+  pending,
+  frames,
+  afterTurns,
+}: Props) {
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -43,13 +54,14 @@ export function ChatPanel({ turns, onStudentSubmit, disabled, pending, frames }:
   const showFrames = !!frames?.length && !draft.trim() && !disabled;
 
   return (
-    <div className="flex h-full min-h-[60dvh] flex-col rounded-3xl border border-ink/10 bg-paper-2 lg:min-h-[520px]">
+    <div className="flex h-full min-h-0 flex-col rounded-3xl border border-ink/10 bg-paper-2">
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6">
         {turns.length === 0 ? (
           <EmptyState />
         ) : (
           turns.map((t) => <TurnBubble key={t.id} turn={t} />)
         )}
+        {afterTurns}
         {pending && (
           <div className="flex justify-start">
             <div className="rounded-2xl bg-paper px-4 py-3 text-sm text-ink/50">

@@ -73,7 +73,7 @@ export function DiagnosticIntro({
         className="animate-rise mt-2.5 text-center text-[12.5px] leading-relaxed text-ink/50"
         style={{ animationDelay: "260ms" }}
       >
-        약 5분 · 끝나면 <b className="font-medium text-ink/70">너의 AI 인재 지수</b> · 로그인 불필요
+        약 5분 · 끝나면 <b className="font-medium text-ink/70">AI 인재 점수 제공</b> · 로그인 불필요
       </p>
 
       {/* WOW teaser — show the magic for anyone who scrolls before deciding */}

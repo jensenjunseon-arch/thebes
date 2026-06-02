@@ -5,7 +5,6 @@ import { StepIndicator } from "@/components/session/StepIndicator";
 import { ChatPanel, type Turn } from "@/components/session/ChatPanel";
 import { ProblemChip } from "@/components/session/ProblemChip";
 import { LiveEvidenceCard, type LiveEvidence } from "@/components/session/LiveEvidenceCard";
-import { ProfileGauge, DetectedTally } from "@/components/session/DiagnosticHud";
 import { DiagnosticIntro } from "@/components/session/DiagnosticIntro";
 import { RecapView } from "@/components/session/RecapView";
 import { GENERIC_COACHING } from "@/lib/recap";
@@ -16,8 +15,6 @@ import {
 
 type ScoreTotals = Record<ConstructId, number>;
 
-// Total dialogue stages across the whole diagnostic (Step 1: 3, Step 2: 2).
-const TOTAL_DIALOGUE_STAGES = 5;
 import { TOTAL_STEPS, stepById, type StepId } from "@/lib/steps";
 import { submitTurn } from "@/app/session/[id]/actions";
 import { evaluate, stagesForStep, starterFramesFor } from "@/lib/diagnosticEngine";
@@ -102,7 +99,6 @@ export function SessionView({
     initialTurns.length > 0 ? initialTurns : [greetingTurn(initialStep)],
   );
   const [totals, setTotals] = useState<ScoreTotals>(EMPTY_TOTALS);
-  const [stagesDone, setStagesDone] = useState(0);
   const [evidence, setEvidence] = useState<LiveEvidence | null>(null);
   const [evidenceByConstruct, setEvidenceByConstruct] = useState<EvidenceByConstruct>({});
   const [completed, setCompleted] = useState(false);
@@ -169,7 +165,6 @@ export function SessionView({
     setStep(nextStep);
     setTurns([greetingTurn(nextStep)]);
     setTotals(EMPTY_TOTALS);
-    setStagesDone(0);
     setEvidence(null);
     setEvidenceByConstruct({});
     setCompleted(false);
@@ -265,9 +260,6 @@ export function SessionView({
           return;
         }
 
-        // A stage was cleared — advance the profile-completion gauge.
-        setStagesDone((n) => Math.min(TOTAL_DIALOGUE_STAGES, n + 1));
-
         if (out.completeStep && step < TOTAL_STEPS) {
           const next = (step + 1) as StepId;
           stageRef.current = 0;
@@ -319,7 +311,6 @@ export function SessionView({
 
         if (res.score) {
           applyScore(res.score.construct_deltas);
-          setStagesDone((n) => Math.min(TOTAL_DIALOGUE_STAGES, n + 1));
           const top = topMovedConstruct(res.score.construct_deltas);
           if (top) {
             recordEvidence(
@@ -412,24 +403,83 @@ export function SessionView({
   }
 
   return (
-    <section className="mx-auto max-w-2xl px-4 pb-28 sm:px-6">
-      <div className="mb-4 flex items-baseline justify-between">
-        <h1 className="font-kr text-xl font-semibold tracking-tighter2 sm:text-2xl">
-          사고력 진단
-        </h1>
-        <p className="font-mono text-[10px] uppercase tracking-tighter2 text-ink/50">
-          {TOTAL_STEPS} steps · English
-          {sessionId === null && <span className="ml-2 text-accent">· demo</span>}
-        </p>
+    <section className="mx-auto max-w-2xl px-4 sm:px-6">
+      {/* One-screen work area: problem pinned at top, chat fills the middle and
+          scrolls internally, the input stays at the bottom — so a phone never
+          has to scroll up and down between the problem and the answer. */}
+      <div className="flex h-[calc(100dvh-64px)] flex-col pt-2">
+        <div className="flex shrink-0 items-baseline justify-between pb-2">
+          <h1 className="font-kr text-lg font-semibold tracking-tighter2">사고력 진단</h1>
+          {sessionId === null && (
+            <span className="font-mono text-[10px] uppercase tracking-tighter2 text-accent">
+              demo
+            </span>
+          )}
+        </div>
+
+        <div className="shrink-0">
+          <ProblemChip
+            topic={current.topic}
+            difficulty={current.level}
+            englishStatement={current.englishStatement}
+            koreanSupport={current.koreanSupport}
+            imageUrl={customProblem?.imageUrl}
+          />
+        </div>
+
+        <div className="mt-3 shrink-0">
+          <StepIndicator activeStep={step} />
+        </div>
+
+        {banner && (
+          <div
+            className={cn(
+              "mt-3 shrink-0 rounded-2xl border px-4 py-2.5 text-sm font-medium",
+              banner.kind === "advance"
+                ? "border-accent/40 bg-accent-soft/60 text-accent"
+                : "border-ink/20 bg-paper-2 text-ink/75",
+            )}
+          >
+            {banner.text}
+          </div>
+        )}
+
+        <div className="mt-3 min-h-0 flex-1">
+          <ChatPanel
+            turns={turns}
+            onStudentSubmit={handleStudentSubmit}
+            disabled={pending || completed}
+            pending={pending}
+            frames={frames}
+            afterTurns={
+              evidence ? (
+                <div className="space-y-3 pt-1">
+                  {celebrate && (
+                    <div className="animate-pop flex items-center gap-3 rounded-2xl border border-accent/45 bg-accent-soft/60 px-4 py-3">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent font-mono text-base font-bold text-on-dark">
+                        1
+                      </span>
+                      <div className="break-keep">
+                        <p className="font-kr text-sm font-semibold text-ink">
+                          첫 사고력이 감지됐어요
+                        </p>
+                        <p className="mt-0.5 font-kr text-[12.5px] leading-relaxed text-ink/60">
+                          방금 한 말에서 AI가 생각의 신호를 잡았어요 — 이대로 계속 가볼까요?
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <LiveEvidenceCard evidence={evidence} />
+                </div>
+              ) : null
+            }
+          />
+        </div>
       </div>
 
-      <p className="mb-4 rounded-2xl border border-accent/20 bg-accent-soft/30 px-4 py-2.5 text-[13px] leading-relaxed text-ink/75">
-        <span className="font-semibold text-accent">AI가 답을 내는 시대</span> — 우리는
-        정답이 아니라 ‘어떻게 생각하는지’를 봅니다.
-      </p>
-
+      {/* Below the fold — switch level / problem (demo only). */}
       {enablePicker && !customProblem && availableLevels.length > 1 && (
-        <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 border-t border-ink/10 py-6">
           <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
             난이도
           </span>
@@ -459,69 +509,6 @@ export function SessionView({
               다른 문제 ↻
             </button>
           )}
-        </div>
-      )}
-
-      <ProblemChip
-        topic={current.topic}
-        difficulty={current.level}
-        englishStatement={current.englishStatement}
-        koreanSupport={current.koreanSupport}
-        imageUrl={customProblem?.imageUrl}
-      />
-
-      <div className="mt-5">
-        <StepIndicator activeStep={step} />
-      </div>
-
-      {banner && (
-        <div
-          className={cn(
-            "mt-4 rounded-2xl border px-4 py-3 text-sm font-medium",
-            banner.kind === "advance"
-              ? "border-accent/40 bg-accent-soft/60 text-accent"
-              : "border-ink/20 bg-paper-2 text-ink/75",
-          )}
-        >
-          {banner.text}
-        </div>
-      )}
-
-      {/* Anticipation gauge + combo tally — wow that builds every turn. */}
-      <div className="mt-5 space-y-3">
-        <ProfileGauge
-          percent={(stagesDone / TOTAL_DIALOGUE_STAGES) * 100}
-        />
-        <DetectedTally totals={totals} justDetected={evidence?.topConstruct ?? null} />
-      </div>
-
-      <div className="mt-4">
-        <ChatPanel
-          turns={turns}
-          onStudentSubmit={handleStudentSubmit}
-          disabled={pending || completed}
-          pending={pending}
-          frames={frames}
-        />
-      </div>
-
-      {celebrate && evidence && (
-        <div className="animate-pop mt-4 flex items-center gap-3 rounded-2xl border border-accent/45 bg-accent-soft/60 px-4 py-3">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent font-mono text-base font-bold text-on-dark">
-            1
-          </span>
-          <div className="break-keep">
-            <p className="font-kr text-sm font-semibold text-ink">첫 사고력이 감지됐어요</p>
-            <p className="mt-0.5 font-kr text-[12.5px] leading-relaxed text-ink/60">
-              방금 한 말에서 AI가 생각의 신호를 잡았어요 — 이대로 계속 가볼까요?
-            </p>
-          </div>
-        </div>
-      )}
-
-      {evidence && (
-        <div className="mt-4">
-          <LiveEvidenceCard evidence={evidence} />
         </div>
       )}
 
