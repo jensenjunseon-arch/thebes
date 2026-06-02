@@ -38,10 +38,11 @@ export function DiagnosticIntro({
         className="animate-rise mt-4 font-kr text-[26px] font-bold leading-[1.3] tracking-tighter2 sm:text-[36px]"
         style={{ animationDelay: "60ms" }}
       >
-        답은 AI가 5초면 냅니다.
+        AI 시대가 요구하는 인재
         <br />
-        우리는 ‘정답’이 아니라{" "}
-        <b className="text-accent">‘생각하는 힘’</b>을 봅니다.
+        우리는 ‘정답’이 아니라,
+        <br />
+        <b className="text-accent">‘생각하는 힘’</b>을 교육합니다.
       </h1>
 
       {/* Two aphorisms — the two pillars: thinking, and English. */}
