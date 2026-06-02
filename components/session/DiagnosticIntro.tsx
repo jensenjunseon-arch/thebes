@@ -38,8 +38,6 @@ export function DiagnosticIntro({
         className="animate-rise mt-4 font-kr text-[26px] font-bold leading-[1.3] tracking-tighter2 sm:text-[36px]"
         style={{ animationDelay: "60ms" }}
       >
-        AI 시대가 요구하는 인재
-        <br />
         우리는 ‘정답’이 아니라,
         <br />
         <b className="text-accent">‘생각하는 힘’</b>을 교육합니다.
