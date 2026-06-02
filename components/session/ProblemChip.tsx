@@ -19,9 +19,10 @@ interface Props {
   canShuffle?: boolean;
 }
 
-// Mobile-first problem display: a sticky chip that expands on tap, so the
-// problem is always one tap away without eating vertical space in the chat.
-// The level badge and "다른 문제" controls live inside the chip itself.
+// Mobile-first problem display: a slim, ALWAYS-visible reference bar. Compact by
+// default (small font, clamped, no translation) so the conversation below gets
+// the room; "자세히" expands to the full statement + Korean. The level badge and
+// "다른 문제" controls live inside the chip itself.
 export function ProblemChip({
   englishStatement,
   koreanSupport,
@@ -34,15 +35,15 @@ export function ProblemChip({
   onShuffle,
   canShuffle = false,
 }: Props) {
-  const [open, setOpen] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [levelOpen, setLevelOpen] = useState(false);
   const showPicker = pickerEnabled && !!levels?.length;
 
   return (
     <div className="sticky top-[64px] z-20 rounded-2xl border border-ink/10 bg-paper/95 backdrop-blur-sm">
-      <div className="flex items-center justify-between gap-2 px-4 py-3">
+      <div className="flex items-center justify-between gap-2 px-4 pb-1.5 pt-2.5">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate font-mono text-[11px] uppercase tracking-tighter2 text-ink/50">
+          <span className="shrink-0 font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
             문제 · {topic}
           </span>
           {showPicker ? (
@@ -73,10 +74,10 @@ export function ProblemChip({
           )}
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setExpanded((v) => !v)}
             className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/40 transition hover:text-ink/70"
           >
-            {open ? "접기 ▴" : "문제 보기 ▾"}
+            {expanded ? "접기 ▴" : "자세히 ▾"}
           </button>
         </div>
       </div>
@@ -107,27 +108,38 @@ export function ProblemChip({
         </div>
       )}
 
-      {open && (
-        <div className="border-t border-ink/10 px-4 pb-4 pt-3">
-          {imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt="업로드한 문제"
-              className="w-full rounded-xl border border-ink/10"
-            />
-          ) : (
-            <>
-              <p className="text-[17px] leading-relaxed text-ink">{englishStatement}</p>
-              {koreanSupport && (
-                <p className="mt-3 border-t border-ink/10 pt-3 text-sm text-ink/55">
-                  {koreanSupport}
-                </p>
+      {/* Body — always visible. Compact by default; expands on tap. */}
+      <div className="border-t border-ink/10 px-4 pb-3 pt-2">
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt="업로드한 문제"
+            className={cn(
+              "w-full rounded-xl border border-ink/10 object-contain",
+              expanded ? "" : "max-h-28",
+            )}
+          />
+        ) : (
+          <>
+            <p
+              className={cn(
+                "text-ink",
+                expanded
+                  ? "text-[16px] leading-relaxed"
+                  : "line-clamp-3 text-[14px] leading-snug",
               )}
-            </>
-          )}
-        </div>
-      )}
+            >
+              {englishStatement}
+            </p>
+            {expanded && koreanSupport && (
+              <p className="mt-2.5 border-t border-ink/10 pt-2.5 text-[13px] leading-relaxed text-ink/55">
+                {koreanSupport}
+              </p>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -432,16 +432,7 @@ export function SessionView({
       {/* One-screen work area: problem pinned at top, chat fills the middle and
           scrolls internally, the input stays at the bottom — so a phone never
           has to scroll up and down between the problem and the answer. */}
-      <div className="flex h-[calc(100dvh-64px)] flex-col pt-2">
-        <div className="flex shrink-0 items-baseline justify-between pb-2">
-          <h1 className="font-kr text-lg font-semibold tracking-tighter2">사고력 진단</h1>
-          {sessionId === null && (
-            <span className="font-mono text-[10px] uppercase tracking-tighter2 text-accent">
-              demo
-            </span>
-          )}
-        </div>
-
+      <div className="flex h-[calc(100dvh-64px)] flex-col pt-3">
         <div className="shrink-0">
           <ProblemChip
             topic={current.topic}

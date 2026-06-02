@@ -196,7 +196,7 @@ function TurnBubble({ turn }: { turn: Turn }) {
     <div className={cn("flex", isCoach ? "justify-start" : "justify-end")}>
       <div
         className={cn(
-          "max-w-[82%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed",
+          "max-w-[85%] rounded-2xl px-4 py-3 text-[16px] leading-relaxed",
           isCoach ? "bg-paper text-ink" : "bg-ink text-on-dark",
         )}
       >
