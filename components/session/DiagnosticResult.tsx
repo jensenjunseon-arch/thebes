@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { CONSTRUCTS, type ConstructId } from "@/lib/constructs";
+import { FeedbackCard } from "@/components/session/FeedbackCard";
 
 // Per-construct ceiling — one stage scores each construct 1–5 (english ~5 too).
 const SESSION_MAX = 6;
@@ -134,6 +135,8 @@ interface Props {
   onRestart: () => void;
   onRecap: () => void;
   unlocked?: boolean;
+  // When set (demo only), shows a 30-second tester-feedback card at the bottom.
+  feedback?: { topic: string; level: string };
 }
 
 export function DiagnosticResult({
@@ -142,6 +145,7 @@ export function DiagnosticResult({
   onRestart,
   onRecap,
   unlocked = false,
+  feedback,
 }: Props) {
   const reasoning = CONSTRUCTS.filter((c) => c.id !== "english").map((c) => ({
     c,
@@ -334,6 +338,10 @@ export function DiagnosticResult({
       >
         다른 문제로 다시 진단하기 ↻
       </button>
+
+      {feedback && (
+        <FeedbackCard topic={feedback.topic} level={feedback.level} score={composite} />
+      )}
     </section>
   );
 }

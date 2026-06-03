@@ -401,6 +401,9 @@ export function SessionView({
         evidenceByConstruct={evidenceByConstruct}
         onRestart={() => resetSession()}
         onRecap={() => setRecap(true)}
+        feedback={
+          sessionId === null ? { topic: current.topic, level: String(current.level) } : undefined
+        }
       />
     );
   }
