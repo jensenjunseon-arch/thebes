@@ -35,13 +35,18 @@ export function ChatPanel({
   afterTurns,
 }: Props) {
   const [draft, setDraft] = useState("");
-  const [showExamples, setShowExamples] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll to the newest turn.
+  function scrollToBottom(smooth = true) {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+  }
+
+  // Keep the newest message (the coach's current question) in view.
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    scrollToBottom();
   }, [turns.length, pending]);
 
   function submit() {
@@ -53,7 +58,7 @@ export function ChatPanel({
     );
     onStudentSubmit?.(trimmed, usedExample);
     setDraft("");
-    setShowExamples(false);
+    setShowHelp(false);
   }
 
   function useFrame(frame: string) {
@@ -67,7 +72,8 @@ export function ChatPanel({
     setDraft(text);
   }
 
-  const showFrames = !!frames?.length && !draft.trim() && !disabled;
+  // Suggestions live behind one toggle so they don't eat the chat on mobile.
+  const canHelp = !!(frames?.length || examples?.length) && !draft.trim() && !disabled;
 
   return (
     <div className="flex h-full min-h-0 flex-col rounded-3xl border border-ink/10 bg-paper-2">
@@ -92,45 +98,56 @@ export function ChatPanel({
       </div>
 
       <div className="border-t border-ink/10 p-3 sm:px-4 sm:py-4">
-        {showFrames && (
-          <div className="mb-2.5 space-y-2.5">
-            <div className="flex flex-wrap gap-2">
-              <span className="self-center font-mono text-[10px] uppercase tracking-tighter2 text-ink/35">
-                이렇게 시작해 보세요
-              </span>
-              {frames!.map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  onClick={() => useFrame(f)}
-                  className="rounded-full border border-accent/30 bg-accent-soft/40 px-3 py-1 text-[13px] text-ink/75 transition hover:border-accent/60 hover:bg-accent-soft/70"
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
+        {canHelp && (
+          <div className="mb-2.5">
+            {/* One discoverable toggle — keeps suggestions out of the way until needed. */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowHelp((v) => !v);
+                if (!showHelp) setTimeout(scrollToBottom, 50);
+              }}
+              className="font-mono text-[10px] uppercase tracking-tighter2 text-accent/80 transition hover:text-accent"
+            >
+              {showHelp ? "도움말 닫기 ▴" : "막막하면 · 시작 문장·예시 보기 ▾"}
+            </button>
 
-            {!!examples?.length && (
-              <div>
-                <button
-                  type="button"
-                  onClick={() => setShowExamples((v) => !v)}
-                  className="font-mono text-[10px] uppercase tracking-tighter2 text-accent/80 transition hover:text-accent"
-                >
-                  {showExamples ? "예시 답안 닫기 ▴" : "영어가 막막하면 · 예시 답안 그대로 보내기 ▾"}
-                </button>
-                {showExamples && (
-                  <div className="mt-2 space-y-1.5">
-                    {examples.map((e) => (
-                      <button
-                        key={e}
-                        type="button"
-                        onClick={() => useExample(e)}
-                        className="block w-full rounded-xl border border-ink/12 bg-paper px-3 py-2 text-left text-[13px] leading-relaxed text-ink/75 transition hover:border-accent/50 hover:bg-accent-soft/30"
-                      >
-                        {e}
-                      </button>
-                    ))}
+            {showHelp && (
+              <div className="mt-2.5 space-y-3">
+                {!!frames?.length && (
+                  <div>
+                    <p className="mb-1.5 font-kr text-[11px] text-ink/45">이렇게 시작해 보세요</p>
+                    <div className="flex flex-wrap gap-2">
+                      {frames.map((f) => (
+                        <button
+                          key={f}
+                          type="button"
+                          onClick={() => useFrame(f)}
+                          className="rounded-full border border-accent/30 bg-accent-soft/40 px-3 py-1 text-[13px] text-ink/75 transition hover:border-accent/60 hover:bg-accent-soft/70"
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!!examples?.length && (
+                  <div>
+                    <p className="mb-1.5 font-kr text-[11px] text-ink/45">
+                      또는, 예시를 그대로 보내도 돼요
+                    </p>
+                    <div className="space-y-1.5">
+                      {examples.map((e) => (
+                        <button
+                          key={e}
+                          type="button"
+                          onClick={() => useExample(e)}
+                          className="block w-full rounded-xl border border-ink/12 bg-paper px-3 py-2 text-left text-[13px] leading-relaxed text-ink/75 transition hover:border-accent/50 hover:bg-accent-soft/30"
+                        >
+                          {e}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -153,6 +170,8 @@ export function ChatPanel({
             placeholder="영어로 생각을 적어보세요…"
             disabled={disabled}
             rows={2}
+            // When the keyboard opens, pull the latest coach question into view.
+            onFocus={() => setTimeout(() => scrollToBottom(false), 300)}
             className="min-h-[56px] flex-1 resize-none rounded-2xl border border-ink/15 bg-paper px-4 py-3 text-[15px] leading-relaxed outline-none placeholder:text-ink/35 focus:border-accent disabled:opacity-50"
           />
           <button
@@ -196,8 +215,8 @@ function TurnBubble({ turn }: { turn: Turn }) {
     <div className={cn("flex", isCoach ? "justify-start" : "justify-end")}>
       <div
         className={cn(
-          "max-w-[85%] rounded-2xl px-4 py-3",
-          isCoach ? "bg-paper text-ink text-[14px] leading-relaxed" : "bg-ink text-on-dark text-[16px] leading-relaxed",
+          "max-w-[85%] rounded-2xl px-4 py-3 leading-relaxed",
+          isCoach ? "bg-paper text-ink text-[13px]" : "bg-ink text-on-dark text-[15px]",
         )}
       >
         <p
