@@ -160,7 +160,7 @@ export default function LandingPage() {
             </h2>
             <p className="lede">
               영어에도 돈을 씁니다. 수학에도 돈을 씁니다.
-              그런데 그 아이가 수학 문제를 영어로 풀지 못한다면 —
+              그런데 그 아이가 수학 문제를 영어로 풀지 못한다면,
               <b>뭔가 잘못된 거 아닌가요?</b>
             </p>
           </div>
