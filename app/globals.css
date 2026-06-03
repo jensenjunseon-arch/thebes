@@ -45,6 +45,10 @@ html,
 body {
   background: var(--paper);
   color: var(--ink);
+  /* Never let a sub-pixel / font-load overflow widen the layout viewport past
+     device-width — the cause of the uneven L/R margin on iOS until you zoom out.
+     `clip` (not hidden/auto) does NOT break position: sticky. */
+  overflow-x: clip;
 }
 
 body {
