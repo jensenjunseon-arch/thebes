@@ -45,10 +45,6 @@ html,
 body {
   background: var(--paper);
   color: var(--ink);
-  /* Never let a sub-pixel / font-load overflow widen the layout viewport past
-     device-width — the cause of the uneven L/R margin on iOS until you zoom out.
-     `clip` (not hidden/auto) does NOT break position: sticky. */
-  overflow-x: clip;
 }
 
 body {
@@ -616,7 +612,9 @@ body {
   border-bottom: 1px dashed var(--line-2);
   margin-top: 4px;
 }
-.lp-two-provocation .examples span { white-space: nowrap; }
+/* Wrap at word boundaries instead of nowrap — a nowrap item slightly too wide
+   for the row (e.g. iOS Korean font + letter-spacing) used to overflow the page. */
+.lp-two-provocation .examples span { word-break: keep-all; }
 
 /* ── diagnostic: live evidence card slide-in ── */
 @keyframes evidence-in {
