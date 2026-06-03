@@ -390,15 +390,21 @@ function SignupGate({
           </ul>
 
           <Link
-            href="/signup"
+            href="/subscribe"
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 font-kr text-[15px] font-bold text-on-dark transition hover:opacity-90"
           >
-            30초, 무료로 가입하고 전체 리포트 받기
+            구독하고 전체 리포트 받기
             <span className="font-mono text-sm">→</span>
           </Link>
           <p className="mt-2.5 text-[11.5px] leading-relaxed text-ink/45">
-            오늘 결과는 이미 저장돼 있어요 · 카드 없이 · 광고 없이
+            매월 자동결제 · 언제든 해지 가능
           </p>
+          <Link
+            href="/signup"
+            className="mt-3 inline-block font-kr text-[12.5px] text-ink/50 underline-offset-4 transition hover:text-ink hover:underline"
+          >
+            아직이요 — 무료로 가입만 하고 결과 저장하기
+          </Link>
         </div>
       </div>
     </div>

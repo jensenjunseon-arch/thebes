@@ -85,6 +85,12 @@ export default async function BillingPage({
                 {formatKRW(sub!.amount)} / 월 · 다음 결제일{" "}
                 <b className="text-ink">{fmtDate(sub!.current_period_end)}</b>
               </p>
+              <Link
+                href="/report"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-ink py-3.5 font-kr text-sm font-semibold text-on-dark transition hover:bg-accent"
+              >
+                전체 리포트 보기 →
+              </Link>
               {sub!.cancel_at_period_end ? (
                 <p className="mt-4 font-kr text-sm leading-relaxed text-ink/55">
                   해지 예약됨 — {fmtDate(sub!.current_period_end)}까지 이용할 수 있어요.

@@ -18,6 +18,8 @@ interface Picked {
 export default function ReportPage() {
   const [state, setState] = useState<"loading" | "ready" | "empty">("loading");
   const [data, setData] = useState<Picked | null>(null);
+  // Full report unlocks only for active subscribers.
+  const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +50,13 @@ export default function ReportPage() {
                 coaching: rows[0].coaching as Coaching,
               };
             }
+            // Active subscription → unlock the full report.
+            const { data: sub } = await supabase
+              .from("subscriptions")
+              .select("status")
+              .eq("user_id", user.id)
+              .maybeSingle();
+            if (!cancelled && sub?.status === "active") setUnlocked(true);
           }
         } catch {
           /* fall through to local */
@@ -117,6 +126,7 @@ export default function ReportPage() {
           totals={data.totals}
           evidence={data.evidence}
           coaching={data.coaching}
+          unlocked={unlocked}
         />
       )}
     </main>
