@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
 export interface Turn {
@@ -75,15 +75,33 @@ export function ChatPanel({
   // Suggestions live behind one toggle so they don't eat the chat on mobile.
   const canHelp = !!(frames?.length || examples?.length) && !draft.trim() && !disabled;
 
+  // Feedback (detection + evidence) renders just before the coach's latest reply,
+  // so the coach's current question is the last thing above the input.
+  const feedbackBeforeLast =
+    !pending && !!afterTurns && turns[turns.length - 1]?.speaker === "coach";
+
   return (
     <div className="flex h-full min-h-0 flex-col rounded-3xl border border-ink/10 bg-paper-2">
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6">
         {turns.length === 0 ? (
           <EmptyState />
         ) : (
-          turns.map((t) => <TurnBubble key={t.id} turn={t} />)
+          turns.map((t, i) => {
+            // Put the live feedback BEFORE the coach's latest reply, so the
+            // coach's current question stays at the bottom — right above the
+            // input, visible even when the mobile keyboard is open.
+            const showFeedbackHere =
+              feedbackBeforeLast && i === turns.length - 1;
+            return (
+              <Fragment key={t.id}>
+                {showFeedbackHere && afterTurns}
+                <TurnBubble turn={t} />
+              </Fragment>
+            );
+          })
         )}
-        {afterTurns}
+        {/* Fallback (e.g. last turn isn't a coach bubble): keep feedback visible. */}
+        {!pending && !!afterTurns && !feedbackBeforeLast && afterTurns}
         {pending && (
           <div className="flex justify-start">
             <div className="rounded-2xl bg-paper px-4 py-3 text-sm text-ink/50">
