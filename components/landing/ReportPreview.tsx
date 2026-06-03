@@ -24,7 +24,7 @@ const CONSTRUCTS: Construct[] = [
     score: 18,
     delta: 5,
     pct: 72,
-    desc: "주어진 상황을 자신의 언어로 다시 진술하는 능력. 문제를 그대로 읽는 것이 아니라, ‘무엇에 대한 이야기인지’를 자기 말로 잡아냅니다.",
+    desc: "문제를 그대로 읽지 않고, ‘무엇에 대한 이야기인지’를 자기 말로 다시 잡아내는 힘.",
     quote: "It's basically about a trip where the car goes one speed there and a different speed back.",
   },
   {
@@ -34,7 +34,7 @@ const CONSTRUCTS: Construct[] = [
     score: 16,
     delta: 4,
     pct: 64,
-    desc: "상황 속 핵심 요소(양·조건·변수)를 짚어내는 능력. 무엇이 정말 중요한 정보인지 골라내는 힘입니다.",
+    desc: "상황 속에서 무엇이 정말 중요한 정보인지 골라내는 힘.",
     quote: "The things that matter are the two speeds, the distance, and the total time.",
   },
   {
@@ -44,7 +44,7 @@ const CONSTRUCTS: Construct[] = [
     score: 20,
     delta: 6,
     pct: 80,
-    desc: "요소들이 서로 어떻게 영향을 주고받는지 보는 능력. 단순 암기와 구별되는, 사고력의 핵심 지표입니다.",
+    desc: "요소들이 서로 어떻게 영향을 주고받는지 보는 힘.",
     quote: "When the car drives slower, that part of the trip takes more time.",
   },
   {
@@ -54,7 +54,7 @@ const CONSTRUCTS: Construct[] = [
     score: 14,
     delta: 3,
     pct: 56,
-    desc: "이 사고가 자신의 삶에 어떤 의미·이득인지 연결하는 능력. 배움을 ‘내 것’으로 만드는 출발점입니다.",
+    desc: "이 사고가 자신의 삶에 어떤 의미인지 연결하는 힘.",
     quote: "This would help me plan when to leave so I'm not late, even with traffic.",
   },
   {
@@ -64,7 +64,7 @@ const CONSTRUCTS: Construct[] = [
     score: 17,
     delta: 4,
     pct: 68,
-    desc: "한 상황의 원리를 주변과 미래로 넓혀 적용하는 능력. 한 문제를 넘어 세상을 읽는 사고로 이어집니다.",
+    desc: "한 상황의 원리를 주변과 미래로 넓혀 적용하는 힘.",
     quote: "If everyone broke problems down like this, people would make smarter decisions.",
   },
   {
@@ -74,7 +74,7 @@ const CONSTRUCTS: Construct[] = [
     score: 15,
     delta: 3,
     pct: 60,
-    desc: "위 과정 전체를 영어로 정확하게 표현하는 능력. 문법보다 ‘생각을 영어로 논리적으로 전달할 수 있는가’를 봅니다.",
+    desc: "이 모든 과정을 영어로 논리적으로 표현하는 힘. 문법이 아니라 사고 전달을 봅니다.",
     quote: "The average depends on the time spent, not just the two speeds.",
   },
 ];
