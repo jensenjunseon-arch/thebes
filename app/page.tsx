@@ -198,22 +198,8 @@ export default function LandingPage() {
               <br />
               <span className="em">잘 쓰는 아이로 키워야 합니다.</span>
             </h2>
-            <p className="lede">
-              다른 곳은 AI를 부정행위로 보고 막으려 합니다. 학교도, 학원도, 시험도.
-              <br />
-              Thebes는 AI를 <b>목적지</b>로 봅니다. 그리고 그것을 잘 다루는 사고력을 길러줍니다.
-            </p>
           </div>
           <div className="lp-counter-compare">
-            <div className="lp-counter-col them">
-              <div className="label">대부분의 교육이 하는 일</div>
-              <div className="h">AI를 막는다</div>
-              <p>
-                AI는 부정행위다. 시험장에 못 들어오게 한다.
-                문제는 점점 어려워지고, 아이는 점점 외워간다.
-                그리고 시험이 끝나면 — AI가 5초에 해내는 일을 한다.
-              </p>
-            </div>
             <div className="lp-counter-col us">
               <div className="label">Thebes AI가 하는 일</div>
               <div className="h">AI를 다루는 법을 가르친다</div>
@@ -221,6 +207,15 @@ export default function LandingPage() {
                 AI는 평생 옆에 있을 도구다.
                 좋은 질문을 던지고, 답을 검증하고, 다음 질문을 잇는 능력은{" "}
                 <b>가르칠 수 있다</b>. 그리고 수학이 그 가장 정직한 훈련장이다.
+              </p>
+            </div>
+            <div className="lp-counter-col them">
+              <div className="label">대부분의 교육이 하는 일</div>
+              <div className="h">더 빨리, 더 많이 푼다</div>
+              <p>
+                수능 날, 더 많은 문제를 더 빠르게, 실수 없이.
+                거기에 모든 걸 겁니다. 그런데 그건 —
+                AI가 5초에 해내는 일입니다.
               </p>
             </div>
           </div>
