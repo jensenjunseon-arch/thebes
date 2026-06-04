@@ -202,10 +202,10 @@ export default function LandingPage() {
           <div className="lp-counter-compare">
             <div className="lp-counter-col us">
               <div className="label">Thebes AI가 하는 일</div>
-              <div className="h">AI를 다루는 법을 가르친다</div>
+              <div className="h">AI 네이티브처럼 생각하는 법을 가르친다</div>
               <p>
-                좋은 질문을 던지고 답을 검증하는 힘은 <b>가르칠 수 있습니다</b>.
-                수학이 그 가장 정직한 훈련장입니다.
+                좋은 질문을 던지고 답을 검증하는 힘,
+                수학이 가장 정직한 훈련 방법입니다.
               </p>
             </div>
             <div className="lp-counter-col them">
