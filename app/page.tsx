@@ -204,7 +204,7 @@ export default function LandingPage() {
               <div className="label">Thebes AI가 하는 일</div>
               <div className="h">AI 네이티브처럼 생각하는 법을 가르친다</div>
               <p>
-                좋은 질문을 던지고 답을 검증하는 힘,
+                좋은 질문을 던지고 답을 검증하는 힘,<br />
                 수학이 가장 정직한 훈련 방법입니다.
               </p>
             </div>
@@ -212,7 +212,7 @@ export default function LandingPage() {
               <div className="label">대부분의 교육이 하는 일</div>
               <div className="h">더 빨리, 더 많이 푼다</div>
               <p>
-                수능 날 더 많이, 더 빠르게, 실수 없이.
+                수능 날 더 많이, 더 빠르게, 실수 없이.<br />
                 그런데 그건, AI가 5초에 해내는 일입니다.
               </p>
             </div>
