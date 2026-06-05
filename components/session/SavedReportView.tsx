@@ -41,6 +41,7 @@ export function SavedReportView({
     <DiagnosticResult
       totals={totals}
       evidenceByConstruct={evidence}
+      coaching={coaching}
       unlocked={unlocked}
       onRecap={() => setRecap(true)}
       onRestart={() => router.push("/session/demo")}

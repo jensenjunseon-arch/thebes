@@ -388,6 +388,7 @@ export function SessionView({
       <DiagnosticResult
         totals={savedView.totals}
         evidenceByConstruct={savedView.evidence}
+        coaching={savedView.coaching}
         onRestart={() => resetSession()}
         onRecap={() => setRecap(true)}
       />
@@ -399,6 +400,7 @@ export function SessionView({
       <DiagnosticResult
         totals={totals}
         evidenceByConstruct={evidenceByConstruct}
+        coaching={current.coaching}
         onRestart={() => resetSession()}
         onRecap={() => setRecap(true)}
         feedback={

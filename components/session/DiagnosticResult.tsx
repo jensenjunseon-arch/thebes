@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { CONSTRUCTS, type ConstructId } from "@/lib/constructs";
 import { FeedbackCard } from "@/components/session/FeedbackCard";
+import { PromptStudio } from "@/components/session/PromptStudio";
+import type { Coaching } from "@/lib/problems";
 
 // Per-construct ceiling — one stage scores each construct 1–5 (english ~5 too).
 const SESSION_MAX = 6;
@@ -137,6 +139,8 @@ interface Props {
   unlocked?: boolean;
   // When set (demo only), shows a 30-second tester-feedback card at the bottom.
   feedback?: { topic: string; level: string };
+  // Problem coaching — needed to build the student's English "prompt" paragraph.
+  coaching?: Coaching;
 }
 
 export function DiagnosticResult({
@@ -146,6 +150,7 @@ export function DiagnosticResult({
   onRecap,
   unlocked = false,
   feedback,
+  coaching,
 }: Props) {
   const reasoning = CONSTRUCTS.filter((c) => c.id !== "english").map((c) => ({
     c,
@@ -234,6 +239,15 @@ export function DiagnosticResult({
         먼저 키울 곳은 <span className="text-accent">{weak.koreanName}</span>입니다.
       </p>
 
+      {/* ── MAIN PAYOFF: the conversation → a prompt → make something ── */}
+      {coaching && (
+        <PromptStudio
+          coaching={coaching}
+          evidence={evidenceByConstruct}
+          onDetail={onRecap}
+        />
+      )}
+
       {/* ───────────── 학생에게 ───────────── */}
       <div className="mt-9 flex items-center gap-3">
         <span className="whitespace-nowrap font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
@@ -263,20 +277,6 @@ export function DiagnosticResult({
         </div>
       </div>
 
-      {/* student action — English recap */}
-      <button
-        type="button"
-        onClick={onRecap}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-4 font-kr text-base font-semibold text-on-dark transition hover:opacity-90"
-      >
-        영어로 정리하고 따라 쓰기
-        <span className="font-mono text-sm">→</span>
-      </button>
-      <p className="mt-2 text-center text-[13px] leading-relaxed text-ink/55">
-        오늘 한 사고를 한 편의 영어 문단으로 —
-        <br />
-        따라 쓰고, 소리 내어 읽으며 내 것으로.
-      </p>
 
       <button
         type="button"
