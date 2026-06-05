@@ -2,36 +2,19 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/cn";
 
-interface Props {
-  label?: string;
-  next?: string;
-}
+type Provider = "google" | "kakao";
 
-export function GoogleSSOButton({ label = "Google로 계속하기", next }: Props) {
-  const [loading, setLoading] = useState(false);
-
-  async function handleClick() {
-    setLoading(true);
-    const supabase = createClient();
-    const callback = `${window.location.origin}/auth/callback${
-      next ? `?next=${encodeURIComponent(next)}` : ""
-    }`;
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: callback },
-    });
-    // Page will redirect — no need to setLoading(false)
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={loading}
-      className="flex w-full items-center justify-center gap-3 rounded-xl border border-ink/15 bg-paper py-2.5 text-sm text-ink transition hover:bg-paper-2 disabled:cursor-wait disabled:opacity-60"
-    >
-      {/* Google G logo */}
+const BRAND: Record<
+  Provider,
+  { name: string; label: string; className: string; logo: React.ReactNode }
+> = {
+  google: {
+    name: "Google",
+    label: "Google로 계속하기",
+    className: "border border-ink/15 bg-paper text-ink hover:bg-paper-2",
+    logo: (
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <path
           d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"
@@ -50,7 +33,80 @@ export function GoogleSSOButton({ label = "Google로 계속하기", next }: Prop
           fill="#EA4335"
         />
       </svg>
-      {loading ? "연결 중…" : label}
-    </button>
+    ),
+  },
+  kakao: {
+    name: "카카오",
+    label: "카카오로 계속하기",
+    className: "bg-[#FEE500] text-[#191600] hover:brightness-95",
+    logo: (
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M12 3C6.48 3 2 6.48 2 10.8c0 2.8 1.86 5.26 4.66 6.66-.2.74-.74 2.7-.84 3.12-.13.52.19.51.4.37.16-.11 2.6-1.77 3.66-2.49.68.1 1.39.15 2.12.15 5.52 0 10-3.48 10-7.8S17.52 3 12 3z"
+          fill="#191600"
+        />
+      </svg>
+    ),
+  },
+};
+
+export function SSOButton({
+  provider,
+  next,
+  label,
+}: {
+  provider: Provider;
+  next?: string;
+  label?: string;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const brand = BRAND[provider];
+
+  async function handleClick() {
+    setLoading(true);
+    setError("");
+    const supabase = createClient();
+    const redirectTo = `${window.location.origin}/auth/callback${
+      next ? `?next=${encodeURIComponent(next)}` : ""
+    }`;
+    // skipBrowserRedirect so a provider/config error surfaces here instead of a
+    // silent no-op (the usual cause of "the button does nothing").
+    const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo, skipBrowserRedirect: true },
+    });
+    if (oauthError || !data?.url) {
+      setError(
+        oauthError?.message ??
+          `${brand.name} 로그인을 시작할 수 없어요. (공급자 설정을 확인해 주세요)`,
+      );
+      setLoading(false);
+      return;
+    }
+    window.location.href = data.url;
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className={cn(
+          "flex w-full items-center justify-center gap-3 rounded-xl py-2.5 text-sm font-medium transition disabled:cursor-wait disabled:opacity-60",
+          brand.className,
+        )}
+      >
+        {brand.logo}
+        {loading ? "연결 중…" : label ?? brand.label}
+      </button>
+      {error && <p className="mt-2 text-[12px] leading-relaxed text-accent">{error}</p>}
+    </div>
   );
+}
+
+// Backward-compatible wrapper.
+export function GoogleSSOButton({ label, next }: { label?: string; next?: string }) {
+  return <SSOButton provider="google" label={label} next={next} />;
 }
