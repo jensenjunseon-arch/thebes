@@ -7,30 +7,72 @@ import type { EvidenceByConstruct } from "@/components/session/DiagnosticResult"
 import { cn } from "@/lib/cn";
 
 type MakerKind = "game" | "video" | "quiz";
+type Band = "elementary" | "middle" | "high";
 
 const MAKERS: { kind: MakerKind; label: string; hint: string }[] = [
-  { kind: "game", label: "게임으로 만들기", hint: "이 개념을 배우는 미니 게임" },
-  { kind: "video", label: "영상 풀이로 만들기", hint: "60초 설명 영상 대본" },
-  { kind: "quiz", label: "퀴즈로 만들기", hint: "이해를 점검하는 5문제" },
+  { kind: "game", label: "게임으로 만들기", hint: "개념이 곧 게임 규칙이 되는 미니 게임" },
+  { kind: "video", label: "영상 풀이로 만들기", hint: "60초 숏폼 풀이 대본 (컷별)" },
+  { kind: "quiz", label: "퀴즈로 만들기", hint: "사고를 깊게 하는 적응형 5문제" },
 ];
 
-function makerPrompt(paragraph: string, kind: MakerKind): string {
-  const base = `Here's how I think about a math problem, in my own words:\n\n"${paragraph}"\n\n`;
+// 초등 저학년/고학년 → elementary, 중1~3 → middle, 고1~3 → high. Check 초등 first
+// so "초등 고학년" isn't mistaken for high.
+function levelBand(level?: string): Band {
+  if (!level) return "middle";
+  if (level.includes("초등")) return "elementary";
+  if (level.includes("고")) return "high";
+  return "middle";
+}
+
+const BAND_LABEL: Record<Band, string> = {
+  elementary: "Korean elementary-school",
+  middle: "Korean middle-school",
+  high: "Korean high-school",
+};
+const BAND_NOTE: Record<Band, string> = {
+  elementary:
+    "Use very simple Korean words and a playful tone; assume no formulas, only intuition and pictures.",
+  middle: "Use clear Korean at a middle-school level; light formulas and variables are fine.",
+  high: "Use precise Korean at a high-school level; proper terms and a bit of rigor are welcome.",
+};
+
+// Highly tailored, format-specific prompts — each leverages what its medium does
+// best, scaled to the student's school band, so the AI's output is an actual
+// "wow" they understand. The student's own English paragraph is the seed.
+function makerPrompt(paragraph: string, kind: MakerKind, band: Band): string {
+  const who = BAND_LABEL[band];
+  const note = BAND_NOTE[band];
+  const seed = `A student described, in their own words, how they think about a math problem:\n"${paragraph}"\n\n`;
+
   switch (kind) {
     case "game":
       return (
-        base +
-        "Using the idea above, build a simple, fun browser game as a single self-contained HTML file that helps someone learn this concept. Keep it playable in under a minute, then briefly tell me how to play."
+        "You are an award-winning educational game designer.\n\n" +
+        seed +
+        "Build a COMPLETE, self-contained single-file HTML game (inline CSS + vanilla JS, no external libraries) where the concept above IS the gameplay: the player directly manipulates the key variables and watches the outcome change live, so the idea is *felt*, not told. It must not be a quiz.\n\n" +
+        `Audience: a ${who} student. ${note} All on-screen text in Korean.\n` +
+        "Make the core idea click within 30 seconds of play, with a small win/feedback moment.\n" +
+        "Return (1) the full HTML in one code block, then (2) two short Korean lines — how to play, and the one ‘아하’ it teaches."
       );
     case "video":
       return (
-        base +
-        "Using the idea above, write a short, engaging 60-second video script — with scene directions and narration — that explains this concept to a friend."
+        "You are a top short-form educational creator who makes hard ideas feel obvious.\n\n" +
+        seed +
+        `Write a 60-second vertical video script that makes this concept click for a ${who} student. ${note}\n` +
+        "Deliver it as a shot-by-shot table with columns: [time | on-screen visual / animation | narration in Korean].\n" +
+        "- Open with a 3-second curiosity hook.\n" +
+        `- Use exactly one everyday analogy a ${who} student gets instantly.\n` +
+        "- Build to a single ‘오~’ reveal, then end on a one-line takeaway.\n" +
+        "Keep the narration natural, energetic Korean at the right level."
       );
     case "quiz":
       return (
-        base +
-        "Using the idea above, create a 5-question quiz (with answers and a one-line explanation for each) that checks whether someone truly understands this concept."
+        "You are a master teacher whose questions teach, not just test.\n\n" +
+        seed +
+        `Create a 5-question quiz for a ${who} student that deepens understanding of this concept. ${note}\n` +
+        "For each question give: the question (in Korean) → 4 choices → the correct answer → a one-line ‘왜’ that adds a fresh insight (never just ‘정답입니다’).\n" +
+        "Sequence by design: Q1 easy for confidence · Q2–Q3 apply the relationship · Q4 transfer it to real life · Q5 a ‘이걸 바꾸면?’ twist that exposes the core idea.\n" +
+        "Reward the reasoning the student showed above over raw calculation, and keep the wording at their level."
       );
   }
 }
@@ -41,19 +83,22 @@ function makerPrompt(paragraph: string, kind: MakerKind): string {
 export function PromptStudio({
   coaching,
   evidence,
+  level,
   onDetail,
 }: {
   coaching: Coaching;
   evidence: EvidenceByConstruct;
+  level?: string;
   onDetail?: () => void;
 }) {
   const { paragraph } = buildRecap(coaching, evidence);
+  const band = levelBand(level);
   const [draft, setDraft] = useState("");
   const [active, setActive] = useState<MakerKind | null>(null);
   const [copied, setCopied] = useState(false);
 
   const pct = traceMatchPercent(draft, paragraph);
-  const prompt = active ? makerPrompt(paragraph, active) : "";
+  const prompt = active ? makerPrompt(paragraph, active, band) : "";
 
   async function copy() {
     try {
@@ -80,14 +125,9 @@ export function PromptStudio({
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent">
           당신의 대화가 만든 것 · Your prompt
         </p>
-        <h2 className="mt-2 font-kr text-xl font-bold leading-snug tracking-tighter2 break-keep">
-          방금 그 5분 대화는,
-          <br />
-          AI에게 시킬 ‘프롬프트’였어요.
-        </h2>
 
         {/* The prompt itself */}
-        <div className="relative mt-4 rounded-2xl border border-ink/12 bg-paper p-4">
+        <div className="relative mt-3 rounded-2xl border border-ink/12 bg-paper p-4">
           <span className="absolute right-3 top-3 font-mono text-[9px] uppercase tracking-tighter2 text-ink/30">
             prompt
           </span>
@@ -116,10 +156,10 @@ export function PromptStudio({
       {/* Make something with the prompt */}
       <div className="border-t border-accent/20 bg-paper/40 p-5 sm:p-6">
         <p className="font-kr text-[13px] font-semibold text-ink/75">
-          이 프롬프트로 무엇을 만들어볼까요?
+          우리의 대화로 무엇을 만들어볼까요?
         </p>
         <p className="mt-1 font-kr text-[12.5px] leading-relaxed text-ink/55">
-          버튼을 누르면 당신의 프롬프트가 만들어집니다 — 진짜 AI에 넣어 결과물을 받아보세요.
+          버튼을 누르면 당신의 AI 결과물이 만들어집니다.
         </p>
 
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">

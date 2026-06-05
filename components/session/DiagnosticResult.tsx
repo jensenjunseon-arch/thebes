@@ -141,6 +141,8 @@ interface Props {
   feedback?: { topic: string; level: string };
   // Problem coaching — needed to build the student's English "prompt" paragraph.
   coaching?: Coaching;
+  // Difficulty band (e.g. "중2") — tailors the AI-maker prompts by school level.
+  level?: string;
 }
 
 export function DiagnosticResult({
@@ -151,6 +153,7 @@ export function DiagnosticResult({
   unlocked = false,
   feedback,
   coaching,
+  level,
 }: Props) {
   const reasoning = CONSTRUCTS.filter((c) => c.id !== "english").map((c) => ({
     c,
@@ -239,15 +242,6 @@ export function DiagnosticResult({
         먼저 키울 곳은 <span className="text-accent">{weak.koreanName}</span>입니다.
       </p>
 
-      {/* ── MAIN PAYOFF: the conversation → a prompt → make something ── */}
-      {coaching && (
-        <PromptStudio
-          coaching={coaching}
-          evidence={evidenceByConstruct}
-          onDetail={onRecap}
-        />
-      )}
-
       {/* ───────────── 학생에게 ───────────── */}
       <div className="mt-9 flex items-center gap-3">
         <span className="whitespace-nowrap font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
@@ -256,26 +250,15 @@ export function DiagnosticResult({
         <span className="h-px flex-1 bg-ink/10" />
       </div>
 
-      <div className="mt-4 rounded-3xl border border-accent/30 bg-accent-soft/30 p-5">
-        <p className="font-mono text-[11px] uppercase tracking-tighter2 text-accent">
-          너의 가장 큰 무기 · {strength.englishName}
-        </p>
-        <h2 className="mt-1 font-kr text-xl font-bold tracking-tighter2">
-          {strength.koreanName}
-        </h2>
-        {topEvidence && (
-          <blockquote className="mt-3 border-l-2 border-accent pl-3 font-sans text-[15px] leading-relaxed text-ink/85">
-            “{topEvidence.quote}”
-          </blockquote>
-        )}
-        <p className="mt-3 text-[15px] leading-relaxed text-ink/80">{reading.contrast}</p>
-        <div className="mt-4 rounded-2xl border border-accent/25 bg-paper px-4 py-3.5">
-          <p className="font-kr text-[13px] font-semibold text-accent">이렇게 해보세요</p>
-          <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink/85">
-            {STUDENT_MOVE[strength.id]}
-          </p>
-        </div>
-      </div>
+      {/* MAIN PAYOFF: the conversation → a prompt → make something */}
+      {coaching && (
+        <PromptStudio
+          coaching={coaching}
+          evidence={evidenceByConstruct}
+          level={level}
+          onDetail={onRecap}
+        />
+      )}
 
 
       <button
@@ -296,16 +279,20 @@ export function DiagnosticResult({
 
       <div className="mt-4 rounded-3xl border border-ink/10 bg-paper-2 p-5">
         <p className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/45">
-          진단 소견
+          진단 소견 · {strength.englishName}
         </p>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink/80">
-          ‘{strength.koreanName}’이 또렷한 강점입니다. 다만 그 힘을 받쳐줄{" "}
-          <b className="font-semibold">‘{weak.koreanName}’</b>이 아직 약해,
-          <br />
+        <h3 className="mt-2 font-kr text-lg font-bold tracking-tighter2">
+          자녀분의 가장 큰 강점은 ‘{strength.koreanName}’입니다.
+        </h3>
+        {topEvidence && (
+          <blockquote className="mt-3 border-l-2 border-accent/60 pl-3 font-sans text-[14px] leading-relaxed text-ink/75">
+            “{topEvidence.quote}”
+          </blockquote>
+        )}
+        <p className="mt-3 text-[15px] leading-relaxed text-ink/80">
+          또래 대부분이 놓치는 지점을, 자녀분은 스스로 짚어냈어요. 다만 이 강점을 끝까지
+          받쳐줄 <b className="font-semibold">‘{weak.koreanName}’</b>이 아직 약해,{" "}
           {reading.consequence}
-        </p>
-        <p className="mt-2 text-[13.5px] leading-relaxed text-ink/55">
-          머리가 아니라 ‘습관’의 문제라, 환경만 맞으면 가장 빨리 자라는 부분입니다.
         </p>
       </div>
 

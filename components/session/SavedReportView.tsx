@@ -17,11 +17,13 @@ export function SavedReportView({
   totals,
   evidence,
   coaching,
+  level,
   unlocked = false,
 }: {
   totals: Record<ConstructId, number>;
   evidence: EvidenceByConstruct;
   coaching: Coaching;
+  level?: string;
   unlocked?: boolean;
 }) {
   const router = useRouter();
@@ -42,6 +44,7 @@ export function SavedReportView({
       totals={totals}
       evidenceByConstruct={evidence}
       coaching={coaching}
+      level={level}
       unlocked={unlocked}
       onRecap={() => setRecap(true)}
       onRestart={() => router.push("/session/demo")}

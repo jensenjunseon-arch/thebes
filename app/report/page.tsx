@@ -13,6 +13,7 @@ interface Picked {
   totals: Record<ConstructId, number>;
   evidence: EvidenceByConstruct;
   coaching: Coaching;
+  level?: string;
 }
 
 export default function ReportPage() {
@@ -40,7 +41,7 @@ export default function ReportPage() {
           if (user) {
             const { data: rows } = await supabase
               .from("diagnostic_results")
-              .select("totals, evidence, coaching")
+              .select("totals, evidence, coaching, level")
               .order("created_at", { ascending: false })
               .limit(1);
             if (rows && rows[0]) {
@@ -48,6 +49,7 @@ export default function ReportPage() {
                 totals: rows[0].totals as Record<ConstructId, number>,
                 evidence: rows[0].evidence as EvidenceByConstruct,
                 coaching: rows[0].coaching as Coaching,
+                level: (rows[0].level as string) ?? undefined,
               };
             }
             // Test period: any signed-in user gets the full report (no paywall).
@@ -62,7 +64,12 @@ export default function ReportPage() {
       if (!picked) {
         const local = getLatestResult();
         if (local) {
-          picked = { totals: local.totals, evidence: local.evidence, coaching: local.coaching };
+          picked = {
+            totals: local.totals,
+            evidence: local.evidence,
+            coaching: local.coaching,
+            level: local.level,
+          };
         }
       }
 
@@ -121,6 +128,7 @@ export default function ReportPage() {
           totals={data.totals}
           evidence={data.evidence}
           coaching={data.coaching}
+          level={data.level}
           unlocked={unlocked}
         />
       )}

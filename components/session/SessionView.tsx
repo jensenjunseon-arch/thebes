@@ -389,6 +389,7 @@ export function SessionView({
         totals={savedView.totals}
         evidenceByConstruct={savedView.evidence}
         coaching={savedView.coaching}
+        level={savedView.level}
         onRestart={() => resetSession()}
         onRecap={() => setRecap(true)}
       />
@@ -401,6 +402,7 @@ export function SessionView({
         totals={totals}
         evidenceByConstruct={evidenceByConstruct}
         coaching={current.coaching}
+        level={String(current.level)}
         onRestart={() => resetSession()}
         onRecap={() => setRecap(true)}
         feedback={
