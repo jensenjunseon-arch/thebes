@@ -377,7 +377,7 @@ function SignupGate({
           <p className="mt-2 text-[14px] leading-relaxed text-ink/65">
             <b className="text-ink">‘{weakName}’</b>을 강점으로 바꾸는 처방과,
             <br />
-            또래 중 내 위치까지 — 진짜 리포트는 여기서부터입니다.
+            또래 중 내 위치까지, 진짜 리포트는 여기서부터입니다.
           </p>
 
           <ul className="mx-auto mt-5 max-w-xs space-y-2.5 text-left">
@@ -398,21 +398,15 @@ function SignupGate({
           </ul>
 
           <Link
-            href="/subscribe"
+            href="/signup"
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 font-kr text-[15px] font-bold text-on-dark transition hover:opacity-90"
           >
-            구독하고 전체 리포트 받기
+            무료로 가입하고 전체 리포트 받기
             <span className="font-mono text-sm">→</span>
           </Link>
           <p className="mt-2.5 text-[11.5px] leading-relaxed text-ink/45">
-            매월 자동결제 · 언제든 해지 가능
+            테스트 기간 무료 · 카드 없이 · 30초면 가입 완료
           </p>
-          <Link
-            href="/signup"
-            className="mt-3 inline-block font-kr text-[12.5px] text-ink/50 underline-offset-4 transition hover:text-ink hover:underline"
-          >
-            아직이요 — 무료로 가입만 하고 결과 저장하기
-          </Link>
         </div>
       </div>
     </div>

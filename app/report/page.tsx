@@ -50,13 +50,8 @@ export default function ReportPage() {
                 coaching: rows[0].coaching as Coaching,
               };
             }
-            // Active subscription → unlock the full report.
-            const { data: sub } = await supabase
-              .from("subscriptions")
-              .select("status")
-              .eq("user_id", user.id)
-              .maybeSingle();
-            if (!cancelled && sub?.status === "active") setUnlocked(true);
+            // Test period: any signed-in user gets the full report (no paywall).
+            if (!cancelled) setUnlocked(true);
           }
         } catch {
           /* fall through to local */
