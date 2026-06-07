@@ -563,6 +563,7 @@ body {
   .lp-two-provocation .body { font-size: 15px; }
   .lp-two-provocation .examples { font-size: 11px; gap: 10px; }
   .lp-validity-grid { grid-template-columns: 1fr; }
+  .lp-loop-grid { grid-template-columns: 1fr !important; }
 }
 
 /* ── provocation message under bridge ── */

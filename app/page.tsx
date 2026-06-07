@@ -58,7 +58,7 @@ export default function LandingPage() {
             <a href="#how">작동 방식</a>
             <a href="#report">성장 리포트</a>
             <a href="#why-en">왜 영어인가</a>
-            <a href="#team">만든 사람들</a>
+            <Link href="/en">EN</Link>
           </div>
           <Link href="/session/demo" className="lp-nav-cta">
             무료 진단 시작
