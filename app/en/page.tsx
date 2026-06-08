@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LangSwitch } from "@/components/LangSwitch";
 
 export const metadata = {
   title: "Thebes AI — Grow into AI-native talent",
@@ -75,12 +76,14 @@ export default function GlobalLanding() {
             <a href="#loop">The loop</a>
             <a href="#how">How it works</a>
             <a href="#report">The report</a>
-            <Link href="/">한국어</Link>
           </div>
-          <Link href="/session/demo" className="lp-nav-cta">
-            Start free
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>→</span>
-          </Link>
+          <div className="lp-nav-right">
+            <LangSwitch active="en" />
+            <Link href="/session/demo" className="lp-nav-cta">
+              Start free
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>→</span>
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -102,11 +105,11 @@ export default function GlobalLanding() {
             <br />
             Math is universal.
             <br />
-            <span style={{ color: "var(--accent)" }}>
-              Math in English is the universally global language.
-            </span>
-            <br />
-            And AI requires it.
+            AI requires{" "}
+            <span style={{ color: "var(--accent)", whiteSpace: "nowrap" }}>
+              &lsquo;universally global&rsquo;
+            </span>{" "}
+            language.
           </h1>
           <p className="hero-sub" style={{ marginTop: 24, maxWidth: 520 }}>
             A 5-minute diagnostic that turns your math reasoning into a real AI build — one
@@ -134,9 +137,9 @@ export default function GlobalLanding() {
               The shift no one prepared you for
             </div>
             <h2 style={{ marginTop: 18 }}>
-              Speed was the old game.
+              The answer is free now.
               <br />
-              <span className="em">AI already won it.</span>
+              <span className="em">The thinking behind it isn&apos;t.</span>
             </h2>
           </div>
           <div className="lp-counter-compare">

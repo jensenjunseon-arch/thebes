@@ -4,6 +4,7 @@ import { ReportPreview } from "@/components/landing/ReportPreview";
 import { CountUp } from "@/components/landing/CountUp";
 import { WhyCards } from "@/components/landing/WhyCards";
 import { TravelAlternatives } from "@/components/landing/TravelAlternatives";
+import { LangSwitch } from "@/components/LangSwitch";
 
 export const metadata = {
   title: "Thebes AI — AI 시대의 사고력을 가르칩니다",
@@ -58,12 +59,14 @@ export default function LandingPage() {
             <a href="#how">작동 방식</a>
             <a href="#report">성장 리포트</a>
             <a href="#why-en">왜 영어인가</a>
-            <Link href="/en">EN</Link>
           </div>
-          <Link href="/session/demo" className="lp-nav-cta">
-            무료 진단 시작
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>→</span>
-          </Link>
+          <div className="lp-nav-right">
+            <LangSwitch active="ko" />
+            <Link href="/session/demo" className="lp-nav-cta">
+              무료 진단 시작
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>→</span>
+            </Link>
+          </div>
         </div>
       </nav>
 

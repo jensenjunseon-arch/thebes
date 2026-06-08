@@ -149,11 +149,28 @@ body {
 .lp-nav-cta {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--ink); color: var(--on-dark);
-  padding: 9px 16px; border-radius: 999px;
+  padding: 9px 16px; border-radius: 999px; white-space: nowrap;
   font-size: 14px; font-weight: 500; border: none;
   transition: transform .15s ease, background .15s ease;
 }
 .lp-nav-cta:hover { background: var(--ink-card-2); transform: translateY(-1px); }
+.lp-nav-right { display: flex; align-items: center; gap: 12px; }
+/* Language switch — a toggle, not a menu link */
+.lp-lang {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 3px 4px 3px 8px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--paper-2);
+}
+.lp-lang-globe { color: var(--ink-3); margin-right: 3px; flex: none; }
+.lp-lang-opt {
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 500;
+  letter-spacing: 0.06em; line-height: 1;
+  padding: 5px 9px; border-radius: 999px; color: var(--ink-3);
+  transition: color .15s ease, background .15s ease;
+}
+.lp-lang-opt.is-active { background: var(--ink); color: var(--paper); }
+a.lp-lang-opt:hover { color: var(--ink); background: var(--paper); }
 
 /* ─── Hero ─── */
 .lp-hero {
@@ -533,8 +550,14 @@ body {
   .lp-hero .hero-cta .lp-btn, .lp-hero .hero-cta .lp-hero-secondary { justify-content: center; }
   .lp-section-head h2 { font-size: 30px; }
   .lp-section-head .lede { font-size: 16px; }
-  .lp-nav-inner { padding: 12px 22px; }
+  .lp-nav-inner { padding: 12px 18px; }
   .lp-brand { font-size: 18px; }
+  /* Compact nav on phones — keep brand + lang switch + CTA on one line */
+  .lp-nav-right { gap: 8px; }
+  .lp-lang { padding: 3px 3px 3px 6px; gap: 0; }
+  .lp-lang-globe { width: 12px; height: 12px; margin-right: 2px; }
+  .lp-lang-opt { padding: 5px 7px; font-size: 11px; letter-spacing: 0.04em; }
+  .lp-nav-cta { padding: 8px 13px; font-size: 13px; gap: 6px; }
   .lp-counter { padding: 100px 0; }
   .lp-counter h2 { font-size: 30px; }
   .lp-counter-col { padding: 28px 24px; }
