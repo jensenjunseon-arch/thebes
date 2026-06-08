@@ -550,14 +550,11 @@ a.lp-lang-opt:hover { color: var(--ink); background: var(--paper); }
   .lp-hero .hero-cta .lp-btn, .lp-hero .hero-cta .lp-hero-secondary { justify-content: center; }
   .lp-section-head h2 { font-size: 30px; }
   .lp-section-head .lede { font-size: 16px; }
-  .lp-nav-inner { padding: 12px 18px; }
+  .lp-nav-inner { padding: 12px 20px; }
   .lp-brand { font-size: 18px; }
-  /* Compact nav on phones — keep brand + lang switch + CTA on one line */
-  .lp-nav-right { gap: 8px; }
-  .lp-lang { padding: 3px 3px 3px 6px; gap: 0; }
-  .lp-lang-globe { width: 12px; height: 12px; margin-right: 2px; }
-  .lp-lang-opt { padding: 5px 7px; font-size: 11px; letter-spacing: 0.04em; }
-  .lp-nav-cta { padding: 8px 13px; font-size: 13px; gap: 6px; }
+  /* On phones, drop the nav CTA (the hero CTA already covers it) so the brand
+     and the language switch sit clean — the switch stays pinned in the corner. */
+  .lp-nav-right .lp-nav-cta { display: none; }
   .lp-counter { padding: 100px 0; }
   .lp-counter h2 { font-size: 30px; }
   .lp-counter-col { padding: 28px 24px; }

@@ -78,11 +78,11 @@ export default function GlobalLanding() {
             <a href="#report">The report</a>
           </div>
           <div className="lp-nav-right">
-            <LangSwitch active="en" />
             <Link href="/session/demo" className="lp-nav-cta">
               Start free
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>→</span>
             </Link>
+            <LangSwitch active="en" />
           </div>
         </div>
       </nav>

@@ -61,11 +61,11 @@ export default function LandingPage() {
             <a href="#why-en">왜 영어인가</a>
           </div>
           <div className="lp-nav-right">
-            <LangSwitch active="ko" />
             <Link href="/session/demo" className="lp-nav-cta">
               무료 진단 시작
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>→</span>
             </Link>
+            <LangSwitch active="ko" />
           </div>
         </div>
       </nav>
