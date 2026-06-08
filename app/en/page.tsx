@@ -115,6 +115,40 @@ export default function GlobalLanding() {
         </div>
       </section>
 
+      {/* ── Manifesto: the hook ──────────────────────────────── */}
+      <section className="lp-section" style={{ paddingTop: 8 }}>
+        <div className="lp-container" style={{ maxWidth: 900, textAlign: "center" }}>
+          <h2
+            style={{
+              fontSize: "clamp(28px, 4.2vw, 48px)",
+              fontWeight: 600,
+              lineHeight: 1.22,
+              letterSpacing: "-0.025em",
+            }}
+          >
+            English is the global language.
+            <br />
+            Math is the universal language.
+            <br />
+            <span style={{ color: "var(--accent)" }}>
+              Math in English is the universal global language.
+            </span>
+          </h2>
+          <p
+            style={{
+              margin: "22px auto 0",
+              maxWidth: 600,
+              fontSize: 18,
+              lineHeight: 1.6,
+              color: "var(--ink-2)",
+            }}
+          >
+            Borderless, precise, and already the language the AI era thinks in — the one the
+            next generation must learn to reason in.
+          </p>
+        </div>
+      </section>
+
       {/* ── The shift (dark) ─────────────────────────────────── */}
       <section className="lp-counter lp-section">
         <div className="lp-container">
