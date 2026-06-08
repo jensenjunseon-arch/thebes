@@ -85,22 +85,32 @@ export default function GlobalLanding() {
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="lp-hero lp-section">
+      <section className="lp-hero lp-section" style={{ padding: "88px 0 104px" }}>
         <div className="lp-container">
           <div className="lp-hero-eyebrow">
             <span className="dot" />
             <span>AI-native thinking · for the next generation</span>
           </div>
-          <h1>
-            The answer is free now.
+          <h1
+            style={{
+              fontSize: "clamp(27px, 3.6vw, 44px)",
+              lineHeight: 1.18,
+              maxWidth: "760px",
+            }}
+          >
+            English is global.
             <br />
-            Learn to <span className="serif-em">think</span> — and turn it into AI.
+            Math is universal.
+            <br />
+            <span style={{ color: "var(--accent)" }}>
+              Math in English is the universally global language.
+            </span>
+            <br />
+            And AI requires it.
           </h1>
-          <p className="hero-sub">
-            Thebes is a thinking diagnostic for the AI era. You reason through a math
-            problem in English, your own words become a precise prompt, and one tap turns it
-            into a real AI program — a game built from your reasoning, that you can play,
-            break, and finally understand.
+          <p className="hero-sub" style={{ marginTop: 24, maxWidth: 520 }}>
+            A 5-minute diagnostic that turns your math reasoning into a real AI build — one
+            you can play, and finally understand.
           </p>
           <div className="hero-cta lp-hero-cta">
             <Link href="/session/demo" className="lp-btn lp-btn-primary">
@@ -112,40 +122,6 @@ export default function GlobalLanding() {
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>↓</span>
             </a>
           </div>
-        </div>
-      </section>
-
-      {/* ── Manifesto: the hook ──────────────────────────────── */}
-      <section className="lp-section" style={{ paddingTop: 8 }}>
-        <div className="lp-container" style={{ maxWidth: 900, textAlign: "center" }}>
-          <h2
-            style={{
-              fontSize: "clamp(28px, 4.2vw, 48px)",
-              fontWeight: 600,
-              lineHeight: 1.22,
-              letterSpacing: "-0.025em",
-            }}
-          >
-            English is the global language.
-            <br />
-            Math is the universal language.
-            <br />
-            <span style={{ color: "var(--accent)" }}>
-              Math in English is the universal global language.
-            </span>
-          </h2>
-          <p
-            style={{
-              margin: "22px auto 0",
-              maxWidth: 600,
-              fontSize: 18,
-              lineHeight: 1.6,
-              color: "var(--ink-2)",
-            }}
-          >
-            Borderless, precise, and already the language the AI era thinks in — the one the
-            next generation must learn to reason in.
-          </p>
         </div>
       </section>
 
