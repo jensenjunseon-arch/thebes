@@ -14,6 +14,7 @@ interface Picked {
   evidence: EvidenceByConstruct;
   coaching: Coaching;
   level?: string;
+  problem?: { statement?: string; korean?: string; topic?: string };
 }
 
 export default function ReportPage() {
@@ -61,16 +62,25 @@ export default function ReportPage() {
       }
 
       // 2) Fallback (instant, same-device): the most recent local result.
-      if (!picked) {
-        const local = getLatestResult();
-        if (local) {
-          picked = {
-            totals: local.totals,
-            evidence: local.evidence,
-            coaching: local.coaching,
-            level: local.level,
-          };
-        }
+      const local = getLatestResult();
+      if (!picked && local) {
+        picked = {
+          totals: local.totals,
+          evidence: local.evidence,
+          coaching: local.coaching,
+          level: local.level,
+          problem: local.statement
+            ? { statement: local.statement, korean: local.korean, topic: local.topic }
+            : undefined,
+        };
+      } else if (picked && !picked.problem && local?.statement) {
+        // Account rows don't store the problem text — borrow it from the local
+        // copy of the same diagnostic so the AI-maker prompts keep full fidelity.
+        picked.problem = {
+          statement: local.statement,
+          korean: local.korean,
+          topic: local.topic,
+        };
       }
 
       if (cancelled) return;
@@ -129,6 +139,7 @@ export default function ReportPage() {
           evidence={data.evidence}
           coaching={data.coaching}
           level={data.level}
+          problem={data.problem}
           unlocked={unlocked}
         />
       )}

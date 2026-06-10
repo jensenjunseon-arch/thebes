@@ -148,6 +148,8 @@ export function SessionView({
         totals,
         evidence: evidenceByConstruct,
         coaching: current.coaching,
+        statement: current.englishStatement,
+        korean: current.koreanSupport,
       });
       savedRef.current = true;
       setHasSaved(true);
@@ -390,6 +392,15 @@ export function SessionView({
         evidenceByConstruct={savedView.evidence}
         coaching={savedView.coaching}
         level={savedView.level}
+        problem={
+          savedView.statement
+            ? {
+                statement: savedView.statement,
+                korean: savedView.korean,
+                topic: savedView.topic,
+              }
+            : undefined
+        }
         onRestart={() => resetSession()}
         onRecap={() => setRecap(true)}
       />
@@ -403,6 +414,11 @@ export function SessionView({
         evidenceByConstruct={evidenceByConstruct}
         coaching={current.coaching}
         level={String(current.level)}
+        problem={{
+          statement: current.englishStatement,
+          korean: current.koreanSupport,
+          topic: current.topic,
+        }}
         onRestart={() => resetSession()}
         onRecap={() => setRecap(true)}
         feedback={

@@ -143,6 +143,9 @@ interface Props {
   coaching?: Coaching;
   // Difficulty band (e.g. "중2") — tailors the AI-maker prompts by school level.
   level?: string;
+  // The exact problem (statement/korean/topic) — lets the AI-maker prompts build
+  // from the student's real numbers and objects, not a generic concept.
+  problem?: { statement?: string; korean?: string; topic?: string };
 }
 
 export function DiagnosticResult({
@@ -154,6 +157,7 @@ export function DiagnosticResult({
   feedback,
   coaching,
   level,
+  problem,
 }: Props) {
   const reasoning = CONSTRUCTS.filter((c) => c.id !== "english").map((c) => ({
     c,
@@ -256,6 +260,7 @@ export function DiagnosticResult({
           coaching={coaching}
           evidence={evidenceByConstruct}
           level={level}
+          problem={problem}
           onDetail={onRecap}
         />
       )}

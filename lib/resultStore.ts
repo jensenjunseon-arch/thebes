@@ -15,6 +15,10 @@ export interface DiagnosticRecord {
   totals: Record<ConstructId, number>;
   evidence: EvidenceByConstruct;
   coaching: Coaching; // kept so the English recap works from a saved result
+  // The exact problem the student reasoned about — the AI-maker prompts use its
+  // real numbers/objects ("MY problem became the game"). Absent on old records.
+  statement?: string;
+  korean?: string;
   synced?: boolean; // true once written to the account (diagnostic_results)
 }
 

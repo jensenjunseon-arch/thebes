@@ -10,10 +10,14 @@ type MakerKind = "game" | "video" | "quiz";
 type Band = "elementary" | "middle" | "high";
 
 const MAKERS: { kind: MakerKind; label: string; hint: string }[] = [
-  { kind: "game", label: "게임으로 만들기", hint: "개념이 곧 게임 규칙이 되는 미니 게임" },
-  { kind: "video", label: "영상 풀이로 만들기", hint: "60초 숏폼 풀이 대본 (컷별)" },
-  { kind: "quiz", label: "퀴즈로 만들기", hint: "사고를 깊게 하는 적응형 5문제" },
+  { kind: "game", label: "게임으로 만들기", hint: "방금 그 문제가 최종 레벨이 되는 아케이드 게임" },
+  { kind: "video", label: "영상 풀이로 만들기", hint: "내 생각이 대본이 되는 60초 숏폼 스크립트" },
+  { kind: "quiz", label: "퀴즈 앱으로 만들기", hint: "오답이 '왜 틀렸는지' 짚어주는 인터랙티브 퀴즈" },
 ];
+
+// Follow-up commands we teach the student to send AFTER the AI delivers —
+// turning a so-so first result into agency ("I can direct this thing").
+const ITERATE_CHIPS = ["더 화려하게 만들어줘", "한 단계 더 어렵게", "효과음도 넣어줘"];
 
 // 초등 저학년/고학년 → elementary, 중1~3 → middle, 고1~3 → high. Check 초등 first
 // so "초등 고학년" isn't mistaken for high.
@@ -36,166 +40,219 @@ const BAND_NOTE: Record<Band, string> = {
   high: "Use precise Korean at a high-school level; proper terms and a bit of rigor are welcome.",
 };
 
-// Production-grade, format-specific prompts. Each is a long, fully-specified brief
-// — role, the student's thinking as the seed, a structured spec, a quality bar,
-// and an exact output format — scaled to the student's school band, so the AI's
-// output is genuinely excellent. The student's own English paragraph is the seed.
-function makerPrompt(paragraph: string, kind: MakerKind, band: Band): string {
+export interface ProblemSeed {
+  statement?: string;
+  korean?: string;
+  topic?: string;
+}
+
+// Up to 3 of the student's strongest verbatim lines from the conversation.
+function studentQuotes(evidence: EvidenceByConstruct): string[] {
+  const order = ["redefine", "decompose", "relate", "relevance", "transfer", "english"];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const k of order) {
+    const q = evidence[k]?.quote?.trim();
+    if (!q || seen.has(q)) continue;
+    seen.add(q);
+    out.push(q.length > 160 ? q.slice(0, 157) + "…" : q);
+    if (out.length === 3) break;
+  }
+  return out;
+}
+
+// The shared seed — the student's exact problem, their reasoning, and their own
+// words. Personalization is the wow: the output must feel like "MY problem,
+// MY thinking, made real", never a generic textbook artifact.
+function seedBlock(
+  paragraph: string,
+  band: Band,
+  problem?: ProblemSeed,
+  quotes: string[] = [],
+): string {
+  const who = BAND_LABEL[band];
+
+  const problemPart = problem?.statement
+    ? `— THE EXACT PROBLEM they reasoned about (use ITS objects and numbers everywhere; never swap in a generic substitute):
+"${problem.statement}"${problem.korean ? `\n(Korean version: "${problem.korean}")` : ""}${problem.topic ? `\n(Topic: ${problem.topic})` : ""}`
+    : `— The exact problem text isn't available; reconstruct the situation faithfully from the reasoning below and stay 100% consistent with its objects and numbers.`;
+
+  const quotesPart = quotes.length
+    ? `\n— THE STUDENT'S OWN LINES from the conversation (verbatim; quote at least one back where it lands hardest):
+${quotes.map((q) => `· "${q}"`).join("\n")}`
+    : "";
+
+  return `=== THE STUDENT & THE SEED ===
+A ${who} student just spent 5 minutes reasoning about one math problem — in English, in their own words. What you build must grow from THEIR thinking, not from a textbook.
+
+${problemPart}
+
+— THEIR REASONING, distilled (this is the DNA of everything you make):
+"${paragraph}"${quotesPart}
+
+THE GOLDEN RULE: within the first 10 seconds of seeing your output, the student must feel "this was built from MY problem and MY thinking." Use the problem's exact objects and numbers. Echo the student's own words at the emotional peak. Reward the reasoning they already showed — never lecture past it.`;
+}
+
+// Production-grade, format-specific briefs. Each one is written like a creative
+// director's brief to a world-class builder: role, seed, spec, juice checklist,
+// anti-slop guards, a self-review pass, and an exact output contract — so the
+// AI's first reply is a finished, personal, genuinely impressive artifact.
+function makerPrompt(
+  paragraph: string,
+  kind: MakerKind,
+  band: Band,
+  problem?: ProblemSeed,
+  quotes: string[] = [],
+): string {
   const who = BAND_LABEL[band];
   const note = BAND_NOTE[band];
-  const seed = `=== THE STUDENT'S THINKING (the seed — the heart of everything below) ===
-A ${who} student described, in their own words, how they understand a math problem:
-"${paragraph}"
-Everything you make must deliver THIS exact insight. Reward the reasoning the student already showed; never replace it with a generic textbook explanation.`;
+  const seed = seedBlock(paragraph, band, problem, quotes);
 
   switch (kind) {
     case "game":
-      return `You are a world-class educational game designer AND a senior front-end engineer who has shipped award-winning learning games. Your gift is turning one abstract idea into a tiny, addictive, *playable* experience where the player learns by DOING — never by reading a wall of text.
+      return `You are a world-class educational game designer AND a senior front-end engineer. Your games have won awards because players learn by DOING — and because they feel like real arcade games, not worksheets. Treat this as a portfolio piece: your absolute best work.
 
 ${seed}
 
 === YOUR MISSION ===
-Design and build a complete, polished, single-file browser game where the concept above IS the gameplay. The player should manipulate the key variables directly and instantly see the consequence, so the relationship becomes obvious through play. It must NOT be a quiz or a slideshow.
+Build a complete, polished, single-file browser game where this concept IS the core mechanic. The player manipulates the key quantities directly and SEES the consequence instantly — the relationship becomes something you can feel in your hands. Not a quiz. Not a slideshow. A game someone would play twice.
 
-=== GAME DESIGN SPEC ===
-1. CORE MECHANIC: choose ONE clear interaction (e.g. drag/sliders/clicks that change the variables) with a live visual that responds in real time. The player should hit a first "아하" within ~20 seconds.
-2. GOAL & FEEDBACK: a concrete goal each round (balance / match / reach a target). Give immediate visual feedback for every action and a satisfying, animated win state with a short congratulating line.
-3. PROGRESSION: exactly 3 short levels that get harder and each reveal a NEW nuance of the concept. Show score or stars and a simple level indicator.
-4. JUICE: smooth CSS transitions, clear hover/press states, a small celebratory animation on success. It must feel alive, not like a worksheet.
-5. REPLAY: a "다시 도전" button and a small twist so round 2 isn't identical.
+=== STRUCTURE (exactly this arc) ===
+- TITLE SCREEN: game name (Korean, punchy), one-line "how to play", a START button — and this tagline, small but visible: "${quotes[0] ? `이 게임은 너의 이 생각에서 시작됐어 — "${quotes[0]}"` : "네 생각으로 설계된 게임"}".
+- LEVEL 1 (warm-up): the same relationship with smaller/simpler numbers — one clear interaction, first "아하" within 20 seconds.
+- LEVEL 2 (twist): same mechanic, one new nuance (a constraint, a second variable, a surprise case).
+- FINAL LEVEL (the payoff): THE STUDENT'S EXACT PROBLEM${problem?.statement ? " — the very numbers and objects from the problem above" : ""}. Beating it = literally mastering the problem they just reasoned about.
+- WIN SCREEN: celebrate, show the score, and quote the student's own line back as proof: "네가 말한 대로였어." Then a "다시 도전" button with a small twist on replay.
+
+=== GAME FEEL (the juice checklist — do ALL of these) ===
+- Every action gives instant visual feedback; dependent values ANIMATE (tween ~200–400ms), never jump.
+- A satisfying success burst: particles or a scale-pop + a score count-up. A subtle shake on failure (≤150ms).
+- Hover/press states on everything clickable; large touch targets (≥48px); the whole game one-thumb playable on a phone.
+- Tiny WebAudio "blip" sounds for actions and a short win jingle (synthesized in code, NO audio files) with a visible 🔇/🔊 mute toggle. If audio would compromise reliability, ship without it rather than ship broken.
+- Smooth 60fps: use requestAnimationFrame for motion, CSS transitions for UI.
+
+=== ART DIRECTION (pick ONE and commit) ===
+Either (a) dark arcade: deep navy/black, ONE neon accent, glowing numbers — or (b) warm paper: cream background, ONE bold accent, chunky rounded cards. Big readable numbers, generous spacing, custom-styled buttons (nothing browser-default), consistent border-radius. It must look designed, not generated.
 
 === AUDIENCE & LANGUAGE ===
 - Player: a ${who} student. ${note}
-- ALL on-screen text (title, instructions, buttons, feedback) in natural Korean at that level. Keep each instruction to one short line.
+- ALL on-screen text in natural Korean at that level — title, instructions, feedback, buttons. One short line per instruction.
 
-=== TECHNICAL & QUALITY BAR ===
-- ONE self-contained .html file: inline <style> and <script>, VANILLA JS only. ZERO external libraries/CDNs/fonts/images — draw everything with HTML/CSS/Canvas.
-- Runs by double-click; works on BOTH touch (mobile) and mouse (desktop); responsive; large tap targets; no console errors.
-- Clean, commented, semantic code with a tasteful, modern color palette.
+=== TECHNICAL CONTRACT ===
+- ONE self-contained .html file: inline <style> + <script>, vanilla JS only. ZERO external libraries, CDNs, fonts, or images — draw everything with HTML/CSS/Canvas.
+- Must run by double-clicking the file (file:// safe: no modules, no fetch). Works with BOTH touch and mouse. No console errors.
+- Clean, commented code; readable variable names.
 
-=== VISUAL & UX ===
-- Calm background, ONE accent color, big readable numbers, generous spacing, zero clutter.
-- When a variable changes, ANIMATE the dependent visual — never let it jump.
-- One-thumb friendly on mobile; nothing tiny; obvious affordances.
+=== ANTI-SLOP (instant disqualifiers) ===
+- No walls of explanatory text — teach through the interaction.
+- No multiple-choice anything. No alert()/prompt(). No English UI text. No placeholder art "TODO". No truncated code.
+- Do NOT write a generic game about the topic — it must be THIS problem's objects and numbers.
 
-=== A CONCRETE EXAMPLE OF THE RIGHT KIND OF MECHANIC (adapt — do NOT copy) ===
-If the concept were "average speed on a round trip," the player might drag two speed sliders and watch a car cross a track while a live "평균 속력" needle moves — discovering that the average is NOT the midpoint of the two speeds. Find the equivalent *felt* mechanic for THIS student's concept.
+=== BEFORE YOU CODE (think, then build) ===
+In 2–3 Korean lines: name the ONE mechanic that makes this relationship *felt* (e.g., for "3× heavier", a seesaw you load until it balances — the player feels multiplication as leverage). Why will the player smile? Then build the complete game.
 
-=== ANTI-PATTERNS (do NOT do any of these) ===
-- No walls of explanatory text; teach through the interaction, not paragraphs.
-- No multiple-choice questions — this is a game, not a quiz.
-- No external assets/libraries/CDNs, no "// TODO", no truncated or partial code.
+=== SELF-REVIEW (do this silently before answering) ===
+Re-read your finished code top to bottom and fix: Does the final level use the EXACT problem numbers? Does the student's quoted line appear? Any overlapping text on a 375px-wide screen? Any console errors? Only then output.
 
-=== BEFORE YOU CODE ===
-First, in 2–3 Korean lines, decide the single best mechanic for THIS concept and why it makes the idea *felt*. Then build the complete game.
+=== OUTPUT (follow exactly) ===
+1) 3 Korean lines: 게임 이름 · 이 게임이 가르치는 한 가지 · 조작법 한 줄.
+2) The COMPLETE html in one fenced code block — nothing omitted.
+3) 2 Korean lines: the exact "아하" moment, and the win-screen line that quotes the student.
+4) "이렇게 시켜보세요" — 3 short Korean follow-up commands the student could send you next to make the game even better (e.g. "콤보 점수를 넣어줘", "보스 레벨 추가해줘", "내 이름을 게임에 넣어줘").
 
-=== OUTPUT FORMAT (follow exactly) ===
-1) First, 3 Korean lines: the game's name · the one concept it teaches · how to play (one line).
-2) Then the COMPLETE, working HTML in a single fenced html code block — copy-paste-and-run, with NOTHING omitted, no "TODO", no placeholders.
-3) Finally, 2 Korean lines: the precise "아하" moment the player should feel, and one idea to make it even better.
-
-Take your time. Make it genuinely fun AND genuinely educational. Quality and completeness over brevity.`;
+Take your time. Completeness over brevity — and make it genuinely FUN.`;
 
     case "video":
-      return `You are a top-tier educational content director who writes viral 60-second explainer scripts (the best of YouTube Shorts / 숏폼) that make a hard idea feel obvious and even a little emotional. Your scripts are precise, visual, and impossible to scroll past.
+      return `You are a top-tier educational content director. Your 60-second explainers go viral because they make one hard idea feel obvious — and a little emotional. You write scripts so concrete that a student can film them TODAY with a phone, paper, and a marker. Treat this as a portfolio piece.
 
 ${seed}
 
 === YOUR MISSION ===
-Write a complete, production-ready 60-second vertical (9:16) short-form video script that makes a ${who} student truly *get* this concept — and want to send it to a friend.
+Write a complete, production-ready 60-second vertical (9:16) short-form script where THE STUDENT'S OWN REASONING is the storyline. The viewer should end thinking "어? 나도 이렇게 생각할 수 있는데?" — and the student who made it should feel like the author, because they are.
 
-=== BEAT MAP (use these exact timings) ===
-- 0:00–0:03 HOOK — a surprising question or bold claim that opens a curiosity loop and stops the scroll.
-- 0:03–0:12 SETUP — frame the everyday situation; introduce ONE concrete, relatable analogy a ${who} student already knows.
-- 0:12–0:40 BUILD — walk the idea step by step through the analogy; show the relationship visibly changing; raise a small tension ("그런데 만약…?").
-- 0:40–0:52 REVEAL — the single "오~!" moment where it all clicks; tie it back explicitly to the student's own words above.
-- 0:52–1:00 PAYOFF — a one-line takeaway + a warm nudge to try it themselves.
+=== THE NARRATIVE SPINE (use these exact beats) ===
+- 0:00–0:03 HOOK — open on THE problem itself${problem?.statement ? " (its real objects and numbers)" : ""} with a surprising question or bold claim. No greetings, no "오늘은 ~에 대해".
+- 0:03–0:12 SETUP — make the situation concrete with ONE everyday analogy a ${who} student already knows. State what we're trying to figure out.
+- 0:12–0:40 BUILD — walk the reasoning in the SAME order the student discovered it (their paragraph above is your outline). Show the relationship visibly changing. Raise one "그런데 만약…?" tension.
+- 0:40–0:52 REVEAL — the "오~!" moment. Here, quote the student's own line ON SCREEN as a caption${quotes[0] ? ` — use this exact line: "${quotes[0]}"` : ""} and let the narration land it: "이건 한 학생이 실제로 한 생각이에요."
+- 0:52–1:00 PAYOFF — one-line takeaway + a warm nudge: "너라면 어떻게 생각했을 것 같아?"
 
-=== DELIVER AS A SHOT-BY-SHOT TABLE ===
-Columns: | 시간 | 화면 (비주얼·모션·자막) | 내레이션 (한국어) |
-- 8–12 rows.
-- Each row: precise on-screen visuals (shapes, numbers, arrows, captions — emoji-free) that are makeable with simple motion graphics (no expensive footage), plus tight narration.
+=== DELIVERABLE 1 — SHOT TABLE ===
+| 시간 | 화면 (비주얼·모션·자막) | 내레이션 (한국어) | — 8–12 rows.
+Every visual must be makeable two ways: (a) phone + paper + marker, or (b) simple motion graphics (bold numbers, arrows, shapes, captions). Note the on-screen CAPTION text exactly where it appears. One visible change every 3–5 seconds.
 
-=== AUDIENCE & VOICE ===
-- Viewer: a ${who} student. ${note}
-- Narration in warm, energetic, natural Korean at that level. Short sentences; explain any term the instant you use it.
+=== DELIVERABLE 2 — READ-ALOUD VO SCRIPT ===
+After the table, write the full narration as ONE continuous block with [0:00]-style time markers — exactly what the student reads into the mic, timed to ~60 seconds at a natural pace (≈140–160 words). Warm, energetic, short sentences. Explain any term the instant it appears.
+
+=== DELIVERABLE 3 — PACKAGING ===
+- 3 title options (Korean, ≤30 chars, curiosity-first).
+- 1 thumbnail concept: the text on it (≤8 chars) + the single image.
+- The first comment the creator should pin (one line that invites replies).
 
 === QUALITY BAR ===
-- Write TWO alternative hooks, pick the stronger, and add one line on why.
-- The analogy must be something a ${who} student uses in daily life.
-- End so the viewer could re-explain the whole idea in a single sentence.
+- Write TWO candidate hooks first, pick the stronger, say why in one line.
+- The analogy must come from a ${who} student's daily life. ${note}
+- The viewer must be able to re-explain the idea in one sentence afterward — write that sentence as the final takeaway.
 
-=== VISUAL STYLE & PACING ===
-- Bright, high-contrast motion graphics: bold numbers, arrows, simple shapes, big captions, ONE accent color.
-- Fast cuts — a visible change every 3–5 seconds; momentum must never drop.
-- Sync each key word of narration to an on-screen change so the eye and ear move together.
+=== ANTI-SLOP ===
+- No lecture-style opening; the first 3 seconds decide everything.
+- No jargon without an instant concrete anchor. No visuals a ${who} student couldn't sketch. No fake statistics.
 
-=== ANTI-PATTERNS (do NOT do any of these) ===
-- No slow, lecture-style opening — the first 3 seconds decide everything.
-- No jargon dropped without an instant, concrete explanation.
-- No abstract visuals a ${who} student couldn't picture in their head.
+=== OUTPUT (follow exactly) ===
+1) The two hooks + your pick (one-line reason).
+2) The shot table.
+3) The timed read-aloud VO block.
+4) Packaging (titles · thumbnail · pinned comment).
+5) "이렇게 시켜보세요" — 3 short Korean follow-up commands the student could send you next (e.g. "더 웃기게 바꿔줘", "30초 버전으로 줄여줘", "인트로를 더 세게").
 
-=== THINK FIRST ===
-Before writing the table, jot (in Korean) the ONE everyday analogy you'll build the whole video on, and the single "오~" reveal. Then write the script.
-
-=== OUTPUT FORMAT (follow exactly) ===
-1) Title + the one-sentence promise of the video (Korean).
-2) The two candidate hooks + your pick (one-line reason).
-3) The full shot-by-shot table.
-4) A closing line: "왜 이 영상이 통하는가" (1 sentence) + one thumbnail text idea (Korean).
-
-Make it genuinely gripping AND genuinely clear. Care and completeness over brevity.`;
+Care and completeness over brevity — make it genuinely film-able today.`;
 
     case "quiz":
-      return `You are a master assessment designer and beloved teacher who writes questions that TEACH while they test — each item leaves the student understanding MORE than before. You are famous for distractors (wrong choices) that pinpoint exactly where a student's thinking breaks.
+      return `You are a master assessment designer AND a senior front-end engineer. Your quizzes are famous for two things: wrong answers that pinpoint EXACTLY where thinking slipped, and an interface so clean it feels like a premium app. Treat this as a portfolio piece.
 
 ${seed}
 
 === YOUR MISSION ===
-Create a complete, polished 5-question quiz for a ${who} student that moves them from "이거 대충 알아" to "이제 완전히 알겠어" — built around the exact concept above.
+Build a complete, single-file interactive QUIZ APP (not a text quiz!) that takes a ${who} student from "이거 대충 알아" to "이제 완전히 알겠어" — built entirely around THEIR concept and THEIR problem.
 
-=== DESIGN PRINCIPLES ===
-- Use this EXACT difficulty ladder:
-  · Q1 — warm-up for confidence (recognize the idea).
-  · Q2 — apply the relationship in a fresh but similar case.
-  · Q3 — a misconception trap (the common wrong intuition appears as a tempting choice).
-  · Q4 — transfer to a real-life situation a ${who} student actually cares about.
-  · Q5 — a "이걸 바꾸면 어떻게 될까?" twist that forces reasoning about the relationship itself.
-- EVERY question tests REASONING, not raw calculation or memorized formulas.
-- DISTRACTORS: each wrong choice must encode a SPECIFIC misunderstanding, never a random number.
+=== THE 5-QUESTION LADDER (exactly this design) ===
+- Q1 WARM-UP: recognize the relationship in its simplest form — confidence builder.
+- Q2 APPLY: same relationship, fresh but similar numbers.
+- Q3 THE TRAP: the single most common misconception for THIS concept appears as the most tempting choice. (Decide that misconception FIRST; design the item around it.)
+- Q4 TRANSFER: the relationship hiding in a real situation a ${who} student actually cares about.
+- Q5 THE TWIST: take THE STUDENT'S EXACT PROBLEM${problem?.statement ? " (the very numbers above)" : ""} and change ONE thing — "만약 ~라면?" — forcing them to reason about the relationship itself, not recall the answer.
 
-=== FOR EACH QUESTION, OUTPUT ===
-1. 문항 — one clear, real-feeling scenario (Korean).
-2. 선택지 — exactly 4 choices labeled ①②③④, all plausibly tempting (Korean).
-3. 정답 — the correct choice, then for EACH wrong choice, one line naming the exact misconception it reveals.
-4. 해설 — 1–2 lines that add a NEW insight (never just "정답입니다").
-5. 한 줄 코칭 — what thinking skill this question is really training.
+=== ITEM RULES ===
+- Every question tests REASONING — answerable in ≤60s with thinking, not computation.
+- 4 choices each. EVERY wrong choice encodes a SPECIFIC, nameable misunderstanding — never a random number.
+- Scenarios feel like real life, not "철수가 사과 3개" filler. ${note}
 
-=== AUDIENCE & LANGUAGE ===
-- Student: a ${who} student. ${note}
-- All Korean at that level; scenarios should feel real and age-appropriate.
+=== APP EXPERIENCE (this is where the wow lives) ===
+- START SCREEN: quiz title (Korean), "5문제 · 정답보다 '왜'가 중요한 퀴즈", a START button — and small: "${quotes[0] ? `한 학생의 생각에서 출발한 퀴즈 — "${quotes[0]}"` : "네 생각에서 출발한 퀴즈"}".
+- ONE question at a time, progress dots (●●○○○), no timer (thinking is the point).
+- Tap a choice → INSTANT feedback: the choice flips green/red with a soft animation, and a 1–2 line Korean explanation appears — for wrong answers it NAMES the misconception ("아, 이건 '평균은 항상 한가운데'라는 함정이에요"), for right answers it adds one NEW insight, never just "정답!".
+- "다음" button appears after feedback. Smooth slide transition between questions.
+- RESULT SCREEN: score with a count-up, then — the signature — a "사고 지도": for each missed question, one line saying where the thinking slipped and one line on how to see it correctly. If all correct: "이 개념, 이제 네 거야." End by quoting the student's own reasoning line back${quotes[0] ? `: "${quotes[0]}"` : ""} with "이 생각, 계속 키워가."
+- "다시 풀기" reshuffles choice order.
 
-=== WRITING RULES ===
-- Every scenario should feel like real life, not "철수가 사과 3개를 샀다" filler.
-- Each item must be answerable by REASONING within a minute — no heavy computation.
-- The Q3 trap must use the single most common wrong intuition for THIS concept.
+=== DESIGN ===
+Premium-clean: calm background, ONE accent color, big readable type, generous spacing, rounded cards, custom buttons (no browser defaults), subtle transitions everywhere. Mobile-first (375px), large touch targets, works desktop too.
 
-=== A MINI-EXAMPLE OF A GOOD ITEM (adapt — do NOT copy) ===
-문항: "더 빠른 길과 더 느린 길을 같은 거리만큼 갔어요. 전체 평균 속력은 두 속력의 한가운데일까요?" → ① 그렇다 ② 느린 쪽에 더 가깝다 ③ 빠른 쪽에 더 가깝다 ④ 알 수 없다. 정답 ②. ①은 '평균 = 중간값'이라는 가장 흔한 오해를 드러냅니다. 이렇게 오답이 *생각이 어디서 어긋났는지*를 진단하게 만드세요.
+=== TECHNICAL CONTRACT ===
+- ONE self-contained .html file: inline <style> + <script>, vanilla JS only. ZERO external anything. Runs by double-click (file:// safe). No console errors. Clean, commented code.
 
-=== ANTI-PATTERNS (do NOT do any of these) ===
-- No pure-calculation items; no "다음 중 옳은 것은?" without a real scenario.
-- No random-number distractors — every wrong choice must encode a real misconception.
+=== ANTI-SLOP ===
+- No random-number distractors. No "다음 중 옳은 것은?" without a scenario. No English UI. No alert(). No truncated code. The quiz must be about THIS problem's world — not the topic in general.
 
-=== THINK FIRST ===
-Before writing, note (in Korean) the single most common misconception for this concept — Q3 will target it.
+=== SELF-REVIEW (silently, before answering) ===
+Check: Does Q5 use the exact problem with one changed condition? Does every wrong choice map to a named misconception in its feedback? Does the result screen's 사고 지도 actually reference the player's specific wrong answers? Fix, then output.
 
-=== OUTPUT FORMAT (follow exactly) ===
-- A short intro line: what this quiz will sharpen.
-- The 5 questions, each in the full structure above, clearly separated.
-- A closing 2 lines: the single biggest idea the quiz reinforces, and a concrete next step for the student.
+=== OUTPUT (follow exactly) ===
+1) 2 Korean lines: 퀴즈 제목 · Q3이 노리는 핵심 오개념 한 줄.
+2) The COMPLETE html in one fenced code block — nothing omitted.
+3) "이렇게 시켜보세요" — 3 short Korean follow-up commands (e.g. "문제를 7개로 늘려줘", "틀린 문제만 다시 나오게 해줘", "친구랑 대결 모드 만들어줘").
 
-Make it rigorous, kind, and genuinely illuminating. Depth and completeness over brevity.`;
+Rigorous, kind, and genuinely illuminating — and it must FEEL like an app, not a worksheet.`;
   }
 }
 
@@ -206,21 +263,24 @@ export function PromptStudio({
   coaching,
   evidence,
   level,
+  problem,
   onDetail,
 }: {
   coaching: Coaching;
   evidence: EvidenceByConstruct;
   level?: string;
+  problem?: ProblemSeed;
   onDetail?: () => void;
 }) {
   const { paragraph } = buildRecap(coaching, evidence);
   const band = levelBand(level);
+  const quotes = studentQuotes(evidence);
   const [draft, setDraft] = useState("");
   const [active, setActive] = useState<MakerKind | null>(null);
   const [copied, setCopied] = useState(false);
 
   const pct = traceMatchPercent(draft, paragraph);
-  const prompt = active ? makerPrompt(paragraph, active, band) : "";
+  const prompt = active ? makerPrompt(paragraph, active, band, problem, quotes) : "";
 
   async function copy() {
     try {
@@ -279,8 +339,8 @@ export function PromptStudio({
         <p className="font-kr text-[13px] font-semibold text-ink/75">
           우리의 대화로 무엇을 만들어볼까요?
         </p>
-        <p className="mt-1 font-kr text-[12.5px] leading-relaxed text-ink/55">
-          버튼을 누르면 당신의 AI 결과물이 만들어집니다.
+        <p className="mt-1 font-kr text-[12.5px] leading-relaxed text-ink/55 break-keep">
+          버튼 하나면, 방금 그 문제와 당신의 생각이 그대로 들어간 진짜 AI 결과물이 나옵니다.
         </p>
 
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -302,7 +362,7 @@ export function PromptStudio({
               <span className="block font-kr text-[14px] font-semibold">{m.label}</span>
               <span
                 className={cn(
-                  "mt-0.5 block font-kr text-[11.5px] leading-snug",
+                  "mt-0.5 block font-kr text-[11.5px] leading-snug break-keep",
                   active === m.kind ? "text-on-dark/70" : "text-ink/50",
                 )}
               >
@@ -334,22 +394,39 @@ export function PromptStudio({
               </button>
               <button
                 type="button"
-                onClick={() => openIn("chatgpt")}
-                className="rounded-xl border border-ink/15 bg-paper px-4 py-2.5 font-kr text-[13px] font-medium text-ink transition hover:border-accent/60"
-              >
-                ChatGPT에서 열기 →
-              </button>
-              <button
-                type="button"
                 onClick={() => openIn("claude")}
                 className="rounded-xl border border-ink/15 bg-paper px-4 py-2.5 font-kr text-[13px] font-medium text-ink transition hover:border-accent/60"
               >
                 Claude에서 열기 →
               </button>
+              <button
+                type="button"
+                onClick={() => openIn("chatgpt")}
+                className="rounded-xl border border-ink/15 bg-paper px-4 py-2.5 font-kr text-[13px] font-medium text-ink transition hover:border-accent/60"
+              >
+                ChatGPT에서 열기 →
+              </button>
             </div>
-            <p className="mt-2.5 font-kr text-[11.5px] leading-relaxed text-ink/45">
-              열기를 누르면 프롬프트가 복사돼요. AI 입력창에 붙여넣기(⌘/Ctrl+V)만 하면 됩니다.
+            <p className="mt-2.5 font-kr text-[11.5px] leading-relaxed text-ink/45 break-keep">
+              열기를 누르면 프롬프트가 복사돼요. AI 입력창에 붙여넣기(⌘/Ctrl+V)하면 30초쯤 뒤
+              결과물이 나옵니다.
             </p>
+            <div className="mt-3 rounded-xl bg-accent-soft/40 px-3.5 py-3">
+              <p className="font-kr text-[12px] font-semibold text-ink/70">
+                결과물이 나오면, 이렇게 답장해보세요
+              </p>
+              <p className="mt-1 font-kr text-[12px] leading-relaxed text-ink/55 break-keep">
+                {ITERATE_CHIPS.map((c, i) => (
+                  <span key={c}>
+                    {i > 0 && <span className="text-ink/30"> · </span>}
+                    &ldquo;{c}&rdquo;
+                  </span>
+                ))}
+              </p>
+              <p className="mt-1.5 font-kr text-[11.5px] leading-relaxed text-ink/45 break-keep">
+                AI에게 고치라고 시키는 것 — 그게 진짜 AI를 다루는 기술이에요.
+              </p>
+            </div>
           </div>
         )}
 
