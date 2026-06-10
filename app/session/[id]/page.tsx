@@ -30,10 +30,12 @@ export default async function SessionPage({
 
   // ── demo route — full problem pool + difficulty picker ──────────────────────
   if (id === "demo" || !isSupabaseConfigured()) {
-    // Scripted by default (no API credits spent during pre-launch demos).
-    // Set NEXT_PUBLIC_DEMO_SCRIPTED="false" once Anthropic credits are funded
-    // to switch the demo to the real AI coach.
-    const scripted = process.env.NEXT_PUBLIC_DEMO_SCRIPTED !== "false";
+    // Real AI coach when NEXT_PUBLIC_DEMO_SCRIPTED="false" AND an Anthropic key
+    // exists; otherwise the scripted engine (so a missing key can never produce
+    // a session that errors on every turn).
+    const scripted =
+      process.env.NEXT_PUBLIC_DEMO_SCRIPTED !== "false" ||
+      !process.env.ANTHROPIC_API_KEY;
     return (
       <SessionShell sessionLabel={id}>
         <SessionView

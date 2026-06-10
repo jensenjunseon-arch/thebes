@@ -7,7 +7,7 @@ import type { ConstructId } from "@/lib/constructs";
 import type { StepId } from "@/lib/steps";
 import { extractJson } from "@/lib/ai/extractJson";
 
-const MODEL = "claude-sonnet-4-5";
+const MODEL = "claude-sonnet-4-6";
 
 export interface ScorerOutput {
   turn_id: string;
@@ -34,8 +34,8 @@ Output STRICT JSON with this schema:
     "transfer":  int,  // -2..+3, extending the principle to others/the future
     "english":   int   // -2..+3, clarity of English reasoning
   },
-  "evidence_quote": string,   // verbatim quote from the student
-  "rationale":      string,   // one sentence
+  "evidence_quote": string,   // verbatim quote from the student (keep their language)
+  "rationale":      string,   // one sentence in natural KOREAN (shown to the student and parents)
   "confidence":     number    // 0..1
 }`;
 

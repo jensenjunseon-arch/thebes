@@ -7,7 +7,7 @@ import { promptForStep } from "@/lib/ai/prompts";
 import { detectAnswerLeak } from "@/lib/ai/answerLeak";
 import { extractJson } from "@/lib/ai/extractJson";
 
-const MODEL = "claude-sonnet-4-5";
+const MODEL = "claude-sonnet-4-6";
 
 export interface TutorMessage {
   role: "user" | "assistant";
