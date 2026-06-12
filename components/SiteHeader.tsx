@@ -16,8 +16,8 @@ export async function SiteHeader({ label }: Props) {
 
   return (
     <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-      <Link href="/" className="font-mono text-[18px] font-medium tracking-tight">
-        Thebes <span className="font-semibold text-accent">AI</span>
+      <Link href="/" className="font-sans text-[18px] font-semibold tracking-tightish">
+        Thebes <span className="g-grad-text font-bold">AI</span>
       </Link>
 
       <div className="flex items-center gap-5">

@@ -47,8 +47,8 @@ export function Protractor({ onClose }: { onClose: () => void }) {
           {/* body */}
           <path
             d={`M 10 ${R + 14} A ${R - 10} ${R - 10} 0 0 1 ${R * 2 - 10} ${R + 14} Z`}
-            fill="rgba(247,237,201,0.94)"
-            stroke="#1c1814"
+            fill="rgba(240,244,249,0.94)"
+            stroke="#1F1F1F"
             strokeWidth="1.5"
           />
           {/* ticks every 10° + labels every 30° */}
@@ -62,9 +62,9 @@ export function Protractor({ onClose }: { onClose: () => void }) {
             const ly = R + 14 - (R - 40) * Math.sin(a);
             return (
               <g key={i}>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#1c1814" strokeWidth={i % 3 === 0 ? 1.4 : 0.8} />
+                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#1F1F1F" strokeWidth={i % 3 === 0 ? 1.4 : 0.8} />
                 {i % 3 === 0 && (
-                  <text x={lx} y={ly + 3} fontSize="10" textAnchor="middle" fill="#3d342c" fontFamily="monospace">
+                  <text x={lx} y={ly + 3} fontSize="10" textAnchor="middle" fill="#474B4F" fontFamily="monospace">
                     {i * 10}
                   </text>
                 )}
@@ -72,12 +72,12 @@ export function Protractor({ onClose }: { onClose: () => void }) {
             );
           })}
           {/* baseline + center */}
-          <line x1={14} y1={R + 14} x2={R * 2 - 14} y2={R + 14} stroke="#1c1814" strokeWidth="1.2" />
-          <circle cx={R} cy={R + 14} r="3" fill="#b5411b" />
+          <line x1={14} y1={R + 14} x2={R * 2 - 14} y2={R + 14} stroke="#1F1F1F" strokeWidth="1.2" />
+          <circle cx={R} cy={R + 14} r="3" fill="#0B57D0" />
           {/* arm */}
-          <line x1={R} y1={R + 14} x2={ax} y2={ay} stroke="#b5411b" strokeWidth="2.2" strokeLinecap="round" />
+          <line x1={R} y1={R + 14} x2={ax} y2={ay} stroke="#0B57D0" strokeWidth="2.2" strokeLinecap="round" />
           {/* readout */}
-          <text x={R} y={R - 18} fontSize="20" fontWeight="700" textAnchor="middle" fill="#b5411b" fontFamily="monospace">
+          <text x={R} y={R - 18} fontSize="20" fontWeight="700" textAnchor="middle" fill="#0B57D0" fontFamily="monospace">
             {Math.round(arm)}°
           </text>
         </svg>

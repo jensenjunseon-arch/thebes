@@ -20,17 +20,17 @@ function BrandMark({ size = 26 }: { size?: number }) {
     >
       <path
         d="M6 28 V14 a10 10 0 0 1 20 0 V28"
-        stroke="#14110C"
+        stroke="#1F1F1F"
         strokeWidth="2"
         strokeLinecap="round"
       />
       <path
         d="M11 28 V18 a5 5 0 0 1 10 0 V28"
-        stroke="#B5411B"
+        stroke="#0B57D0"
         strokeWidth="2"
         strokeLinecap="round"
       />
-      <circle cx="16" cy="11" r="1.6" fill="#B5411B" />
+      <circle cx="16" cy="11" r="1.6" fill="#0B57D0" />
     </svg>
   );
 }

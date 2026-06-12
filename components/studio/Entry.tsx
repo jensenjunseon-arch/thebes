@@ -94,16 +94,17 @@ export function Entry({
         if (item) void takeFile(item.getAsFile());
       }}
     >
-      {/* soft radial glow, Gemini-ish but in brand */}
+      {/* the Gemini glow — layered blue + lavender, soft and centered */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
       >
-        <div className="h-[420px] w-[680px] max-w-[92vw] rounded-full bg-accent-soft/45 blur-3xl" />
+        <div className="h-[440px] w-[720px] max-w-[94vw] rounded-full bg-accent-soft/60 blur-3xl" />
+        <div className="absolute h-[300px] w-[420px] max-w-[70vw] translate-x-24 rounded-full bg-[#E9DEFB]/50 blur-3xl" />
       </div>
 
       <h1 className="relative z-10 text-center font-kr text-[clamp(26px,5vw,40px)] font-bold leading-tight tracking-tighter2 text-ink break-keep">
-        {greeting()} <span className="text-accent">영어로</span> 풀어볼까요?
+        {greeting()} <span className="g-grad-text">영어로</span> 풀어볼까요?
       </h1>
       <p className="relative z-10 mt-3 text-center font-kr text-[14.5px] leading-relaxed text-ink/55 break-keep">
         수학 문제 사진을 올리면 — 읽고, 영어로 바꾸고, 한 줄씩 풀이까지 함께해요.

@@ -118,7 +118,7 @@ function MiniLineChart({ data }: { data: number[] }) {
         {/* area fill */}
         <path
           d={`${d} L ${W - PAD},${H - PAD} L ${PAD},${H - PAD} Z`}
-          fill="rgba(181,65,27,0.08)"
+          fill="rgba(11,87,208,0.07)"
         />
         {/* line */}
         <path d={d} stroke="var(--accent)" strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />

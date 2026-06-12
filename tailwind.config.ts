@@ -1,26 +1,26 @@
 import type { Config } from "tailwindcss";
 
-// Design tokens from PRD §7 — keep this file as the single source of truth.
-// Do not introduce new accent colors here without product approval; the brand
-// rule is one accent (terracotta) on a cream-paper field.
+// Design tokens — single source of truth (mirrors the CSS vars in globals.css).
+// Brand rule: Gemini-clean — white surfaces, cool grays, ONE blue accent; the
+// blue→purple→coral gradient is reserved for spark moments (brand "AI", glow).
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
         paper: {
-          DEFAULT: "#F6F2E8",
-          2: "#EEE8DA",
+          DEFAULT: "#FFFFFF",
+          2: "#F0F4F9",
         },
         ink: {
-          DEFAULT: "#14110C",
-          card: "#15120D",
+          DEFAULT: "#1F1F1F",
+          card: "#1F1F1F",
         },
         accent: {
-          DEFAULT: "#B5411B",
-          soft: "#ECCEB6",
+          DEFAULT: "#0B57D0",
+          soft: "#D3E3FD",
         },
-        "on-dark": "#F6F2E8",
+        "on-dark": "#F8FAFD",
       },
       fontFamily: {
         // English serif accent moments — "Frame it", "Plan it", etc.

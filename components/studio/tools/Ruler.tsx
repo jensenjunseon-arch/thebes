@@ -44,7 +44,7 @@ export function Ruler({ onClose }: { onClose: () => void }) {
       onPointerDown={bringToFront}
     >
       <div
-        className="relative h-[58px] cursor-grab touch-none rounded-lg border border-ink/25 bg-[#f7edc9]/95 shadow-xl backdrop-blur active:cursor-grabbing"
+        className="relative h-[58px] cursor-grab touch-none rounded-lg border border-ink/25 bg-[#F0F4F9]/95 shadow-xl backdrop-blur active:cursor-grabbing"
         style={{ width: LEN + 28 }}
         {...dragHandlers}
       >

@@ -30,23 +30,23 @@ export function ConstructRadar({ current, previous, ceiling = 30 }: Props) {
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-          <PolarGrid stroke="#14110C20" />
+          <PolarGrid stroke="#1F232820" />
           <PolarAngleAxis
             dataKey="subject"
-            tick={{ fontSize: 11, fill: "#14110C99", fontFamily: "Pretendard Variable, Pretendard, sans-serif" }}
+            tick={{ fontSize: 11, fill: "#1F232899", fontFamily: "Pretendard Variable, Pretendard, sans-serif" }}
           />
           <Radar
             name="지난주"
             dataKey="지난주"
-            stroke="#ECCEB6"
-            fill="#ECCEB6"
+            stroke="#D3E3FD"
+            fill="#D3E3FD"
             fillOpacity={0.4}
           />
           <Radar
             name="이번주"
             dataKey="이번주"
-            stroke="#B5411B"
-            fill="#B5411B"
+            stroke="#0B57D0"
+            fill="#0B57D0"
             fillOpacity={0.25}
           />
           <Legend

@@ -50,8 +50,8 @@ function Flat({ figure }: { figure: Exclude<FigureSpec, SolidFigure> }) {
                 cx="50"
                 cy="50"
                 r={figure.r}
-                fill="rgba(181,65,27,0.08)"
-                stroke="var(--ink, #1c1814)"
+                fill="rgba(11,87,208,0.07)"
+                stroke="var(--ink, #1F1F1F)"
                 strokeWidth="1.4"
               />
               <line
@@ -59,18 +59,18 @@ function Flat({ figure }: { figure: Exclude<FigureSpec, SolidFigure> }) {
                 y1="50"
                 x2={50 + figure.r}
                 y2="50"
-                stroke="#b5411b"
+                stroke="#0B57D0"
                 strokeWidth="1.2"
                 strokeDasharray="3 2"
               />
-              <circle cx="50" cy="50" r="1.6" fill="#1c1814" />
+              <circle cx="50" cy="50" r="1.6" fill="#1F1F1F" />
               {figure.radiusLabel && (
                 <text
                   x={50 + figure.r / 2}
                   y="46"
                   fontSize="6"
                   textAnchor="middle"
-                  fill="#b5411b"
+                  fill="#0B57D0"
                   transform={`rotate(${-rot} ${50 + figure.r / 2} 46)`}
                 >
                   {figure.radiusLabel}
@@ -90,12 +90,12 @@ function PolygonShape({ f }: { f: PolygonFigure }) {
   const d = f.points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ") + " Z";
   return (
     <>
-      <path d={d} fill="rgba(181,65,27,0.08)" stroke="#1c1814" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d={d} fill="rgba(11,87,208,0.07)" stroke="#1F1F1F" strokeWidth="1.4" strokeLinejoin="round" />
       {f.points.map((p, i) => (
         <g key={i}>
-          <circle cx={p[0]} cy={p[1]} r="1.7" fill="#b5411b" />
+          <circle cx={p[0]} cy={p[1]} r="1.7" fill="#0B57D0" />
           {f.labels?.[i] && (
-            <text x={p[0]} y={p[1] - 3.5} fontSize="6.5" textAnchor="middle" fill="#1c1814" fontWeight="600">
+            <text x={p[0]} y={p[1] - 3.5} fontSize="6.5" textAnchor="middle" fill="#1F1F1F" fontWeight="600">
               {f.labels[i]}
             </text>
           )}
@@ -112,7 +112,7 @@ function PolygonShape({ f }: { f: PolygonFigure }) {
             y={(a[1] + b[1]) / 2 - 2.5}
             fontSize="5.5"
             textAnchor="middle"
-            fill="#6b5d52"
+            fill="#6E7276"
           >
             {label}
           </text>
@@ -130,22 +130,22 @@ function AngleShape({ deg, labels, rot }: { deg: number; labels?: string[]; rot:
   const arc = `M ${50 + 12} ${70} A 12 12 0 ${deg > 180 ? 1 : 0} 0 ${50 + 12 * Math.cos(-rad)} ${70 + 12 * Math.sin(-rad)}`;
   return (
     <>
-      <line x1="50" y1="70" x2={50 + r} y2="70" stroke="#1c1814" strokeWidth="1.4" />
-      <line x1="50" y1="70" x2={x2} y2={y2 - 20 + 20} stroke="#1c1814" strokeWidth="1.4" />
-      <path d={arc} fill="none" stroke="#b5411b" strokeWidth="1.3" />
+      <line x1="50" y1="70" x2={50 + r} y2="70" stroke="#1F1F1F" strokeWidth="1.4" />
+      <line x1="50" y1="70" x2={x2} y2={y2 - 20 + 20} stroke="#1F1F1F" strokeWidth="1.4" />
+      <path d={arc} fill="none" stroke="#0B57D0" strokeWidth="1.3" />
       <text
         x={50 + 19 * Math.cos(-rad / 2)}
         y={70 + 19 * Math.sin(-rad / 2) + 2}
         fontSize="6.5"
         textAnchor="middle"
-        fill="#b5411b"
+        fill="#0B57D0"
         fontWeight="600"
         transform={`rotate(${-rot} ${50 + 19 * Math.cos(-rad / 2)} ${70 + 19 * Math.sin(-rad / 2)})`}
       >
         {deg}°
       </text>
       {labels?.[0] && (
-        <text x="47" y="75" fontSize="6" textAnchor="end" fill="#1c1814" fontWeight="600">
+        <text x="47" y="75" fontSize="6" textAnchor="end" fill="#1F1F1F" fontWeight="600">
           {labels[0]}
         </text>
       )}
@@ -258,7 +258,7 @@ function Solid({ figure }: { figure: SolidFigure }) {
       return [W / 2 + x1 * scale * persp, H / 2 + y2 * scale * persp] as [number, number];
     });
 
-    ctx.strokeStyle = "#1c1814";
+    ctx.strokeStyle = "#1F1F1F";
     ctx.lineWidth = 1.3;
     ctx.lineCap = "round";
     for (const [a, b] of edges) {

@@ -32,12 +32,12 @@ export function WeeklyBarChart({ weeks }: Props) {
     <div className="h-48 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} barCategoryGap="30%">
-          <CartesianGrid vertical={false} stroke="#14110C12" />
+          <CartesianGrid vertical={false} stroke="#1F232812" />
           <XAxis
             dataKey="name"
             tick={{
               fontSize: 10,
-              fill: "#14110C66",
+              fill: "#1F232866",
               fontFamily: "Geist Mono, ui-monospace, monospace",
             }}
             axisLine={false}
@@ -45,10 +45,10 @@ export function WeeklyBarChart({ weeks }: Props) {
           />
           <YAxis hide />
           <Tooltip
-            cursor={{ fill: "#14110C08" }}
+            cursor={{ fill: "#1F232808" }}
             contentStyle={{
-              background: "#F6F2E8",
-              border: "1px solid #14110C20",
+              background: "#FFFFFF",
+              border: "1px solid #1F232820",
               borderRadius: "12px",
               fontSize: "11px",
               fontFamily: "Geist, sans-serif",
@@ -61,10 +61,10 @@ export function WeeklyBarChart({ weeks }: Props) {
                 key={idx}
                 fill={
                   entry.total === maxTotal
-                    ? "#B5411B"
+                    ? "#0B57D0"
                     : idx === data.length - 1
-                      ? "#B5411B"
-                      : "#ECCEB6"
+                      ? "#0B57D0"
+                      : "#D3E3FD"
                 }
               />
             ))}
