@@ -26,6 +26,21 @@ type MakeState =
   | { phase: "done"; artifact: string }
   | { phase: "error" };
 
+type ShareState = null | "pending" | "error" | { slug: string };
+
+// Best-effort display title for the share page.
+function artifactTitle(kind: MakerKind, artifact: string): string | undefined {
+  if (kind === "video") {
+    const first = artifact
+      .split("\n")
+      .map((l) => l.replace(/^#+\s*/, "").trim())
+      .find(Boolean);
+    return first?.slice(0, 80);
+  }
+  const m = /<title[^>]*>([^<]+)<\/title>/i.exec(artifact);
+  return m?.[1]?.trim().slice(0, 80);
+}
+
 // The model is told to return raw HTML — but if it fences anyway, unwrap.
 function extractHtml(raw: string): string {
   const fence = /```(?:html)?\s*([\s\S]*?)```/.exec(raw);
@@ -70,6 +85,12 @@ export function Payoff({
     quiz: { phase: "idle" },
   });
   const [reviseDraft, setReviseDraft] = useState("");
+  const [shared, setShared] = useState<Record<MakerKind, ShareState>>({
+    game: null,
+    video: null,
+    quiz: null,
+  });
+  const [linkCopied, setLinkCopied] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -170,12 +191,46 @@ export function Payoff({
         throw new Error("incomplete");
       }
       setKindState(kind, { phase: "done", artifact });
+      // A new build invalidates the previous share link for this kind.
+      setShared((s) => ({ ...s, [kind]: null }));
     } catch (err) {
       if ((err as Error).name === "AbortError") {
         setKindState(kind, { phase: "idle" });
       } else {
         setKindState(kind, { phase: "error" });
       }
+    }
+  }
+
+  // Give the artifact a public URL — the "내가 만든 게임 해봐" loop.
+  async function shareArtifact(kind: MakerKind, artifact: string) {
+    setShared((s) => ({ ...s, [kind]: "pending" }));
+    setLinkCopied(false);
+    try {
+      const res = await fetch("/api/studio/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind,
+          content: artifact,
+          title: artifactTitle(kind, artifact),
+          topic: pack.topic,
+          level: pack.level,
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const { slug } = (await res.json()) as { slug: string };
+      setShared((s) => ({ ...s, [kind]: { slug } }));
+      // Auto-copy — the next move is pasting into 카톡.
+      try {
+        await navigator.clipboard.writeText(`${window.location.origin}/play/${slug}`);
+        setLinkCopied(true);
+        setTimeout(() => setLinkCopied(false), 2600);
+      } catch {
+        /* the link field below is still selectable */
+      }
+    } catch {
+      setShared((s) => ({ ...s, [kind]: "error" }));
     }
   }
 
@@ -360,6 +415,14 @@ export function Payoff({
                 )}
 
                 <div className="flex flex-wrap items-center gap-2 border-t border-ink/8 px-4 py-3">
+                  <button
+                    type="button"
+                    disabled={shared[active] === "pending"}
+                    onClick={() => void shareArtifact(active, activeState.artifact)}
+                    className="rounded-xl bg-accent px-3.5 py-2 font-kr text-[12.5px] font-semibold text-on-dark transition hover:bg-ink disabled:opacity-50"
+                  >
+                    {shared[active] === "pending" ? "링크 만드는 중…" : "🔗 친구에게 공유"}
+                  </button>
                   {active !== "video" && (
                     <button
                       type="button"
@@ -374,16 +437,61 @@ export function Payoff({
                     onClick={() => download(active, activeState.artifact)}
                     className="rounded-xl border border-ink/15 px-3.5 py-2 font-kr text-[12.5px] font-medium text-ink/70 transition hover:border-accent/60 hover:text-accent"
                   >
-                    ⬇ 파일로 저장
+                    ⬇ 저장
                   </button>
                   <button
                     type="button"
                     onClick={() => void build(active)}
                     className="rounded-xl border border-ink/15 px-3.5 py-2 font-kr text-[12.5px] font-medium text-ink/70 transition hover:border-accent/60 hover:text-accent"
                   >
-                    ↺ 처음부터 다시
+                    ↺ 다시
                   </button>
                 </div>
+
+                {/* the share link, ready for 카톡 */}
+                {typeof shared[active] === "object" && shared[active] !== null && (
+                  <div className="border-t border-ink/8 bg-paper-2/50 px-4 py-3">
+                    <p className="font-kr text-[12px] font-semibold text-ink/70">
+                      {linkCopied ? "링크가 복사됐어요 — 카톡에 붙여넣기만 하면 끝!" : "공유 링크"}
+                    </p>
+                    <div className="mt-1.5 flex gap-2">
+                      <input
+                        readOnly
+                        value={`${typeof window !== "undefined" ? window.location.origin : ""}/play/${(shared[active] as { slug: string }).slug}`}
+                        onFocus={(e) => e.currentTarget.select()}
+                        className="h-9 w-full flex-1 rounded-xl border border-ink/12 bg-paper px-3 font-mono text-[12px] text-ink/75 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(
+                              `${window.location.origin}/play/${(shared[active] as { slug: string }).slug}`,
+                            );
+                            setLinkCopied(true);
+                            setTimeout(() => setLinkCopied(false), 2600);
+                          } catch {
+                            /* field is selectable */
+                          }
+                        }}
+                        className="h-9 flex-none rounded-xl bg-ink px-3.5 font-kr text-[12px] font-semibold text-on-dark transition hover:bg-accent"
+                      >
+                        복사
+                      </button>
+                    </div>
+                    <p className="mt-1.5 font-kr text-[11.5px] leading-relaxed text-ink/45 break-keep">
+                      링크를 연 친구도 바로 플레이할 수 있어요 — 그리고 자기 문제로 만들 수
+                      있죠.
+                    </p>
+                  </div>
+                )}
+                {shared[active] === "error" && (
+                  <div className="border-t border-ink/8 px-4 py-2.5">
+                    <p className="font-kr text-[12px] text-ink/55 break-keep">
+                      공유 링크를 만들지 못했어요 — 잠시 후 다시 시도해 주세요.
+                    </p>
+                  </div>
+                )}
 
                 {/* The real lesson: DIRECT the AI. */}
                 <div className="border-t border-ink/8 bg-accent-soft/25 px-4 py-3.5">
