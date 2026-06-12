@@ -83,16 +83,26 @@ THE GOLDEN RULE: within the first 10 seconds of seeing your output, the student 
 // director's brief to a world-class builder: role, seed, spec, juice checklist,
 // anti-slop guards, a self-review pass, and an exact output contract — so the
 // AI's first reply is a finished, personal, genuinely impressive artifact.
+//
+// output: "chat" = pasted into ChatGPT/Claude (pitch lines + fenced code +
+// follow-up commands). "app" = consumed by our /api/studio/make pipe — the
+// reply IS the artifact (raw HTML / clean markdown), nothing else.
 export function makerPrompt(
   paragraph: string,
   kind: MakerKind,
   band: Band,
   problem?: ProblemSeed,
   quotes: string[] = [],
+  output: "chat" | "app" = "chat",
 ): string {
   const who = BAND_LABEL[band];
   const note = BAND_NOTE[band];
   const seed = seedBlock(paragraph, band, problem, quotes);
+
+  const HTML_APP_OUTPUT = `=== OUTPUT (follow exactly) ===
+Your ENTIRE reply must be the complete HTML document itself — starting with <!DOCTYPE html> and ending with </html>. NO markdown fences, NO commentary, NO pitch lines before or after. The host app renders your reply directly inside a sandboxed iframe, so anything that isn't HTML breaks the experience.
+
+Take your time. Completeness over brevity.`;
 
   switch (kind) {
     case "game":
@@ -140,13 +150,17 @@ In 2–3 Korean lines: name the ONE mechanic that makes this relationship *felt*
 === SELF-REVIEW (do this silently before answering) ===
 Re-read your finished code top to bottom and fix: Does the final level use the EXACT problem numbers? Does the student's quoted line appear? Any overlapping text on a 375px-wide screen? Any console errors? Only then output.
 
-=== OUTPUT (follow exactly) ===
+${
+  output === "app"
+    ? HTML_APP_OUTPUT
+    : `=== OUTPUT (follow exactly) ===
 1) 3 Korean lines: 게임 이름 · 이 게임이 가르치는 한 가지 · 조작법 한 줄.
 2) The COMPLETE html in one fenced code block — nothing omitted.
 3) 2 Korean lines: the exact "아하" moment, and the win-screen line that quotes the student.
 4) "이렇게 시켜보세요" — 3 short Korean follow-up commands the student could send you next to make the game even better (e.g. "콤보 점수를 넣어줘", "보스 레벨 추가해줘", "내 이름을 게임에 넣어줘").
 
-Take your time. Completeness over brevity — and make it genuinely FUN.`;
+Take your time. Completeness over brevity — and make it genuinely FUN.`
+}`;
 
     case "video":
       return `You are a top-tier educational content director. Your 60-second explainers go viral because they make one hard idea feel obvious — and a little emotional. You write scripts so concrete that a student can film them TODAY with a phone, paper, and a marker. Treat this as a portfolio piece.
@@ -185,14 +199,21 @@ ${quotes[0] ? `- The REVEAL caption must be this exact line: "${quotes[0]}"` : "
 - No lecture-style opening; the first 3 seconds decide everything.
 - No jargon without an instant concrete anchor. No visuals a ${who} student couldn't sketch. No fake statistics.
 
-=== OUTPUT (follow exactly) ===
+${
+  output === "app"
+    ? `=== OUTPUT (follow exactly) ===
+Reply with the deliverables as clean, well-structured markdown — start DIRECTLY with the title (no preamble, no "Here is…"), in this order: 제목 → 두 후보 훅과 선택 이유 → 샷 테이블 → 타임코드 내레이션 블록 → 패키징(제목 3안 · 썸네일 · 고정 댓글). Korean throughout (English only where the script itself needs it).
+
+Care and completeness over brevity — make it genuinely film-able today.`
+    : `=== OUTPUT (follow exactly) ===
 1) The two hooks + your pick (one-line reason).
 2) The shot table.
 3) The timed read-aloud VO block.
 4) Packaging (titles · thumbnail · pinned comment).
 5) "이렇게 시켜보세요" — 3 short Korean follow-up commands the student could send you next (e.g. "더 웃기게 바꿔줘", "30초 버전으로 줄여줘", "인트로를 더 세게").
 
-Care and completeness over brevity — make it genuinely film-able today.`;
+Care and completeness over brevity — make it genuinely film-able today.`
+}`;
 
     case "quiz":
       return `You are a master assessment designer AND a senior front-end engineer. Your quizzes are famous for two things: wrong answers that pinpoint EXACTLY where thinking slipped, and an interface so clean it feels like a premium app. Treat this as a portfolio piece.
@@ -234,11 +255,15 @@ Premium-clean: calm background, ONE accent color, big readable type, generous sp
 === SELF-REVIEW (silently, before answering) ===
 Check: Does Q5 use the exact problem with one changed condition? Does every wrong choice map to a named misconception in its feedback? Does the result screen's 사고 지도 actually reference the player's specific wrong answers? Fix, then output.
 
-=== OUTPUT (follow exactly) ===
+${
+  output === "app"
+    ? HTML_APP_OUTPUT
+    : `=== OUTPUT (follow exactly) ===
 1) 2 Korean lines: 퀴즈 제목 · Q3이 노리는 핵심 오개념 한 줄.
 2) The COMPLETE html in one fenced code block — nothing omitted.
 3) "이렇게 시켜보세요" — 3 short Korean follow-up commands (e.g. "문제를 7개로 늘려줘", "틀린 문제만 다시 나오게 해줘", "친구랑 대결 모드 만들어줘").
 
-Rigorous, kind, and genuinely illuminating — and it must FEEL like an app, not a worksheet.`;
+Rigorous, kind, and genuinely illuminating — and it must FEEL like an app, not a worksheet.`
+}`;
   }
 }

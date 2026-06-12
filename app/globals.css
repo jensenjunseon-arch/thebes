@@ -684,3 +684,13 @@ a.lp-lang-opt:hover { color: var(--ink); background: var(--paper); }
   .lp-report-print .rounded-3xl,
   .lp-report-print .rounded-2xl { break-inside: avoid; }
 }
+
+/* ─── Studio: tilt loader ─── */
+@keyframes tiltIdle {
+  0%, 100% { transform: rotateX(-5deg) rotateY(7deg); }
+  50%      { transform: rotateX(5deg) rotateY(-7deg); }
+}
+@keyframes loaderSlide {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(420%); }
+}

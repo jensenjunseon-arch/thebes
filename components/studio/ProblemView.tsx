@@ -109,7 +109,7 @@ export function ProblemView({ pack }: { pack: ProblemPack }) {
         {activeSent !== null ? (
           <div className="flex items-start gap-2">
             <p className="flex-1 font-kr text-[13.5px] leading-relaxed text-ink/80 break-keep">
-              {pack.sentences[activeSent]?.ko}
+              <MathText text={pack.sentences[activeSent]?.ko ?? ""} />
             </p>
             <button
               type="button"
@@ -156,7 +156,7 @@ export function ProblemView({ pack }: { pack: ProblemPack }) {
             원문 · Korean
           </p>
           <p className="mt-1 font-kr text-[14px] leading-relaxed text-ink/75 break-keep">
-            {pack.korean}
+            <MathText text={pack.korean} />
           </p>
         </div>
       )}

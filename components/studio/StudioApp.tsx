@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Entry, type EntrySubmit } from "@/components/studio/Entry";
+import { TiltLoader } from "@/components/studio/TiltLoader";
 import { ProblemView } from "@/components/studio/ProblemView";
 import { FigureView } from "@/components/studio/FigureView";
 import { SolveFlow } from "@/components/studio/SolveFlow";
@@ -101,16 +102,7 @@ export function StudioApp() {
 
       {phase === "loading" && (
         <div className="mx-auto flex min-h-[calc(100dvh-64px)] w-full max-w-3xl flex-col items-center justify-center px-5">
-          <div className="flex items-center gap-3">
-            <span className="relative grid h-10 w-10 place-items-center">
-              <span className="absolute inset-0 animate-ping rounded-full bg-accent-soft" />
-              <span className="relative h-3 w-3 rounded-full bg-accent" />
-            </span>
-            <p className="font-kr text-[15px] font-medium text-ink/75">
-              {LOADING_LINES[loadingIdx]}
-            </p>
-          </div>
-          <p className="mt-3 font-kr text-[12px] text-ink/40">보통 10초 안에 끝나요</p>
+          <TiltLoader status={LOADING_LINES[loadingIdx]} />
         </div>
       )}
 

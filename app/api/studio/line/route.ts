@@ -31,12 +31,39 @@ RULES:
 - planComplete only when the lines truly chain start → finish.
 - Korean comments must be specific: quote their own word/number when possible.`;
 
+// Suggest mode: writing math in English is HARD at first — so on demand we
+// hand the student ONE ideal next line to TRACE ("이렇게 써보는 건 어때요?"),
+// with its Korean meaning. Tracing a good sentence teaches more than staring
+// at an empty box.
+const SUGGEST_SYSTEM = `You are a warm math-thinking coach inside Thebes AI. A Korean student is
+planning how to solve ONE math problem line by line in English, and asked for a
+model sentence to trace.
+
+You receive the problem and their plan so far. Write the single best NEXT plan
+line for them to trace.
+
+Return STRICT JSON:
+{
+  "suggestion": string,    // ONE English sentence, ≤14 simple words, concrete to THIS problem (use its real numbers/objects), natural textbook English
+  "suggestionKo": string   // its Korean meaning, one short line
+}
+
+RULES:
+- It must be the genuinely useful next step given the plan so far (first line → what we need to find; later → the next move).
+- NEVER state the final answer or complete the last arithmetic step.
+- Vocabulary a Korean middle-schooler can read. No semicolons, no subclauses piled up.`;
+
 export async function POST(req: Request) {
   if (!hasKey()) {
     return NextResponse.json({ error: "no_key" }, { status: 503 });
   }
 
-  let body: { english?: string; lines?: string[]; line?: string };
+  let body: {
+    english?: string;
+    lines?: string[];
+    line?: string;
+    mode?: "feedback" | "suggest";
+  };
   try {
     body = await req.json();
   } catch {
@@ -44,11 +71,47 @@ export async function POST(req: Request) {
   }
 
   const english = body.english?.trim();
-  const line = body.line?.trim();
-  if (!english || !line) {
+  if (!english) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
   const lines = Array.isArray(body.lines) ? body.lines.slice(0, 20) : [];
+
+  // ── suggest: one ideal next line to trace ─────────────────────────────────
+  if (body.mode === "suggest") {
+    try {
+      const out = await jsonCall<{ suggestion: string; suggestionKo: string }>({
+        model: LINE_MODEL,
+        system: SUGGEST_SYSTEM,
+        content: [
+          {
+            type: "text",
+            text: `PROBLEM:\n${english}\n\nPLAN SO FAR:\n${
+              lines.length
+                ? lines.map((l, i) => `${i + 1}. ${l}`).join("\n")
+                : "(none yet — suggest the very first line)"
+            }`,
+          },
+        ],
+        maxTokens: 250,
+      });
+      if (typeof out.suggestion !== "string" || !out.suggestion.trim()) {
+        return NextResponse.json({ error: "ai_failed" }, { status: 502 });
+      }
+      return NextResponse.json({
+        suggestion: out.suggestion.trim(),
+        suggestionKo:
+          typeof out.suggestionKo === "string" ? out.suggestionKo.trim() : "",
+      });
+    } catch (err) {
+      console.error("[studio/line:suggest]", err);
+      return NextResponse.json({ error: "ai_failed" }, { status: 502 });
+    }
+  }
+
+  const line = body.line?.trim();
+  if (!line) {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
 
   try {
     const fb = await jsonCall<LineFeedback>({
