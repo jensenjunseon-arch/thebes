@@ -1,61 +1,84 @@
 "use client";
 
-import { useState } from "react";
-import { buildRecap, traceMatchPercent } from "@/lib/recap";
-import type { Coaching } from "@/lib/problems";
-import type { EvidenceByConstruct } from "@/components/session/DiagnosticResult";
+// The payoff: the student's plan lines come back as ONE clean English paragraph
+// — their thinking, in their order, reading like a prompt. Trace it, then turn
+// it into a real AI artifact (game / video / quiz) with the shared maker engine.
+
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
+import { traceMatchPercent } from "@/lib/recap";
 import {
   MAKERS,
   ITERATE_CHIPS,
   levelBand,
   makerPrompt,
   type MakerKind,
-  type ProblemSeed,
 } from "@/lib/makers";
+import type { PlanLine, ProblemPack } from "@/lib/studio/types";
 
-export type { ProblemSeed };
-
-// Up to 3 of the student's strongest verbatim lines from the conversation.
-function studentQuotes(evidence: EvidenceByConstruct): string[] {
-  const order = ["redefine", "decompose", "relate", "relevance", "transfer", "english"];
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const k of order) {
-    const q = evidence[k]?.quote?.trim();
-    if (!q || seen.has(q)) continue;
-    seen.add(q);
-    out.push(q.length > 160 ? q.slice(0, 157) + "…" : q);
-    if (out.length === 3) break;
-  }
-  return out;
-}
-
-// The student-facing payoff: their 5-minute chat, distilled into one English
-// paragraph that IS a prompt — then one tap turns it into a game / video / quiz
-// in a real AI tool. The revelation: your conversation was prompt-engineering.
-export function PromptStudio({
-  coaching,
-  evidence,
-  level,
-  problem,
-  onDetail,
+export function Payoff({
+  pack,
+  lines,
+  onRestart,
 }: {
-  coaching: Coaching;
-  evidence: EvidenceByConstruct;
-  level?: string;
-  problem?: ProblemSeed;
-  onDetail?: () => void;
+  pack: ProblemPack;
+  lines: PlanLine[];
+  onRestart: () => void;
 }) {
-  const { paragraph } = buildRecap(coaching, evidence);
-  const band = levelBand(level);
-  const quotes = studentQuotes(evidence);
+  const [paragraph, setParagraph] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
   const [draft, setDraft] = useState("");
   const [active, setActive] = useState<MakerKind | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const pct = traceMatchPercent(draft, paragraph);
-  const prompt = active ? makerPrompt(paragraph, active, band, problem, quotes) : "";
+  const realLines = lines
+    .map((l) => l.text)
+    .filter((t) => !t.startsWith("(The student says:") && t !== "💭 막혔어요…");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/studio/recap", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ english: pack.english, lines: realLines }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = (await res.json()) as { paragraph: string };
+        if (!cancelled) setParagraph(data.paragraph);
+      } catch {
+        if (!cancelled) {
+          // Graceful: stitch the raw lines so the payoff still works offline.
+          setParagraph(realLines.join(" "));
+          setFailed(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Best student quotes: great lines first, then good — verbatim.
+  const quotes = [
+    ...lines.filter((l) => l.feedback?.verdict === "great"),
+    ...lines.filter((l) => l.feedback?.verdict === "good"),
+  ]
+    .map((l) => l.text)
+    .filter((t) => !t.startsWith("(The student says:") && t !== "💭 막혔어요…")
+    .slice(0, 3);
+
+  const pct = paragraph ? traceMatchPercent(draft, paragraph) : 0;
+  const prompt =
+    active && paragraph
+      ? makerPrompt(paragraph, active, levelBand(pack.level), {
+          statement: pack.english,
+          korean: pack.korean,
+          topic: pack.topic,
+        }, quotes)
+      : "";
 
   async function copy() {
     try {
@@ -63,26 +86,36 @@ export function PromptStudio({
       setCopied(true);
       setTimeout(() => setCopied(false), 2200);
     } catch {
-      /* clipboard blocked — the textarea below is still selectable */
+      /* selectable below */
     }
   }
 
   function openIn(tool: "chatgpt" | "claude") {
-    // The prompt is long and detailed, so we copy it (no URL-length limit) and
-    // open the tool's new chat — the student just pastes.
-    copy();
+    void copy();
     const url = tool === "chatgpt" ? "https://chatgpt.com/" : "https://claude.ai/new";
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
+  if (paragraph === null) {
+    return (
+      <section className="rounded-3xl border border-accent/30 bg-accent-soft/25 p-6">
+        <div className="flex items-center gap-2.5">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
+          <p className="font-kr text-[13.5px] text-ink/65">
+            당신의 풀이를 한 편의 영어 글로 엮는 중…
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className="mt-6 overflow-hidden rounded-3xl border border-accent/30 bg-accent-soft/25">
+    <section className="overflow-hidden rounded-3xl border border-accent/30 bg-accent-soft/25">
       <div className="p-5 sm:p-6">
         <p className="font-kr text-[14px] font-semibold leading-relaxed text-ink/80 break-keep">
-          방금 나눈 대화를, 한 편의 영어 글로 정리했어요.
+          방금 쓴 풀이가, 한 편의 영어 글이 됐어요{failed ? " (오프라인 버전)" : ""}.
         </p>
 
-        {/* The prompt itself */}
         <div className="relative mt-3 rounded-2xl border border-ink/12 bg-paper p-4">
           <span className="absolute right-3 top-3 font-mono text-[9px] uppercase tracking-tighter2 text-ink/30">
             prompt
@@ -90,7 +123,6 @@ export function PromptStudio({
           <p className="font-sans text-[15px] leading-relaxed text-ink/85">{paragraph}</p>
         </div>
 
-        {/* Trace it */}
         <div className="mt-4">
           <div className="mb-1.5 flex items-baseline justify-between">
             <p className="font-kr text-[13px] font-semibold text-ink/75">따라 써보기</p>
@@ -104,18 +136,19 @@ export function PromptStudio({
             className="w-full resize-none rounded-xl border border-ink/15 bg-paper px-3.5 py-2.5 text-[14px] leading-relaxed outline-none placeholder:text-ink/35 focus:border-accent"
           />
           {pct >= 90 && (
-            <p className="mt-1.5 font-kr text-[12px] text-accent">거의 똑같이 옮겼어요. 훌륭해요!</p>
+            <p className="mt-1.5 font-kr text-[12px] text-accent">
+              거의 똑같이 옮겼어요. 훌륭해요!
+            </p>
           )}
         </div>
       </div>
 
-      {/* Make something with the prompt */}
       <div className="border-t border-accent/20 bg-paper/40 p-5 sm:p-6">
         <p className="font-kr text-[13px] font-semibold text-ink/75">
-          우리의 대화로 무엇을 만들어볼까요?
+          이 생각으로, 무엇을 만들어볼까요?
         </p>
         <p className="mt-1 font-kr text-[12.5px] leading-relaxed text-ink/55 break-keep">
-          버튼 하나면, 방금 그 문제와 당신의 생각이 그대로 들어간 진짜 AI 결과물이 나옵니다.
+          버튼 하나면, 방금 그 문제와 당신의 풀이가 그대로 들어간 진짜 AI 결과물이 나옵니다.
         </p>
 
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -162,7 +195,7 @@ export function PromptStudio({
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={copy}
+                onClick={() => void copy()}
                 className="rounded-xl bg-ink px-4 py-2.5 font-kr text-[13px] font-semibold text-on-dark transition hover:bg-accent"
               >
                 {copied ? "복사됐어요!" : "프롬프트 복사"}
@@ -205,22 +238,19 @@ export function PromptStudio({
           </div>
         )}
 
-        <p className="mt-4 font-kr text-[12.5px] leading-relaxed text-ink/55">
-          생각을 프롬프트로, 프롬프트를 결과물로 — 이게 AI 인재가 일하는 방식이에요.
-          {onDetail && (
-            <>
-              {" "}
-              <button
-                type="button"
-                onClick={onDetail}
-                className="font-semibold text-accent underline-offset-4 hover:underline"
-              >
-                문장별로 자세히 보기
-              </button>
-            </>
-          )}
-        </p>
+        <div className="mt-5 flex items-center justify-between">
+          <p className="font-kr text-[12.5px] leading-relaxed text-ink/55 break-keep">
+            생각을 프롬프트로, 프롬프트를 결과물로.
+          </p>
+          <button
+            type="button"
+            onClick={onRestart}
+            className="rounded-full border border-ink/15 px-4 py-2 font-kr text-[12.5px] font-medium text-ink/60 transition hover:border-accent/50 hover:text-accent"
+          >
+            새 문제 풀기 ↺
+          </button>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

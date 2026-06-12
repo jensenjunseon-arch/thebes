@@ -61,8 +61,8 @@ export default function LandingPage() {
             <a href="#why-en">왜 영어인가</a>
           </div>
           <div className="lp-nav-right">
-            <Link href="/session/demo" className="lp-nav-cta">
-              무료 진단 시작
+            <Link href="/studio" className="lp-nav-cta">
+              무료로 시작
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>→</span>
             </Link>
             <LangSwitch active="ko" />
@@ -94,14 +94,14 @@ export default function LandingPage() {
             — AI 시대의 사고력을 키웁니다.
           </p>
           <div className="hero-cta lp-hero-cta">
-            <Link href="/session/demo" className="lp-btn lp-btn-primary">
-              사고력 진단 무료로 시작
+            <Link href="/studio" className="lp-btn lp-btn-primary">
+              문제 사진 올리고 시작
               <span style={{ fontFamily: "var(--font-mono)" }}>→</span>
             </Link>
-            <a className="lp-hero-secondary" href="#how">
-              작동 방식 보기
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>↓</span>
-            </a>
+            <Link className="lp-hero-secondary" href="/session/demo">
+              5분 사고력 진단
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>→</span>
+            </Link>
           </div>
         </div>
       </section>
@@ -423,8 +423,8 @@ export default function LandingPage() {
             두 학원이 못 가르치는 것을.
           </p>
           <div className="lp-hero-cta" style={{ justifyContent: "center", marginTop: 40 }}>
-            <Link href="/session/demo" className="lp-btn lp-btn-primary">
-              사고력 진단 무료로 시작
+            <Link href="/studio" className="lp-btn lp-btn-primary">
+              문제 사진 올리고 시작
               <span style={{ fontFamily: "var(--font-mono)" }}>→</span>
             </Link>
             <a href="mailto:hello@thebes.ai" className="lp-btn lp-btn-ghost">
