@@ -796,6 +796,7 @@ a.lp-lang-opt:hover { color: var(--ink); background: var(--paper); }
 .hl-game {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   background: rgba(0,0,0,0.25); border-radius: 12px; padding: 12px 14px;
+  color: #F8FAFD; /* the screen is always dark — keep its text light on any card */
 }
 .hl-game-title { font-size: 13px; font-weight: 700; }
 .hl-game-btn {
