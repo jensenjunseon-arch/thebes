@@ -12,7 +12,7 @@ const CARDS = [
     k: "photo",
     eyebrow: "사진 한 장이면",
     title: "한국어 문제가\n영어 문제가 됩니다.",
-    grad: "linear-gradient(135deg, #0B2C66 0%, #0B57D0 55%, #3B82F6 100%)",
+    grad: "radial-gradient(130% 115% at 22% 6%, rgba(126,182,255,0.42), transparent 52%), linear-gradient(155deg, #0A2A6B 0%, #0B57D0 58%, #2E7DF0 100%)",
     mock: (
       <div className="hl-mock">
         <div className="hl-chip-row">
@@ -31,7 +31,7 @@ const CARDS = [
     k: "lines",
     eyebrow: "정답이 아니라",
     title: "풀이 계획을\n한 줄씩, 영어로.",
-    grad: "linear-gradient(135deg, #271C4D 0%, #5B41A8 55%, #9B72CB 100%)",
+    grad: "radial-gradient(130% 115% at 78% 6%, rgba(197,162,255,0.42), transparent 52%), linear-gradient(155deg, #241A54 0%, #5B3FB0 56%, #9F77D6 100%)",
     mock: (
       <div className="hl-mock">
         <p className="hl-en">First, I need to find the length…</p>
@@ -47,7 +47,7 @@ const CARDS = [
     k: "build",
     eyebrow: "풀이가 끝나면",
     title: "내 생각이\n게임이 됩니다.",
-    grad: "linear-gradient(135deg, #4D1D2E 0%, #B0335B 55%, #D96570 100%)",
+    grad: "radial-gradient(130% 115% at 28% 6%, rgba(255,192,150,0.5), transparent 55%), linear-gradient(155deg, #5A1E3A 0%, #C13E6A 52%, #F2795E 100%)",
     mock: (
       <div className="hl-mock">
         <div className="hl-game">
@@ -62,7 +62,7 @@ const CARDS = [
     k: "share",
     eyebrow: "그리고",
     title: "링크 하나로\n친구에게 자랑.",
-    grad: "linear-gradient(135deg, #11355B 0%, #19629B 55%, #36A1C9 100%)",
+    grad: "radial-gradient(130% 115% at 72% 6%, rgba(150,228,228,0.4), transparent 52%), linear-gradient(155deg, #0C3550 0%, #14788A 55%, #2FA6B4 100%)",
     mock: (
       <div className="hl-mock">
         <div className="hl-bubble">내가 만든 게임 해봐 👀</div>

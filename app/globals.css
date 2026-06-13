@@ -800,7 +800,7 @@ a.lp-lang-opt:hover { color: var(--ink); background: var(--paper); }
 .hl-game-title { font-size: 13px; font-weight: 700; }
 .hl-game-btn {
   font-size: 11px; font-weight: 700; letter-spacing: .06em;
-  background: #fff; color: #B0335B; padding: 6px 10px; border-radius: 999px;
+  background: #fff; color: #C13E6A; padding: 6px 10px; border-radius: 999px;
 }
 .hl-bubble {
   align-self: flex-start; background: #FEE500; color: #1F1F1F;
