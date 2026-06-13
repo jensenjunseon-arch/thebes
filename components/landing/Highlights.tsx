@@ -1,8 +1,9 @@
 "use client";
 
-// "한눈에 보기." — the Apple-style horizontal snap carousel. Four dark gradient
-// cards, each a mini-mockup of one beat of the product loop, with dot
-// navigation that tracks scroll position.
+// "한눈에 보기." — the Apple-style horizontal snap carousel. Four soft-pastel
+// cards (cool gray / blush / chartreuse / slate), each a mini-mockup of one
+// beat of the product loop, with dot navigation that tracks scroll position.
+// Light cards flip to ink text + white mock panels; the slate card stays dark.
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
@@ -10,9 +11,10 @@ import { cn } from "@/lib/cn";
 const CARDS = [
   {
     k: "photo",
+    tone: "light" as const,
     eyebrow: "사진 한 장이면",
     title: "한국어 문제가\n영어 문제가 됩니다.",
-    grad: "radial-gradient(130% 115% at 22% 6%, rgba(126,182,255,0.42), transparent 52%), linear-gradient(155deg, #0A2A6B 0%, #0B57D0 58%, #2E7DF0 100%)",
+    grad: "radial-gradient(130% 110% at 50% 16%, #EEF1F4, #DEE3E8 58%, #CDD4DB 100%)",
     mock: (
       <div className="hl-mock">
         <div className="hl-chip-row">
@@ -29,9 +31,10 @@ const CARDS = [
   },
   {
     k: "lines",
+    tone: "light" as const,
     eyebrow: "정답이 아니라",
     title: "풀이 계획을\n한 줄씩, 영어로.",
-    grad: "radial-gradient(130% 115% at 78% 6%, rgba(197,162,255,0.42), transparent 52%), linear-gradient(155deg, #241A54 0%, #5B3FB0 56%, #9F77D6 100%)",
+    grad: "radial-gradient(130% 110% at 50% 16%, #F4E4E6, #EAD2D5 58%, #DCC0C5 100%)",
     mock: (
       <div className="hl-mock">
         <p className="hl-en">First, I need to find the length…</p>
@@ -45,9 +48,10 @@ const CARDS = [
   },
   {
     k: "build",
+    tone: "light" as const,
     eyebrow: "풀이가 끝나면",
     title: "내 생각이\n게임이 됩니다.",
-    grad: "radial-gradient(130% 115% at 28% 6%, rgba(255,192,150,0.5), transparent 55%), linear-gradient(155deg, #5A1E3A 0%, #C13E6A 52%, #F2795E 100%)",
+    grad: "radial-gradient(130% 110% at 50% 16%, #EDF0A9, #DFE591 58%, #CED674 100%)",
     mock: (
       <div className="hl-mock">
         <div className="hl-game">
@@ -60,9 +64,10 @@ const CARDS = [
   },
   {
     k: "share",
+    tone: "dark" as const,
     eyebrow: "그리고",
     title: "링크 하나로\n친구에게 자랑.",
-    grad: "radial-gradient(130% 115% at 72% 6%, rgba(150,228,228,0.4), transparent 52%), linear-gradient(155deg, #0C3550 0%, #14788A 55%, #2FA6B4 100%)",
+    grad: "radial-gradient(130% 110% at 50% 16%, #808FAB, #6C7C99 58%, #5A6A87 100%)",
     mock: (
       <div className="hl-mock">
         <div className="hl-bubble">내가 만든 게임 해봐 👀</div>
@@ -100,7 +105,11 @@ export function Highlights() {
     <div>
       <div ref={trackRef} className="hl-track">
         {CARDS.map((c) => (
-          <article key={c.k} className="hl-card" style={{ background: c.grad }}>
+          <article
+            key={c.k}
+            className={cn("hl-card", c.tone === "light" && "hl-card--light")}
+            style={{ background: c.grad }}
+          >
             <p className="hl-eyebrow">{c.eyebrow}</p>
             <h3 className="hl-title">
               {c.title.split("\n").map((l, i) => (
