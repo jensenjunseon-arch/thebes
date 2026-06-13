@@ -110,7 +110,7 @@ export function TiltLoader({ status, sub }: { status: string; sub?: string }) {
           className="relative mt-1.5 font-kr text-[12.5px] leading-relaxed text-ink/50 break-keep"
           style={{ transform: "translateZ(18px)" }}
         >
-          {sub ?? "보통 10초 안에 끝나요 — 커서를 움직여 보세요"}
+          {sub ?? "보통 10초 안에 끝나요"}
         </p>
         <div
           className="relative mt-5 h-1.5 overflow-hidden rounded-full bg-paper-2"

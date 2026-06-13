@@ -47,7 +47,7 @@ export function CinematicLoader({
       <div className="cine-card">
         <TiltLoader
           status="Thebes Studio"
-          sub={sub ?? "보통 10초 안에 끝나요 — 커서를 움직여 보세요"}
+          sub={sub ?? "보통 10초 안에 끝나요"}
         />
       </div>
     </div>

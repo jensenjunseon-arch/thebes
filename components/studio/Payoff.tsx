@@ -366,7 +366,7 @@ export function Payoff({
               <div className="rounded-2xl border border-ink/10 bg-paper px-4 py-8">
                 <TiltLoader
                   status={streamStatus(active, activeState.chars)}
-                  sub={`${(activeState.chars / 1000).toFixed(1)}k자 작성됨 — 1~2분 걸려요. 커서를 움직여 보세요`}
+                  sub={`${(activeState.chars / 1000).toFixed(1)}k자 작성됨 — 1~2분 걸려요`}
                 />
                 <div className="mt-4 text-center">
                   <button
