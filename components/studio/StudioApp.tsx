@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Entry, type EntrySubmit } from "@/components/studio/Entry";
-import { TiltLoader } from "@/components/studio/TiltLoader";
+import { CinematicLoader } from "@/components/studio/CinematicLoader";
 import { ProblemView } from "@/components/studio/ProblemView";
 import { FigureView } from "@/components/studio/FigureView";
 import { SolveFlow } from "@/components/studio/SolveFlow";
@@ -34,18 +34,7 @@ export function StudioApp() {
   const [pack, setPack] = useState<ProblemPack | null>(null);
   const [lines, setLines] = useState<PlanLine[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [loadingIdx, setLoadingIdx] = useState(0);
   const topRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (phase !== "loading") return;
-    setLoadingIdx(0);
-    const t = setInterval(
-      () => setLoadingIdx((i) => Math.min(i + 1, LOADING_LINES.length - 1)),
-      2800,
-    );
-    return () => clearInterval(t);
-  }, [phase]);
 
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -100,11 +89,7 @@ export function StudioApp() {
         </>
       )}
 
-      {phase === "loading" && (
-        <div className="mx-auto flex min-h-[calc(100dvh-64px)] w-full max-w-3xl flex-col items-center justify-center px-5">
-          <TiltLoader status={LOADING_LINES[loadingIdx]} />
-        </div>
-      )}
+      {phase === "loading" && <CinematicLoader lines={LOADING_LINES} />}
 
       {phase === "work" && pack && (
         <div className="mx-auto w-full max-w-3xl space-y-4 px-5 pb-32 pt-6">
