@@ -2,7 +2,14 @@
 // problem for the chosen level/topic and return the same ProblemPack shape.
 
 import { NextResponse } from "next/server";
-import { jsonCall, sanitizePack, hasKey, PACK_MODEL, PACK_SPEC } from "@/lib/studio/ai";
+import {
+  jsonCall,
+  sanitizePack,
+  hasKey,
+  PACK_MODEL,
+  PACK_SPEC,
+  englishBand,
+} from "@/lib/studio/ai";
 
 export const maxDuration = 60;
 
@@ -41,7 +48,7 @@ export async function POST(req: Request) {
       content: [
         {
           type: "text",
-          text: `Level: ${level}\nTopic: ${topic === "랜덤" ? "your choice — pick something fun and level-appropriate" : topic}\n\nWrite the problem and prepare the JSON pack. Set "level" to exactly "${level}".`,
+          text: `Level: ${level}\nTopic: ${topic === "랜덤" ? "your choice — pick something fun and level-appropriate" : topic}\n\nENGLISH LEVEL for this problem: ${englishBand(level).guide}\n\nWrite the problem and prepare the JSON pack. Set "level" to exactly "${level}".`,
         },
       ],
       maxTokens: 3500,

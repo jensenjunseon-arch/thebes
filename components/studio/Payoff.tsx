@@ -105,7 +105,7 @@ export function Payoff({
         const res = await fetch("/api/studio/recap", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ english: pack.english, lines: realLines }),
+          body: JSON.stringify({ english: pack.english, level: pack.level, lines: realLines }),
         });
         if (!res.ok) throw new Error(String(res.status));
         const data = (await res.json()) as { paragraph: string };

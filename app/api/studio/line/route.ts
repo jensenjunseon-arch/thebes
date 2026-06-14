@@ -3,7 +3,7 @@
 // missing, and never reveals the answer.
 
 import { NextResponse } from "next/server";
-import { jsonCall, hasKey, LINE_MODEL } from "@/lib/studio/ai";
+import { jsonCall, hasKey, LINE_MODEL, englishBand } from "@/lib/studio/ai";
 import type { LineFeedback } from "@/lib/studio/types";
 
 export const maxDuration = 30;
@@ -44,14 +44,14 @@ line for them to trace.
 
 Return STRICT JSON:
 {
-  "suggestion": string,    // ONE English sentence, ≤14 simple words, concrete to THIS problem (use its real numbers/objects), natural textbook English
+  "suggestion": string,    // ONE very short English sentence, ≤8 words, concrete to THIS problem (use its real numbers/objects). The student will REBUILD it by tapping word chips, so keep it short and the words common.
   "suggestionKo": string   // its Korean meaning, one short line
 }
 
 RULES:
 - It must be the genuinely useful next step given the plan so far (first line → what we need to find; later → the next move).
 - NEVER state the final answer or complete the last arithmetic step.
-- Vocabulary a Korean middle-schooler can read. No semicolons, no subclauses piled up.`;
+- Keep it the SIMPLEST possible English. No semicolons, no subclauses. Short is better than clever.`;
 
 export async function POST(req: Request) {
   if (!hasKey()) {
@@ -62,6 +62,7 @@ export async function POST(req: Request) {
     english?: string;
     lines?: string[];
     line?: string;
+    level?: string;
     mode?: "feedback" | "suggest";
   };
   try {
@@ -75,6 +76,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
   const lines = Array.isArray(body.lines) ? body.lines.slice(0, 20) : [];
+  const band = englishBand(body.level);
 
   // ── suggest: one ideal next line to trace ─────────────────────────────────
   if (body.mode === "suggest") {
@@ -89,7 +91,7 @@ export async function POST(req: Request) {
               lines.length
                 ? lines.map((l, i) => `${i + 1}. ${l}`).join("\n")
                 : "(none yet — suggest the very first line)"
-            }`,
+            }\n\nWRITE THE SUGGESTION AT THIS ENGLISH LEVEL: ${band.guide}`,
           },
         ],
         maxTokens: 250,
@@ -122,7 +124,7 @@ export async function POST(req: Request) {
           type: "text",
           text: `PROBLEM:\n${english}\n\nPLAN SO FAR:\n${
             lines.length ? lines.map((l, i) => `${i + 1}. ${l}`).join("\n") : "(none yet)"
-          }\n\nNEW LINE:\n${line}`,
+          }\n\nNEW LINE:\n${line}\n\nWrite "betterEnglish" at this level: ${band.guide}`,
         },
       ],
       maxTokens: 400,

@@ -29,6 +29,24 @@ interface Suggestion {
   ko: string;
 }
 
+// Word-bank helpers — the "tap to build" path needs zero typing.
+function tokenize(s: string): string[] {
+  return s.trim().split(/\s+/).filter(Boolean);
+}
+function normSentence(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9$]/gi, "");
+}
+function shuffleIndices(n: number): number[] {
+  const a = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  // avoid the rare already-sorted shuffle so it's never trivially in order
+  if (n > 2 && a.every((v, i) => v === i)) [a[0], a[1]] = [a[1], a[0]];
+  return a;
+}
+
 export function SolveFlow({
   pack,
   lines,
@@ -46,9 +64,45 @@ export function SolveFlow({
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [suggesting, setSuggesting] = useState(false);
   const [tracing, setTracing] = useState(false);
+  // tap-to-build (word bank) state
+  const [building, setBuilding] = useState(false);
+  const [placed, setPlaced] = useState<number[]>([]);
+  const [bankOrder, setBankOrder] = useState<number[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const tracePct = tracing && suggestion ? traceMatchPercent(draft, suggestion.en) : 0;
+
+  const targetWords = suggestion ? tokenize(suggestion.en) : [];
+  const builtText = placed.map((i) => targetWords[i] ?? "").join(" ");
+  const buildMatch = !!suggestion && normSentence(builtText) === normSentence(suggestion.en);
+
+  function startBuild() {
+    if (!suggestion) return;
+    setBuilding(true);
+    setTracing(false);
+    setPlaced([]);
+    setBankOrder(shuffleIndices(tokenize(suggestion.en).length));
+  }
+  function placeWord(idx: number) {
+    setPlaced((p) => (p.includes(idx) ? p : [...p, idx]));
+  }
+  function removeWord(idx: number) {
+    setPlaced((p) => p.filter((x) => x !== idx));
+  }
+  function submitBuild() {
+    if (!buildMatch || pending) return;
+    const text = builtText;
+    setBuilding(false);
+    setPlaced([]);
+    setSuggestion(null);
+    void submit(text);
+  }
+  function closeSuggestion() {
+    setSuggestion(null);
+    setTracing(false);
+    setBuilding(false);
+    setPlaced([]);
+  }
 
   async function submit(text: string, isStuck = false) {
     if (pending) return;
@@ -73,6 +127,7 @@ export function SolveFlow({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           english: pack.english,
+          level: pack.level,
           lines: lines
             .map((l) => l.text)
             .filter((t) => t !== STUCK_LINE && t !== "💭 막혔어요…"),
@@ -125,12 +180,18 @@ export function SolveFlow({
         body: JSON.stringify({
           mode: "suggest",
           english: pack.english,
+          level: pack.level,
           lines: lines.filter((l) => l.text !== "💭 막혔어요…").map((l) => l.text),
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
       const data = (await res.json()) as { suggestion: string; suggestionKo: string };
       setSuggestion({ en: data.suggestion, ko: data.suggestionKo });
+      // default to the easiest path: tap-to-build, ready to go
+      setTracing(false);
+      setPlaced([]);
+      setBuilding(true);
+      setBankOrder(shuffleIndices(tokenize(data.suggestion).length));
     } catch {
       setSuggestion(null);
     } finally {
@@ -140,6 +201,8 @@ export function SolveFlow({
 
   function startTrace() {
     setTracing(true);
+    setBuilding(false);
+    setPlaced([]);
     setDraft("");
     inputRef.current?.focus();
   }
@@ -170,8 +233,8 @@ export function SolveFlow({
           <p className="rounded-2xl rounded-tl-md bg-paper-2/80 px-3.5 py-2.5 font-kr text-[13px] leading-relaxed text-ink/75 break-keep">
             <MathText text={pack.firstHint} />
             <span className="mt-1 block text-[11.5px] text-ink/45">
-              영어가 막막하면 아래 <b>✍️ 이렇게 써볼까요?</b>를 눌러요 — 따라 쓰는 것도 진짜
-              공부예요.
+              영어가 막막하면 아래 <b>🧩 도와줘</b>를 눌러요 — 단어를 톡톡 눌러 문장을 만들면
+              돼요. 타이핑 안 해도 괜찮아요.
             </span>
           </p>
         </div>
@@ -246,35 +309,61 @@ export function SolveFlow({
                     <MathText text={suggestion.ko} />
                   </p>
                 )}
-                <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                  {!tracing && (
-                    <button
-                      type="button"
-                      onClick={startTrace}
-                      className="rounded-xl bg-accent px-3.5 py-2 font-kr text-[12.5px] font-semibold text-on-dark transition hover:bg-ink"
-                    >
-                      ✍️ 따라 쓰기
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    disabled={suggesting}
-                    onClick={() => void fetchSuggestion()}
-                    className="rounded-xl border border-ink/15 px-3.5 py-2 font-kr text-[12.5px] text-ink/60 transition hover:border-accent/50 hover:text-accent"
-                  >
-                    다른 문장
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSuggestion(null);
-                      setTracing(false);
-                    }}
-                    className="ml-auto rounded-full px-2 py-1 font-kr text-[11.5px] text-ink/40 hover:text-ink/70"
-                  >
-                    닫기 ✕
-                  </button>
-                </div>
+
+                {/* ── tap-to-build: zero typing ── */}
+                {building && (
+                  <div className="mt-3">
+                    <p className="font-kr text-[11.5px] text-ink/55">
+                      👇 단어를 순서대로 톡톡 눌러보세요
+                    </p>
+                    {/* answer slots */}
+                    <div className="mt-1.5 flex min-h-[42px] flex-wrap content-start gap-1.5 rounded-xl border border-accent/30 bg-paper p-2">
+                      {placed.length === 0 ? (
+                        <span className="self-center px-1 font-kr text-[12px] text-ink/30">
+                          여기에 단어가 쌓여요 — 누른 단어는 다시 누르면 빠져요
+                        </span>
+                      ) : (
+                        placed.map((idx, pos) => (
+                          <button
+                            key={`${idx}-${pos}`}
+                            type="button"
+                            onClick={() => removeWord(idx)}
+                            className="rounded-lg bg-accent px-2.5 py-1.5 font-sans text-[13px] font-medium text-on-dark transition active:scale-95"
+                          >
+                            {targetWords[idx]}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                    {/* word bank */}
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {bankOrder
+                        .filter((i) => !placed.includes(i))
+                        .map((idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => placeWord(idx)}
+                            className="rounded-lg border border-ink/20 bg-paper px-2.5 py-1.5 font-sans text-[13px] text-ink transition hover:border-accent hover:bg-accent-soft/40 active:scale-95"
+                          >
+                            {targetWords[idx]}
+                          </button>
+                        ))}
+                    </div>
+                    {buildMatch && (
+                      <button
+                        type="button"
+                        disabled={pending}
+                        onClick={submitBuild}
+                        className="mt-2.5 w-full animate-pulse rounded-xl bg-accent py-2.5 font-kr text-[13px] font-semibold text-on-dark transition hover:animate-none hover:bg-ink disabled:opacity-40"
+                      >
+                        ✓ 완성! 코치에게 보여주기
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* ── trace: type along ── */}
                 {tracing && (
                   <div className="mt-2 flex items-center justify-between rounded-xl bg-paper px-3 py-2">
                     <span className="font-kr text-[11.5px] text-ink/55 break-keep">
@@ -290,6 +379,32 @@ export function SolveFlow({
                     </span>
                   </div>
                 )}
+
+                {/* mode toggle + controls */}
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                  <button
+                    type="button"
+                    onClick={building ? startTrace : startBuild}
+                    className="font-kr text-[11.5px] text-ink/50 underline-offset-4 hover:text-accent hover:underline"
+                  >
+                    {building ? "✍️ 직접 쓸래요" : "🧩 단어로 만들래요"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={suggesting}
+                    onClick={() => void fetchSuggestion()}
+                    className="font-kr text-[11.5px] text-ink/50 hover:text-accent"
+                  >
+                    다른 문장
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeSuggestion}
+                    className="ml-auto font-kr text-[11.5px] text-ink/40 hover:text-ink/70"
+                  >
+                    닫기 ✕
+                  </button>
+                </div>
               </>
             )
           )}
@@ -342,13 +457,13 @@ export function SolveFlow({
           disabled={suggesting || pending}
           onClick={() => void fetchSuggestion()}
           className={cn(
-            "rounded-full border px-3.5 py-2 font-kr text-[12.5px] transition disabled:opacity-40",
-            lastWasHint
-              ? "animate-pulse border-accent/60 text-accent"
+            "rounded-full border px-3.5 py-2 font-kr text-[12.5px] font-medium transition disabled:opacity-40",
+            lastWasHint || realLines.length === 0
+              ? "animate-pulse border-accent bg-accent-soft/50 text-accent"
               : "border-ink/15 text-ink/55 hover:border-accent/50 hover:text-accent",
           )}
         >
-          ✍️ 이렇게 써볼까요?
+          🧩 도와줘 — 단어로 만들기
         </button>
         <button
           type="button"

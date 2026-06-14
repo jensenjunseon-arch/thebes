@@ -17,6 +17,45 @@ export function hasKey(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY);
 }
 
+// English-difficulty band, deliberately ONE step BELOW the grade label so the
+// English never blocks the math thinking. Kindergarten English for lower-
+// elementary problems … middle-school English for high-school. The math stays
+// at grade; only the reading level drops. Order matters: check 초등 before 고
+// (since "초등 고학년" contains "고").
+export function englishBand(level?: string): { tier: string; guide: string } {
+  const l = level ?? "";
+  if (l.includes("초등")) {
+    if (l.includes("저학년"))
+      return {
+        tier: "kindergarten",
+        guide:
+          "KINDERGARTEN-level English (a 5–6 year old): only the ~300 most common English words, sentences of 4–7 words, one idea each, present tense only, NO clauses, NO passive voice, NO rare or academic words.",
+      };
+    return {
+      tier: "early-elementary",
+      guide:
+        "EARLY-ELEMENTARY English (a 7-year-old reader): common everyday words only, short sentences (6–9 words), avoid clauses, passive voice, and rare vocabulary.",
+    };
+  }
+  if (l.includes("중"))
+    return {
+      tier: "elementary",
+      guide:
+        "ELEMENTARY-level English (a 9–10 year old reader): everyday words, short clear sentences (up to ~10 words). Avoid academic or rare vocabulary; if a math term is unavoidable keep it the simplest possible.",
+    };
+  if (l.includes("고"))
+    return {
+      tier: "middle-school",
+      guide:
+        "MIDDLE-SCHOOL-level English: clear everyday words, sentences up to ~12 words, a single light subordinate clause is okay but keep it simple.",
+    };
+  return {
+    tier: "elementary",
+    guide:
+      "ELEMENTARY-level English — everyday words, short clear sentences (up to ~10 words).",
+  };
+}
+
 type Content = Anthropic.MessageParam["content"];
 
 // One call → parse JSON; on parse failure, one repair retry that feeds the
@@ -75,7 +114,8 @@ FigureSpec — include ONLY if the problem genuinely involves a drawable shape; 
 - solid: {"kind":"solid","solid":"cuboid"|"cylinder"|"cone"|"sphere","dims":{"w":?, "h":?, "d":?, "r":?},"dimLabels":["가로 6 cm","세로 4 cm","높이 3 cm"]} — dims in the problem's own numbers
 
 QUALITY RULES:
-- The english must read like a real international-school textbook — clear, concise, zero awkwardness.
+- ENGLISH DIFFICULTY (very important): write the "english" MUCH simpler than the grade implies — about one reading band BELOW the grade. "초등 저학년" → kindergarten words; "초등 고학년" → early-elementary; "중1"~"중3" → elementary; "고1"~"고3" → middle-school. Short sentences, the most common words, ONE idea per sentence, present tense where possible, no rare/academic words. Keep every number and the math exactly the same — only the English gets easier. Still natural, never awkward.
+- The sentences[].en must follow the SAME easy level (this is what the student reads and rebuilds word by word).
 - Do NOT solve the problem anywhere. Do NOT include the answer.
 - Figure labels may show ONLY values the problem GIVES. Never a derived/computed value — if a dimension is what the student must find (or an intermediate step), label it "?" or omit it.
 - sentences[].ko must be natural Korean a student reads comfortably, not literal word-by-word.

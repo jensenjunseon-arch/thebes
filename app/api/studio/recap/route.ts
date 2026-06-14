@@ -3,7 +3,7 @@
 // (game/video/quiz) and the trace-write exercise.
 
 import { NextResponse } from "next/server";
-import { jsonCall, hasKey, PACK_MODEL } from "@/lib/studio/ai";
+import { jsonCall, hasKey, PACK_MODEL, englishBand } from "@/lib/studio/ai";
 
 export const maxDuration = 30;
 
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "no_key" }, { status: 503 });
   }
 
-  let body: { english?: string; lines?: string[] };
+  let body: { english?: string; lines?: string[]; level?: string };
   try {
     body = await req.json();
   } catch {
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
           type: "text",
           text: `PROBLEM:\n${english}\n\nTHE STUDENT'S PLAN LINES:\n${lines
             .map((l, i) => `${i + 1}. ${l}`)
-            .join("\n")}`,
+            .join("\n")}\n\nWrite the paragraph at this English level: ${englishBand(body.level).guide}`,
         },
       ],
       maxTokens: 500,
