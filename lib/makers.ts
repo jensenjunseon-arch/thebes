@@ -12,7 +12,7 @@ export type Band = "elementary" | "middle" | "high";
 
 export const MAKERS: { kind: MakerKind; label: string; hint: string }[] = [
   { kind: "game", label: "게임으로 만들기", hint: "방금 그 문제가 최종 레벨이 되는 아케이드 게임" },
-  { kind: "video", label: "영상 풀이로 만들기", hint: "내 생각이 대본이 되는 60초 숏폼 스크립트" },
+  { kind: "video", label: "영상으로 만들기", hint: "목소리가 읽어주는 60초 자동 재생 설명 영상" },
   { kind: "quiz", label: "퀴즈 앱으로 만들기", hint: "오답이 '왜 틀렸는지' 짚어주는 인터랙티브 퀴즈" },
 ];
 
@@ -163,56 +163,58 @@ Take your time. Completeness over brevity — and make it genuinely FUN.`
 }`;
 
     case "video":
-      return `You are a top-tier educational content director. Your 60-second explainers go viral because they make one hard idea feel obvious — and a little emotional. You write scripts so concrete that a student can film them TODAY with a phone, paper, and a marker. Treat this as a portfolio piece.
+      return `You are a world-class educational explainer designer AND a senior front-end engineer. You build "video overviews" in the style of NotebookLM: a clean, AUTO-PLAYING narrated slide deck where a friendly voice walks through ONE idea while minimal slides animate in perfect sync. Treat this as a portfolio piece.
 
 ${seed}
 
 === YOUR MISSION ===
-Write a complete, production-ready 60-second vertical (9:16) short-form script where THE STUDENT'S OWN REASONING is the storyline. The viewer should end thinking "어? 나도 이렇게 생각할 수 있는데?" — and the student who made it should feel like the author, because they are.
+Build a COMPLETE single-file HTML "설명 영상" — a self-playing, voice-narrated slide deck (a NotebookLM-style video overview) that teaches THIS concept in ~60 seconds. A warm Korean voice narrates each slide while clean visuals animate; captions are ALWAYS on screen.
 
-=== THE NARRATIVE SPINE (use these exact beats) ===
-- 0:00–0:03 HOOK — open on THE problem itself${"" /* keep generic when statement missing */} with a surprising question or bold claim. No greetings, no "오늘은 ~에 대해".
-- 0:03–0:12 SETUP — make the situation concrete with ONE everyday analogy a ${who} student already knows. State what we're trying to figure out.
-- 0:12–0:40 BUILD — walk the reasoning in the SAME order the student discovered it (their paragraph above is your outline). Show the relationship visibly changing. Raise one "그런데 만약…?" tension.
-- 0:40–0:52 REVEAL — the "오~!" moment. Here, quote the student's own line ON SCREEN as a caption${"" /* quote injected below when available */} and let the narration land it: "이건 한 학생이 실제로 한 생각이에요."
-- 0:52–1:00 PAYOFF — one-line takeaway + a warm nudge: "너라면 어떻게 생각했을 것 같아?"
+=== THE DECK (6–8 slides, ONE idea per slide) ===
+- SLIDE 1 — HOOK: open on the problem itself${problem?.statement ? " (its real objects and numbers)" : ""} with a curious question. Big and bold. No "오늘은 ~에 대해".
+- SLIDES 2–3 — SETUP: make it concrete with ONE everyday analogy a ${who} student knows; introduce the key quantities.
+- SLIDES 4–6 — BUILD: walk the reasoning in the SAME order the student discovered it (their paragraph above is your outline). Show the relationship CHANGE with big animated numbers / simple SVG diagrams. Raise one "그런데 만약…?" beat.
+- REVEAL slide — the "아하" moment; put the student's own line ON SCREEN${quotes[0] ? ` (this exact line: "${quotes[0]}")` : ""} and have the voice land it: "이건 한 학생이 실제로 한 생각이에요."
+- LAST slide — one-sentence takeaway + a warm nudge ("너라면 어떻게 생각했을 것 같아?").
 
-=== DELIVERABLE 1 — SHOT TABLE ===
-| 시간 | 화면 (비주얼·모션·자막) | 내레이션 (한국어) | — 8–12 rows.
-Every visual must be makeable two ways: (a) phone + paper + marker, or (b) simple motion graphics (bold numbers, arrows, shapes, captions). Note the on-screen CAPTION text exactly where it appears. One visible change every 3–5 seconds.
+=== THE VOICE (Web Speech API) ===
+- Narrate with window.speechSynthesis. Korean: set utterance.lang = "ko-KR" and, if a Korean voice exists, pick it (filter speechSynthesis.getVoices() where v.lang starts with "ko"). Voices load async — listen for 'voiceschanged' and also read them on demand. rate ~1.0, pitch ~1.0.
+- Each slide has ONE short narration line. When a line's utterance ENDS (utterance.onend), advance to the next slide and speak its line. Keep an index so pause/resume/replay stay in sync.
 
-=== DELIVERABLE 2 — READ-ALOUD VO SCRIPT ===
-After the table, write the full narration as ONE continuous block with [0:00]-style time markers — exactly what the student reads into the mic, timed to ~60 seconds at a natural pace (≈140–160 words). Warm, energetic, short sentences. Explain any term the instant it appears.
+=== PLAYBACK & RESILIENCE (CRITICAL — get this exactly right) ===
+- The first frame shows a big "▶ 재생" button. Do NOT auto-start sound — browsers block autoplay audio; speech begins only after this click (a user gesture).
+- Controls bar: ▶/⏸ 재생·일시정지, ↺ 처음부터, a progress bar, and slide dots.
+- CAPTIONS ALWAYS ON: every slide shows its narration line as a subtitle, regardless of whether the voice is audible.
+- GRACEFUL FALLBACK (must implement): if speechSynthesis is missing, has zero voices, or fires onerror, the deck MUST STILL PLAY as a silent captioned slideshow — advance each slide on a timer of about max(3500ms, words × 380ms). NEVER let it hang waiting for a voice that never comes. Detect the failure and switch to timer mode automatically; if a slide hasn't advanced ~1.5s after its expected narration time, fall back to the timer for the rest.
+- Pause cancels speech; resume re-speaks the current slide's line; replay resets to slide 1.
 
-=== DELIVERABLE 3 — PACKAGING ===
-- 3 title options (Korean, ≤30 chars, curiosity-first).
-- 1 thumbnail concept: the text on it (≤8 chars) + the single image.
-- The first comment the creator should pin (one line that invites replies).
+=== DESIGN (NotebookLM-clean) ===
+- A calm light background (or a soft dark one) — pick ONE and commit. ONE accent color. Big readable type, generous whitespace, exactly one focal visual per slide. Smooth cross-fades between slides + a subtle motion on each slide's key element. Mobile-first (375px), works on desktop. Custom-styled buttons (nothing browser-default).
 
-=== QUALITY BAR ===
-- Write TWO candidate hooks first, pick the stronger, say why in one line.
-- The analogy must come from a ${who} student's daily life. ${note}
-- The viewer must be able to re-explain the idea in one sentence afterward — write that sentence as the final takeaway.
-${quotes[0] ? `- The REVEAL caption must be this exact line: "${quotes[0]}"` : ""}
+=== AUDIENCE & LANGUAGE ===
+- Viewer: a ${who} student. ${note} All on-screen text and narration in natural Korean at that level. Short, warm, energetic lines.
+
+=== TECHNICAL CONTRACT ===
+- ONE self-contained .html file: inline <style> + <script>, vanilla JS only. ZERO external libraries, CDNs, fonts, or images — draw every visual with HTML/CSS/SVG. Runs by double-clicking (file:// safe) and INSIDE a sandboxed iframe (no top-level navigation, no network). No console errors.
 
 === ANTI-SLOP ===
-- No lecture-style opening; the first 3 seconds decide everything.
-- No jargon without an instant concrete anchor. No visuals a ${who} student couldn't sketch. No fake statistics.
+- No wall-of-text slides — one idea, big and clear, per slide. No English UI. No alert()/prompt(). No truncated code. It must be about THIS problem's exact numbers, not the topic in general.
+
+=== BEFORE YOU CODE ===
+In 2–3 Korean lines (as an HTML comment), plan the slide-by-slide beat and the single "아하" reveal. Then build the complete deck.
+
+=== SELF-REVIEW (silently, before answering) ===
+Check: Does it start ONLY on the play button? If there's no voice, does it still play as a timed silent captioned slideshow (never stuck)? Are captions always visible? Does the reveal quote the student? Does it use the exact problem numbers? Any overlap at 375px? Any console errors? Fix, then output.
 
 ${
   output === "app"
-    ? `=== OUTPUT (follow exactly) ===
-Reply with the deliverables as clean, well-structured markdown — start DIRECTLY with the title (no preamble, no "Here is…"), in this order: 제목 → 두 후보 훅과 선택 이유 → 샷 테이블 → 타임코드 내레이션 블록 → 패키징(제목 3안 · 썸네일 · 고정 댓글). Korean throughout (English only where the script itself needs it).
-
-Care and completeness over brevity — make it genuinely film-able today.`
+    ? HTML_APP_OUTPUT
     : `=== OUTPUT (follow exactly) ===
-1) The two hooks + your pick (one-line reason).
-2) The shot table.
-3) The timed read-aloud VO block.
-4) Packaging (titles · thumbnail · pinned comment).
-5) "이렇게 시켜보세요" — 3 short Korean follow-up commands the student could send you next (e.g. "더 웃기게 바꿔줘", "30초 버전으로 줄여줘", "인트로를 더 세게").
+1) 3 Korean lines: 영상 제목 · 이 영상이 가르치는 한 가지 · 몇 장의 슬라이드인지.
+2) The COMPLETE html in one fenced code block — nothing omitted.
+3) "이렇게 시켜보세요" — 3 short Korean follow-up commands (e.g. "목소리를 더 천천히", "슬라이드를 더 화려하게", "배경음을 넣어줘").
 
-Care and completeness over brevity — make it genuinely film-able today.`
+Make it genuinely feel like a NotebookLM video overview — calm, clear, and a little delightful.`
 }`;
 
     case "quiz":

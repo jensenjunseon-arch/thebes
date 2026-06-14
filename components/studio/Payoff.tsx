@@ -11,7 +11,6 @@ import { cn } from "@/lib/cn";
 import { traceMatchPercent } from "@/lib/recap";
 import { MathText } from "@/components/studio/MathText";
 import { TiltLoader } from "@/components/studio/TiltLoader";
-import { VideoScript } from "@/components/studio/VideoScript";
 import {
   MAKERS,
   ITERATE_CHIPS,
@@ -187,8 +186,9 @@ export function Payoff({
         text += decoder.decode(value, { stream: true });
         setKindState(kind, { phase: "streaming", chars: text.length });
       }
-      const artifact = kind === "video" ? text.trim() : extractHtml(text);
-      if (!artifact || (kind !== "video" && !artifact.includes("</html>"))) {
+      // All three artifacts are now self-contained HTML documents.
+      const artifact = extractHtml(text);
+      if (!artifact || !artifact.includes("</html>")) {
         throw new Error("incomplete");
       }
       setKindState(kind, { phase: "done", artifact });
@@ -398,20 +398,20 @@ export function Payoff({
 
             {activeState.phase === "done" && (
               <div className="overflow-hidden rounded-2xl border border-ink/12 bg-paper">
-                {active === "video" ? (
-                  <div className="max-h-[480px] overflow-y-auto">
-                    <VideoScript md={activeState.artifact} />
-                  </div>
-                ) : (
-                  <iframe
-                    ref={iframeRef}
-                    key={activeState.artifact.length}
-                    srcDoc={activeState.artifact}
-                    sandbox="allow-scripts"
-                    title={active === "game" ? "내가 만든 게임" : "내가 만든 퀴즈"}
-                    className="h-[440px] w-full bg-white sm:h-[560px]"
-                  />
-                )}
+                <iframe
+                  ref={iframeRef}
+                  key={activeState.artifact.length}
+                  srcDoc={activeState.artifact}
+                  sandbox="allow-scripts"
+                  title={
+                    active === "game"
+                      ? "내가 만든 게임"
+                      : active === "quiz"
+                        ? "내가 만든 퀴즈"
+                        : "내가 만든 설명 영상"
+                  }
+                  className="h-[440px] w-full bg-white sm:h-[560px]"
+                />
 
                 <div className="flex flex-wrap items-center gap-2 border-t border-ink/8 px-4 py-3">
                   <button
@@ -422,15 +422,13 @@ export function Payoff({
                   >
                     {shared[active] === "pending" ? "링크 만드는 중…" : "🔗 친구에게 공유"}
                   </button>
-                  {active !== "video" && (
-                    <button
-                      type="button"
-                      onClick={() => iframeRef.current?.requestFullscreen?.()}
-                      className="rounded-xl border border-ink/15 px-3.5 py-2 font-kr text-[12.5px] font-medium text-ink/70 transition hover:border-accent/60 hover:text-accent"
-                    >
-                      ⛶ 전체화면
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => iframeRef.current?.requestFullscreen?.()}
+                    className="rounded-xl border border-ink/15 px-3.5 py-2 font-kr text-[12.5px] font-medium text-ink/70 transition hover:border-accent/60 hover:text-accent"
+                  >
+                    ⛶ 전체화면
+                  </button>
                   <button
                     type="button"
                     onClick={() => download(active, activeState.artifact)}

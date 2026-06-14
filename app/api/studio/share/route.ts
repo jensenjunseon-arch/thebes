@@ -46,8 +46,9 @@ export async function POST(req: Request) {
   if (!KIND_OK.has(kind) || !content.trim() || content.length > MAX_CONTENT) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
-  // Game/quiz must be a complete HTML document (what the player iframe expects).
-  if (kind !== "video" && (!content.includes("<html") || !content.includes("</html>"))) {
+  // Every artifact (game / quiz / narrated video) is a complete HTML document
+  // the player iframe renders.
+  if (!content.includes("<html") || !content.includes("</html>")) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 

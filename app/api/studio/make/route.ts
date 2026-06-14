@@ -74,24 +74,17 @@ export async function POST(req: Request) {
         role: "user",
         content: `The student asks (Korean): "${instruction}"
 
-Apply this to your previous work and return the COMPLETE updated ${
-          kind === "video" ? "markdown script" : "HTML document"
-        } — same output rules as before (${
-          kind === "video"
-            ? "clean markdown, no preamble"
-            : "ONLY the full HTML, <!DOCTYPE html> … </html>, no fences, no commentary"
-        }). Keep everything that already worked; change what the instruction asks; never truncate.`,
+Apply this to your previous work and return the COMPLETE updated HTML document — same output rules as before (ONLY the full HTML, <!DOCTYPE html> … </html>, no fences, no commentary). Keep everything that already worked; change what the instruction asks; never truncate.`,
       },
     );
   }
 
   try {
     const client = anthropic();
-    // Token budget by artifact: a full arcade game (3 levels + audio + particles)
-    // runs ~18–22k output tokens — 16k truncated it mid-script. Headroom matters
-    // more than latency here, so games get the most. Quiz fits comfortably; the
-    // video script is short markdown.
-    const maxTokens = kind === "game" ? 32000 : kind === "quiz" ? 22000 : 6000;
+    // Token budget by artifact (all three are now self-contained HTML): a full
+    // arcade game runs ~18–22k tokens, the narrated video deck + quiz are a bit
+    // lighter. 16k truncated games mid-script, so give real headroom.
+    const maxTokens = kind === "game" ? 32000 : 22000;
     const stream = client.messages.stream({
       model: PACK_MODEL,
       max_tokens: maxTokens,

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { VideoScript } from "@/components/studio/VideoScript";
 
 // /play/<slug> — the shareable face of a student-built artifact. Whoever opens
 // the link plays a Thebes-branded game/quiz (or reads the script) and gets ONE
@@ -46,7 +45,7 @@ async function fetchRow(slug: string): Promise<Row | null> {
 const KIND_LABEL: Record<Row["kind"], string> = {
   game: "게임",
   quiz: "퀴즈",
-  video: "영상 대본",
+  video: "설명 영상",
 };
 
 export async function generateMetadata({
@@ -118,20 +117,14 @@ export default async function PlayPage({
           {what}입니다.
         </p>
 
-        {/* the artifact */}
+        {/* the artifact — game / quiz / narrated video, all self-contained HTML */}
         <div className="mt-4 flex-1 overflow-hidden rounded-3xl border border-ink/10 bg-paper shadow-sm">
-          {row.kind === "video" ? (
-            <div className="max-h-[64dvh] overflow-y-auto">
-              <VideoScript md={row.content} />
-            </div>
-          ) : (
-            <iframe
-              srcDoc={row.content}
-              sandbox="allow-scripts"
-              title={row.title ?? what}
-              className="h-[64dvh] min-h-[420px] w-full bg-white"
-            />
-          )}
+          <iframe
+            srcDoc={row.content}
+            sandbox="allow-scripts"
+            title={row.title ?? what}
+            className="h-[64dvh] min-h-[420px] w-full bg-white"
+          />
         </div>
 
         {/* THE invitation */}
