@@ -8,13 +8,21 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
-const CARDS = [
+// Per-card gradients (shared across locales).
+const GRAD = {
+  photo: "radial-gradient(130% 110% at 50% 16%, #EEF1F4, #DEE3E8 58%, #CDD4DB 100%)",
+  lines: "radial-gradient(130% 110% at 50% 16%, #F4E4E6, #EAD2D5 58%, #DCC0C5 100%)",
+  build: "radial-gradient(130% 110% at 50% 16%, #EDF0A9, #DFE591 58%, #CED674 100%)",
+  share: "radial-gradient(130% 110% at 50% 16%, #808FAB, #6C7C99 58%, #5A6A87 100%)",
+};
+
+const CARDS_KO = [
   {
     k: "photo",
     tone: "light" as const,
     eyebrow: "사진 한 장이면",
     title: "한국어 문제가\n영어 문제가 됩니다.",
-    grad: "radial-gradient(130% 110% at 50% 16%, #EEF1F4, #DEE3E8 58%, #CDD4DB 100%)",
+    grad: GRAD.photo,
     mock: (
       <div className="hl-mock">
         <div className="hl-chip-row">
@@ -34,7 +42,7 @@ const CARDS = [
     tone: "light" as const,
     eyebrow: "정답이 아니라",
     title: "풀이 계획을\n한 줄씩, 영어로.",
-    grad: "radial-gradient(130% 110% at 50% 16%, #F4E4E6, #EAD2D5 58%, #DCC0C5 100%)",
+    grad: GRAD.lines,
     mock: (
       <div className="hl-mock">
         <p className="hl-en">First, I need to find the length…</p>
@@ -51,7 +59,7 @@ const CARDS = [
     tone: "light" as const,
     eyebrow: "풀이가 끝나면",
     title: "내 생각이\n게임이 됩니다.",
-    grad: "radial-gradient(130% 110% at 50% 16%, #EDF0A9, #DFE591 58%, #CED674 100%)",
+    grad: GRAD.build,
     mock: (
       <div className="hl-mock">
         <div className="hl-game">
@@ -67,7 +75,7 @@ const CARDS = [
     tone: "dark" as const,
     eyebrow: "그리고",
     title: "링크 하나로\n친구에게 자랑.",
-    grad: "radial-gradient(130% 110% at 50% 16%, #808FAB, #6C7C99 58%, #5A6A87 100%)",
+    grad: GRAD.share,
     mock: (
       <div className="hl-mock">
         <div className="hl-bubble">내가 만든 게임 해봐 👀</div>
@@ -78,7 +86,78 @@ const CARDS = [
   },
 ];
 
-export function Highlights() {
+const CARDS_EN = [
+  {
+    k: "photo",
+    tone: "light" as const,
+    eyebrow: "One photo,",
+    title: "your problem,\nnow in English.",
+    grad: GRAD.photo,
+    mock: (
+      <div className="hl-mock">
+        <div className="hl-chip-row">
+          <span className="hl-chip">📷 Problem photo</span>
+          <span className="hl-arrow">→</span>
+          <span className="hl-chip on">English</span>
+        </div>
+        <p className="hl-en">
+          A garden is <u>12 m</u> wide. What is the <u>perimeter</u>?
+        </p>
+        <p className="hl-ko">Hover any underlined word for its meaning.</p>
+      </div>
+    ),
+  },
+  {
+    k: "lines",
+    tone: "light" as const,
+    eyebrow: "Not the answer —",
+    title: "your plan,\none line at a time.",
+    grad: GRAD.lines,
+    mock: (
+      <div className="hl-mock">
+        <p className="hl-en">First, I need to find the length…</p>
+        <div className="hl-chip-row">
+          <span className="hl-chip on">✓ Sharp move</span>
+          <span className="hl-chip">coach replies in ~1s</span>
+        </div>
+        <p className="hl-ko">Stuck? — &ldquo;Try writing it like this.&rdquo;</p>
+      </div>
+    ),
+  },
+  {
+    k: "build",
+    tone: "light" as const,
+    eyebrow: "When you're done,",
+    title: "your idea\nbecomes a game.",
+    grad: GRAD.build,
+    mock: (
+      <div className="hl-mock">
+        <div className="hl-game">
+          <span className="hl-game-title">More speed, less time</span>
+          <span className="hl-game-btn">PLAY ▶</span>
+        </div>
+        <p className="hl-ko">One tap → ~90s → it plays right here.</p>
+      </div>
+    ),
+  },
+  {
+    k: "share",
+    tone: "dark" as const,
+    eyebrow: "And then,",
+    title: "one link —\n“play my game.”",
+    grad: GRAD.share,
+    mock: (
+      <div className="hl-mock">
+        <div className="hl-bubble">play the game I made 👀</div>
+        <div className="hl-link">thebes.ai/play/x7k2a9</div>
+        <p className="hl-ko">Whoever opens it can build their own.</p>
+      </div>
+    ),
+  },
+];
+
+export function Highlights({ lang = "ko" }: { lang?: "ko" | "en" }) {
+  const CARDS = lang === "en" ? CARDS_EN : CARDS_KO;
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
 
@@ -128,7 +207,7 @@ export function Highlights() {
           <button
             key={c.k}
             type="button"
-            aria-label={`${i + 1}번째 카드`}
+            aria-label={lang === "en" ? `Card ${i + 1}` : `${i + 1}번째 카드`}
             onClick={() => goTo(i)}
             className={cn("hl-dot", active === i && "on")}
           />

@@ -7,7 +7,9 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
-const STEPS = [
+type Lang = "ko" | "en";
+
+const STEPS_KO = [
   {
     k: "photo",
     label: "STEP 1 · 올리기",
@@ -34,17 +36,69 @@ const STEPS = [
   },
 ];
 
-function Visual({ stage }: { stage: number }) {
+const STEPS_EN = [
+  {
+    k: "photo",
+    label: "STEP 1 · Snap it",
+    title: "Snap your textbook problem.",
+    body: "Photo, paste, or — no problem on hand? — have one made. Ready in 10 seconds.",
+  },
+  {
+    k: "english",
+    label: "STEP 2 · In English",
+    title: "AI reads it and sets it up in English.",
+    body: "Hover a word for its meaning, save key terms to your vocab, and rotate the figure yourself.",
+  },
+  {
+    k: "lines",
+    label: "STEP 3 · Line by line",
+    title: "Write your plan in English, one line at a time.",
+    body: "The coach reacts to every line in about a second. Stuck? Trace a model sentence and learn by doing.",
+  },
+  {
+    k: "artifact",
+    label: "STEP 4 · The build",
+    title: "Your solution comes back as a game.",
+    body: "Play it right here, tell the AI to fix what you don't like, and share it with a link.",
+  },
+];
+
+const SCENE = {
+  ko: {
+    photo:
+      "직사각형 모양의 정원이 있습니다. 가로는 12m이고, 세로는 가로보다 4m 짧습니다. 이 정원의 둘레는 몇 m일까요?",
+    strip: "직사각형 모양의 정원이 있습니다 …",
+    figHint: "드래그해서 돌려보세요 ↻",
+    v1: "✓ 멋진 수",
+    comment: "정확해요! 길이를 구하는 게 첫 단계네요.",
+    v2: "👍 좋아요",
+    gameTitle: "둘레 수비대 🛡️",
+    gameSub: "FINAL LEVEL — 너의 바로 그 문제",
+    gameQuote: "“네가 말한 대로였어.”",
+  },
+  en: {
+    photo:
+      "A rectangular garden is 12 m wide, and 4 m shorter in length. What is its perimeter?",
+    strip: "perimeter — the distance all the way around",
+    figHint: "drag to rotate ↻",
+    v1: "✓ Sharp move",
+    comment: "Exactly — finding the length is step one.",
+    v2: "👍 Good",
+    gameTitle: "Perimeter Patrol 🛡️",
+    gameSub: "FINAL LEVEL — your exact problem",
+    gameQuote: "“Just like you said.”",
+  },
+} as const;
+
+function Visual({ stage, lang }: { stage: number; lang: Lang }) {
+  const c = SCENE[lang];
   return (
     <div className="sj-visual">
       {/* stage 0 — the photo */}
       <div className={cn("sj-scene", stage === 0 && "on")}>
         <div className="sj-photo">
           <span className="sj-photo-badge">📷</span>
-          <p className="sj-kr">
-            직사각형 모양의 정원이 있습니다. 가로는 12m이고, 세로는 가로보다 4m 짧습니다. 이
-            정원의 둘레는 몇 m일까요?
-          </p>
+          <p className="sj-kr">{c.photo}</p>
         </div>
       </div>
       {/* stage 1 — english + vocab + figure */}
@@ -54,7 +108,7 @@ function Visual({ stage }: { stage: number }) {
             There is a <u>rectangular garden</u>. The <u>width</u> is 12 m… What is the{" "}
             <u>perimeter</u>?
           </p>
-          <div className="sj-strip">직사각형 모양의 정원이 있습니다 …</div>
+          <div className="sj-strip">{c.strip}</div>
           <svg viewBox="0 0 120 64" className="sj-fig" aria-hidden>
             <rect
               x="22"
@@ -70,7 +124,7 @@ function Visual({ stage }: { stage: number }) {
               12 m
             </text>
             <text x="60" y="62" fontSize="7" textAnchor="middle" fill="#0B57D0">
-              드래그해서 돌려보세요 ↻
+              {c.figHint}
             </text>
           </svg>
         </div>
@@ -79,29 +133,30 @@ function Visual({ stage }: { stage: number }) {
       <div className={cn("sj-scene", stage === 2 && "on")}>
         <div className="sj-card">
           <p className="sj-en">1&nbsp; First, I need to find the length.</p>
-          <span className="sj-verdict">✓ 멋진 수</span>
-          <p className="sj-comment">정확해요! 길이를 구하는 게 첫 단계네요.</p>
+          <span className="sj-verdict">{c.v1}</span>
+          <p className="sj-comment">{c.comment}</p>
           <p className="sj-en dim">2&nbsp; Then, the perimeter is two times…</p>
-          <span className="sj-verdict alt">👍 좋아요</span>
+          <span className="sj-verdict alt">{c.v2}</span>
         </div>
       </div>
       {/* stage 3 — the game */}
       <div className={cn("sj-scene", stage === 3 && "on")}>
         <div className="sj-game">
-          <p className="sj-game-title">둘레 수비대 🛡️</p>
-          <p className="sj-game-sub">FINAL LEVEL — 너의 바로 그 문제</p>
+          <p className="sj-game-title">{c.gameTitle}</p>
+          <p className="sj-game-sub">{c.gameSub}</p>
           <div className="sj-game-row">
             <span className="sj-game-pill">PLAY ▶</span>
             <span className="sj-game-link">/play/x7k2a9 🔗</span>
           </div>
-          <p className="sj-game-quote">&ldquo;네가 말한 대로였어.&rdquo;</p>
+          <p className="sj-game-quote">{c.gameQuote}</p>
         </div>
       </div>
     </div>
   );
 }
 
-export function StickyJourney() {
+export function StickyJourney({ lang = "ko" }: { lang?: Lang }) {
+  const STEPS = lang === "en" ? STEPS_EN : STEPS_KO;
   const [stage, setStage] = useState(0);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -136,7 +191,7 @@ export function StickyJourney() {
   return (
     <div className="sj-grid">
       <div className="sj-sticky">
-        <Visual stage={stage} />
+        <Visual stage={stage} lang={lang} />
         <div className="sj-progress">
           {STEPS.map((s, i) => (
             <span key={s.k} className={cn("sj-tick", i <= stage && "on")} />

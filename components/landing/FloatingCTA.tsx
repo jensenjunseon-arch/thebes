@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
-export function FloatingCTA() {
+export function FloatingCTA({ lang = "ko" }: { lang?: "ko" | "en" }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -22,13 +22,16 @@ export function FloatingCTA() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const t =
+    lang === "en"
+      ? { note: <>Free · no sign-up <b>needed</b></>, cta: "Drop a problem, start" }
+      : { note: <>무료 · 로그인 없이 <b>바로</b></>, cta: "문제 올리고 시작" };
+
   return (
     <div className={cn("lp-float-cta", show && "show")} aria-hidden={!show}>
-      <span className="lp-float-note">
-        무료 · 로그인 없이 <b>바로</b>
-      </span>
+      <span className="lp-float-note">{t.note}</span>
       <Link href="/studio" className="lp-float-btn" tabIndex={show ? 0 : -1}>
-        문제 올리고 시작 <span style={{ fontFamily: "var(--font-mono)" }}>→</span>
+        {t.cta} <span style={{ fontFamily: "var(--font-mono)" }}>→</span>
       </Link>
     </div>
   );

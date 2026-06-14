@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const CARDS = [
+const CARDS_KO = [
   {
     n: "1",
     title: "AI는 속으로 영어로 사고합니다",
@@ -23,8 +23,30 @@ const CARDS = [
   },
 ];
 
+const CARDS_EN = [
+  {
+    n: "1",
+    title: "AI thinks in English under the hood",
+    body: "Ask in any language and the model still reasons in English internally. Whoever thinks in it directs AI with the most precision.",
+    quote: "\"Reason about math in English, and you reason in AI's native tongue.\"",
+  },
+  {
+    n: "2",
+    title: "Precision beats vibes",
+    body: "Context-dependent phrasing leaves AI guessing. Reasoning in English forces the what and the why to become explicit.",
+    quote: "\"'Just handle it' is the weakest thing you can say to an AI.\"",
+  },
+  {
+    n: "3",
+    title: "Reasoning in language is the AI-era job",
+    body: "Directing AI with language — prompt engineering — is among the era's best-paid skills, open to any background. Expressing thought in language is the edge.",
+    quote: "\"Tools change every year. What lasts is the power to reason in your own words.\"",
+  },
+];
+
 // The three "why English" cards, revealed one by one as the row scrolls in.
-export function WhyCards() {
+export function WhyCards({ lang = "ko" }: { lang?: "ko" | "en" }) {
+  const CARDS = lang === "en" ? CARDS_EN : CARDS_KO;
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
 
