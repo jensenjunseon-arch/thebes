@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 import { traceMatchPercent } from "@/lib/recap";
 import { MathText } from "@/components/studio/MathText";
 import { TiltLoader } from "@/components/studio/TiltLoader";
+import { FamilyShare } from "@/components/studio/FamilyShare";
 import {
   MAKERS,
   ITERATE_CHIPS,
@@ -594,6 +595,22 @@ export function Payoff({
             </div>
           </div>
         )}
+
+        {/* The family bridge — send today's learning home in the parent's language. */}
+        <FamilyShare
+          pack={pack}
+          paragraph={paragraph}
+          lines={realLines}
+          quotes={quotes}
+          playUrl={(() => {
+            const slug = (["game", "quiz", "video"] as MakerKind[])
+              .map((k) => shared[k])
+              .find((s): s is { slug: string } => typeof s === "object" && s !== null)?.slug;
+            return slug && typeof window !== "undefined"
+              ? `${window.location.origin}/play/${slug}`
+              : undefined;
+          })()}
+        />
 
         <div className="mt-5 flex items-center justify-between">
           <p className="font-kr text-[12.5px] leading-relaxed text-ink/55 break-keep">

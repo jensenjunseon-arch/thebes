@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const KIND_OK = new Set(["game", "video", "quiz"]);
+const KIND_OK = new Set(["game", "video", "quiz", "family"]);
 const MAX_CONTENT = 450_000; // chars — generous for a single-file game
 
 function makeSlug(): string {

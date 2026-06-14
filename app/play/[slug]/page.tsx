@@ -36,7 +36,9 @@ async function fetchRow(slug: string): Promise<Row | null> {
       .select("kind, title, topic, level, content, views")
       .eq("slug", slug)
       .maybeSingle();
-    return (data as Row | null) ?? null;
+    const row = (data as ({ kind: string } & Omit<Row, "kind">) | null) ?? null;
+    // Family digests have their own viewer at /family/<slug>.
+    return row && row.kind !== "family" ? (row as Row) : null;
   } catch {
     return null;
   }

@@ -1,0 +1,187 @@
+/* ==========================================================================
+   Card-news — 1080×1080 artwork, drawn from the brand tokens in globals.css.
+   Everything is sized in absolute px so a card renders identically whether it's
+   scaled down in the review grid or captured at full size for export.
+   ========================================================================== */
+
+.cn-card {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 96px 100px 84px;
+  overflow: hidden;
+  font-family: var(--font-kr);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
+}
+.cn-card * {
+  box-sizing: border-box;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  margin: 0;
+}
+:lang(ko) .cn-em { font-style: normal; }
+
+.cn-paper { background: var(--paper); color: var(--ink); }
+.cn-dark  { background: var(--ink-card); color: var(--on-dark); }
+
+/* Texture: paper grain / dark terracotta glow */
+.cn-card::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+}
+.cn-paper::before {
+  background-image: radial-gradient(rgba(20, 17, 12, 0.022) 1px, transparent 1px);
+  background-size: 4px 4px; opacity: 0.85;
+}
+.cn-dark::before {
+  background: radial-gradient(940px 540px at 78% 20%, rgba(181, 65, 27, 0.18), transparent 60%);
+}
+
+.cn-top, .cn-bot, .cn-body { position: relative; z-index: 1; }
+
+/* ─── Top bar: brand + page number ─────────────────────────────────────── */
+.cn-top { display: flex; align-items: center; justify-content: space-between; }
+.cn-brand { display: flex; align-items: center; gap: 13px; }
+.cn-wordmark {
+  font-family: var(--font-mono); font-size: 29px; font-weight: 500; letter-spacing: -0.01em;
+}
+.cn-dark .cn-wordmark { color: var(--on-dark); }
+.cn-wordmark-ai { color: var(--accent); font-weight: 600; margin-left: 6px; letter-spacing: 0.02em; }
+.cn-page { font-family: var(--font-mono); font-size: 22px; letter-spacing: 0.1em; color: var(--ink-3); }
+.cn-dark .cn-page { color: var(--on-dark-3); }
+.cn-page-sep { opacity: 0.5; margin: 0 3px; }
+
+/* ─── Body wrapper ─────────────────────────────────────────────────────── */
+.cn-body { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+
+/* ─── Kicker (mono eyebrow + dot) ──────────────────────────────────────── */
+.cn-kicker {
+  font-family: var(--font-mono); font-size: 21px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: 34px; display: inline-flex; align-items: center; gap: 14px; align-self: flex-start;
+}
+.cn-kicker::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex: none; }
+.cn-dark .cn-kicker { color: var(--accent-soft); }
+.cn-dark .cn-kicker::before { background: var(--accent-soft); }
+
+/* ─── Accent emphasis (terracotta + soft underline) ────────────────────── */
+.cn-em { font-style: normal; font-weight: inherit; color: var(--accent); position: relative; display: inline-block; }
+.cn-em::after {
+  content: ""; position: absolute; left: -0.04em; right: -0.04em; bottom: 0.1em;
+  height: 0.26em; background: var(--accent-soft); border-radius: 3px; z-index: -1;
+}
+.cn-dark .cn-em { color: var(--accent-soft); }
+.cn-dark .cn-em::after { background: rgba(236, 206, 182, 0.16); }
+
+/* ─── Titles & headings ────────────────────────────────────────────────── */
+.cn-title { font-weight: 600; letter-spacing: -0.035em; line-height: 1.1; text-wrap: balance; }
+.cn-title-cover { font-size: 82px; }
+.cn-title-statement { font-size: 86px; line-height: 1.08; }
+.cn-title-cta { font-size: 86px; }
+.cn-heading { font-size: 60px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.16; text-wrap: balance; margin-bottom: 46px; }
+.cn-lede { margin-top: 38px; font-size: 31px; line-height: 1.62; color: var(--ink-2); max-width: 780px; text-wrap: pretty; }
+.cn-dark .cn-lede { color: var(--on-dark-2); }
+.cn-foot { margin-top: 40px; font-size: 25px; line-height: 1.5; color: var(--ink-3); }
+.cn-dark .cn-foot { color: var(--on-dark-2); }
+
+.cn-cover-note {
+  margin-top: 46px; font-family: var(--font-mono); font-size: 22px;
+  letter-spacing: 0.04em; color: var(--on-dark-2);
+}
+
+/* ─── Compare (them vs us) ─────────────────────────────────────────────── */
+.cn-compare {
+  display: grid; grid-template-columns: 1fr 1fr; margin-top: 6px;
+  border: 1px solid rgba(246, 242, 232, 0.14); border-radius: 18px; overflow: hidden;
+}
+.cn-col { padding: 42px 40px; }
+.cn-col-them { border-left: 1px solid rgba(246, 242, 232, 0.14); }
+.cn-col-us { background: rgba(181, 65, 27, 0.13); }
+.cn-col-label {
+  font-family: var(--font-mono); font-size: 17px; letter-spacing: 0.13em;
+  text-transform: uppercase; margin-bottom: 22px;
+}
+.cn-col-us .cn-col-label { color: var(--accent-soft); }
+.cn-col-them .cn-col-label { color: var(--on-dark-3); }
+.cn-col-h { font-size: 37px; font-weight: 600; line-height: 1.3; letter-spacing: -0.02em; margin-bottom: 22px; color: var(--on-dark); }
+.cn-col-them .cn-col-h { color: var(--on-dark-2); font-weight: 500; }
+.cn-col-p { font-size: 24px; line-height: 1.55; color: var(--on-dark-2); }
+.cn-col-them .cn-col-p { color: var(--on-dark-3); }
+
+/* ─── Process (widening arc) ───────────────────────────────────────────── */
+.cn-steps { list-style: none; padding: 0; margin-top: 4px; }
+.cn-step { display: flex; align-items: center; gap: 30px; padding: 22px 2px; }
+.cn-step + .cn-step { border-top: 1px dashed var(--line-2); }
+.cn-step-n { font-family: var(--font-mono); font-size: 25px; font-weight: 500; color: var(--accent); width: 52px; flex: none; }
+.cn-step-k { font-size: 42px; font-weight: 600; letter-spacing: -0.02em; }
+.cn-dark .cn-step + .cn-step { border-color: rgba(246, 242, 232, 0.16); }
+
+/* ─── List (numbered constructs) ───────────────────────────────────────── */
+.cn-list { list-style: none; padding: 0; margin-top: 4px; }
+.cn-li { display: flex; align-items: baseline; gap: 28px; padding: 21px 2px; border-top: 1px solid var(--line); }
+.cn-li:first-child { border-top: none; }
+.cn-li-n { font-family: var(--font-mono); font-size: 25px; font-weight: 500; color: var(--accent); width: 52px; flex: none; }
+.cn-li-k { font-size: 42px; font-weight: 600; letter-spacing: -0.02em; }
+.cn-li-en { margin-left: auto; font-family: var(--font-mono); font-size: 19px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-4); }
+.cn-dark .cn-li { border-color: rgba(246, 242, 232, 0.14); }
+
+/* ─── Report (measured bars) ───────────────────────────────────────────── */
+.cn-bars { margin-top: 6px; display: flex; flex-direction: column; gap: 27px; }
+.cn-bar-row { display: flex; align-items: center; gap: 24px; }
+.cn-bar-k { font-size: 30px; font-weight: 500; width: 300px; flex: none; letter-spacing: -0.01em; }
+.cn-bar-track { flex: 1; height: 16px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.cn-dark .cn-bar-track { background: rgba(246, 242, 232, 0.14); }
+.cn-bar-fill { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.cn-bar-v { font-family: var(--font-mono); font-size: 26px; color: var(--ink-2); width: 64px; text-align: right; flex: none; }
+.cn-dark .cn-bar-v { color: var(--on-dark-2); }
+
+/* ─── CTA ──────────────────────────────────────────────────────────────── */
+.cn-cta-row { margin-top: 54px; display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
+.cn-cta-pill {
+  display: inline-flex; align-items: center; background: var(--accent); color: #fff;
+  padding: 22px 38px; border-radius: 999px; font-size: 29px; font-weight: 600; letter-spacing: -0.01em;
+}
+.cn-cta-handle { font-family: var(--font-mono); font-size: 24px; color: var(--on-dark-2); letter-spacing: 0.06em; }
+
+/* ─── Bottom bar ───────────────────────────────────────────────────────── */
+.cn-bot { display: flex; align-items: center; justify-content: space-between; }
+.cn-bot-tag { font-family: var(--font-mono); font-size: 18px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-4); }
+.cn-dark .cn-bot-tag { color: var(--on-dark-3); }
+.cn-bot-url { font-family: var(--font-mono); font-size: 22px; letter-spacing: 0.08em; color: var(--accent-soft); }
+.cn-swipe { font-family: var(--font-mono); font-size: 18px; letter-spacing: 0.1em; color: var(--ink-3); }
+.cn-dark .cn-swipe { color: var(--on-dark-2); }
+
+/* ==========================================================================
+   Review gallery + export framing (chrome around the cards, not the cards)
+   ========================================================================== */
+.cn-stage { min-height: 100vh; background: #221f1a; padding: 60px 40px 120px; font-family: var(--font-kr); }
+.cn-shell { max-width: 1240px; margin: 0 auto; }
+.cn-eyebrow-l { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-soft); display: inline-flex; align-items: center; gap: 12px; }
+.cn-eyebrow-l::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.cn-h1 { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; margin: 16px 0 0; color: #f6f2e8; }
+.cn-sub { color: rgba(246, 242, 232, 0.62); font-size: 16px; margin-top: 12px; line-height: 1.6; max-width: 720px; }
+.cn-sub code { font-family: var(--font-mono); color: var(--accent-soft); font-size: 14px; }
+.cn-back { color: rgba(246, 242, 232, 0.6); font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.06em; }
+.cn-back:hover { color: #f6f2e8; }
+
+.cn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 40px 36px; margin-top: 48px; }
+.cn-cell { display: flex; flex-direction: column; }
+.cn-thumb { position: relative; border-radius: 14px; overflow: hidden; box-shadow: 0 26px 60px -30px rgba(0, 0, 0, 0.65); align-self: start; }
+.cn-thumb-inner { transform-origin: top left; }
+.cn-cell-cap { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; color: rgba(246, 242, 232, 0.55); }
+.cn-cell-cap a { color: var(--accent-soft); }
+.cn-cell-cap a:hover { color: #f6f2e8; }
+
+/* Gallery cards (deck list) */
+.cn-decks { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 36px; margin-top: 48px; }
+.cn-deck-link { display: block; color: inherit; }
+.cn-deck-meta { margin-top: 18px; }
+.cn-deck-title { font-size: 22px; font-weight: 600; color: #f6f2e8; letter-spacing: -0.01em; }
+.cn-deck-topic { font-size: 15px; color: rgba(246, 242, 232, 0.6); margin-top: 8px; line-height: 1.5; }
+.cn-deck-chan { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-soft); margin-top: 12px; }
+
+/* Export route — bare card, no surrounding chrome */
+.cn-export { position: absolute; top: 0; left: 0; }
