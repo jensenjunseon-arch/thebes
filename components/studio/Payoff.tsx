@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 import { traceMatchPercent } from "@/lib/recap";
 import { MathText } from "@/components/studio/MathText";
 import { TiltLoader } from "@/components/studio/TiltLoader";
+import { VideoScript } from "@/components/studio/VideoScript";
 import {
   MAKERS,
   ITERATE_CHIPS,
@@ -398,10 +399,8 @@ export function Payoff({
             {activeState.phase === "done" && (
               <div className="overflow-hidden rounded-2xl border border-ink/12 bg-paper">
                 {active === "video" ? (
-                  <div className="max-h-[480px] overflow-y-auto px-5 py-4">
-                    <pre className="whitespace-pre-wrap font-kr text-[13px] leading-relaxed text-ink/85">
-                      {activeState.artifact}
-                    </pre>
+                  <div className="max-h-[480px] overflow-y-auto">
+                    <VideoScript md={activeState.artifact} />
                   </div>
                 ) : (
                   <iframe

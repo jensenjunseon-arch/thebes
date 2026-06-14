@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { VideoScript } from "@/components/studio/VideoScript";
 
 // /play/<slug> — the shareable face of a student-built artifact. Whoever opens
 // the link plays a Thebes-branded game/quiz (or reads the script) and gets ONE
@@ -120,10 +121,8 @@ export default async function PlayPage({
         {/* the artifact */}
         <div className="mt-4 flex-1 overflow-hidden rounded-3xl border border-ink/10 bg-paper shadow-sm">
           {row.kind === "video" ? (
-            <div className="max-h-[64dvh] overflow-y-auto px-5 py-4">
-              <pre className="whitespace-pre-wrap font-kr text-[13.5px] leading-relaxed text-ink/85">
-                {row.content}
-              </pre>
+            <div className="max-h-[64dvh] overflow-y-auto">
+              <VideoScript md={row.content} />
             </div>
           ) : (
             <iframe

@@ -87,9 +87,14 @@ Apply this to your previous work and return the COMPLETE updated ${
 
   try {
     const client = anthropic();
+    // Token budget by artifact: a full arcade game (3 levels + audio + particles)
+    // runs ~18–22k output tokens — 16k truncated it mid-script. Headroom matters
+    // more than latency here, so games get the most. Quiz fits comfortably; the
+    // video script is short markdown.
+    const maxTokens = kind === "game" ? 32000 : kind === "quiz" ? 22000 : 6000;
     const stream = client.messages.stream({
       model: PACK_MODEL,
-      max_tokens: kind === "video" ? 4000 : 16000,
+      max_tokens: maxTokens,
       messages,
     });
 
