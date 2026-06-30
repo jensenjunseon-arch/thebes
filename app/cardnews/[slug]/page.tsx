@@ -40,7 +40,14 @@ export default async function DeckReview({
         <div className="cn-grid">
           {deck.cards.map((card, i) => (
             <div key={i} className="cn-cell">
-              <CardThumb card={card} index={i} total={total} size={deck.size} width={340} />
+              <CardThumb
+                card={card}
+                index={i}
+                total={total}
+                size={deck.size}
+                width={340}
+                tagline={deck.tagline}
+              />
               <div className="cn-cell-cap">
                 <span>
                   {pad2(i + 1)} · {card.template}
