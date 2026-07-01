@@ -7,7 +7,8 @@ import { hasKey } from "@/lib/studio/ai";
 import { wordCard } from "@/lib/lyrics/ai";
 import type { Direction, WordCard } from "@/lib/lyrics/types";
 
-export const maxDuration = 45;
+// Web-search grounding for brand-new songs can add a few seconds.
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   if (!hasKey()) {

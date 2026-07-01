@@ -9,6 +9,7 @@
 
 import { useRef, useState } from "react";
 import type {
+  ChartEntry,
   ChatTurn,
   Direction,
   SongWords,
@@ -33,18 +34,6 @@ function highlight(text: string, term: string) {
     ),
   );
 }
-
-interface Seed {
-  song: string;
-  artist: string;
-}
-const SEEDS: Seed[] = [
-  { song: "Super Shy", artist: "NewJeans" },
-  { song: "Drama", artist: "aespa" },
-  { song: "ANTIFRAGILE", artist: "LE SSERAFIM" },
-  { song: "LOVE DIVE", artist: "IVE" },
-  { song: "Dynamite", artist: "BTS" },
-];
 
 const T = {
   en: {
@@ -93,7 +82,7 @@ const ERROR_COPY: Record<string, string> = {
   bad_request: "노래 제목을 입력해 주세요.",
 };
 
-export function LyricsApp() {
+export function LyricsApp({ initialChart }: { initialChart: ChartEntry[] }) {
   const [direction, setDirection] = useState<Direction>("en");
   const [songIn, setSongIn] = useState("");
   const [artistIn, setArtistIn] = useState("");
@@ -241,22 +230,52 @@ export function LyricsApp() {
       </h1>
       <p className="mt-2 font-kr text-sm text-ink/55">{t.pick}</p>
 
-      {/* Seed songs */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {SEEDS.map((s) => (
-          <button
-            key={`${s.song}-${s.artist}`}
-            onClick={() => {
-              setSongIn(s.song);
-              setArtistIn(s.artist);
-              loadSong(s.song, s.artist);
-            }}
-            className="rounded-full border border-ink/10 bg-paper px-3.5 py-1.5 font-sans text-sm text-ink/80 transition hover:border-accent/40 hover:text-accent"
-          >
-            {s.song} <span className="text-ink/40">· {s.artist}</span>
-          </button>
-        ))}
-      </div>
+      {/* Live chart presets — newest top songs, refreshed hourly */}
+      {initialChart.length > 0 && (
+        <section className="mt-5">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-kr text-sm font-medium text-ink/70">🔥 지금 인기 차트</h2>
+            <span className="font-mono text-[10px] uppercase tracking-wide text-ink/35">
+              Deezer · 매시간 갱신
+            </span>
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {initialChart.map((c, i) => (
+              <button
+                key={`${c.title}-${c.artist}`}
+                onClick={() => {
+                  setSongIn(c.title);
+                  setArtistIn(c.artist);
+                  loadSong(c.title, c.artist);
+                }}
+                style={{ animationDelay: `${i * 45}ms` }}
+                className="animate-rise flex items-center gap-3 rounded-2xl border border-ink/10 bg-paper px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:border-accent/40"
+              >
+                <span className="w-5 shrink-0 text-center font-mono text-sm font-medium text-accent">
+                  {c.rank}
+                </span>
+                {c.artwork ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={c.artwork}
+                    alt=""
+                    loading="lazy"
+                    className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="h-12 w-12 shrink-0 rounded-lg bg-paper-2" />
+                )}
+                <span className="min-w-0">
+                  <span className="block truncate font-sans text-[15px] font-medium text-ink">
+                    {c.title}
+                  </span>
+                  <span className="block truncate font-kr text-xs text-ink/55">{c.artist}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Free input */}
       <form

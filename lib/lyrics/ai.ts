@@ -10,7 +10,9 @@
 //      so we frame "why" as interpretation, forbid invented quotes/songs, and
 //      let cross-song lists be empty rather than fabricated.
 
+import Anthropic from "@anthropic-ai/sdk";
 import { anthropic, jsonCall } from "@/lib/studio/ai";
+import { extractJson } from "@/lib/ai/extractJson";
 import type {
   ChatTurn,
   CrossSong,
@@ -67,6 +69,61 @@ function capLine(x: unknown): string {
   return v.split(" ").length > 9 ? "" : v;
 }
 
+// One JSON-returning call with server-side web search available, so the model
+// can ground brand-new charting songs (past its training cutoff) in real info
+// instead of guessing. tool_choice stays auto — the model searches only when it
+// isn't sure, so songs it already knows stay fast. Handles the pause_turn the
+// server-tool loop can emit; parses JSON from the final text.
+const SEARCH_NOTE = `SEARCH: You have a web_search tool. If you are NOT fully certain of this song's ACTUAL words (e.g. a very recent release), search for it FIRST and teach only from what you verify. Never invent words that may not be in the song — an honest empty result beats a made-up one.`;
+
+async function searchGroundedJson<T>(
+  system: string,
+  user: string,
+  maxTokens: number,
+): Promise<T> {
+  const client = anthropic();
+  const messages: Anthropic.MessageParam[] = [{ role: "user", content: user }];
+  let text = "";
+  for (let round = 0; round < 4; round++) {
+    const res = await client.messages.create({
+      model: LYRICS_MODEL,
+      max_tokens: maxTokens,
+      system: [{ type: "text", text: system }],
+      // Older SDK typings may not include this tool; the wire format is valid.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 4 } as any],
+      messages,
+    });
+    const t = res.content.map((b) => (b.type === "text" ? b.text : "")).join("");
+    if (t.trim()) text = t;
+    if (res.stop_reason === "pause_turn") {
+      messages.push({
+        role: "assistant",
+        content: res.content as unknown as Anthropic.ContentBlockParam[],
+      });
+      continue;
+    }
+    break;
+  }
+  return JSON.parse(extractJson(text)) as T;
+}
+
+// Grounded first; if web search is unavailable on this plan (or errors), fall
+// back to the plain single call so the feature degrades gracefully.
+async function groundedJson<T>(system: string, user: string, maxTokens: number): Promise<T> {
+  try {
+    return await searchGroundedJson<T>(system, user, maxTokens);
+  } catch (err) {
+    console.error("[lyrics] web_search grounding unavailable — plain call", err);
+    return jsonCall<T>({
+      model: LYRICS_MODEL,
+      system,
+      content: [{ type: "text", text: user }],
+      maxTokens,
+    });
+  }
+}
+
 // ── 1) Song → notable words (the chips) ──────────────────────────────────────
 
 export async function songWords(
@@ -92,14 +149,15 @@ Return STRICT JSON (no markdown, no extra keys):
 - teaser: a SHORT curiosity hint in ${d.say} (≤8 words) ONLY when the word has a real twist — an idiom, slang, or hidden/cultural meaning — that makes the learner want to tap WITHOUT revealing the answer (e.g. "곤충 얘기가 아니야 👀", "직역하면 큰일 나 😅"). For a literal/obvious word, set teaser to "" (do NOT force one). Never spoil the meaning.
 - Only include items you are confident actually appear in THIS song. If you do not know the song, return {"note": "<say in ${d.say} that you're not sure of this song>", "words": []}.
 
-${GUARDRAIL}`;
+${GUARDRAIL}
 
-  const out = await jsonCall<{ note?: unknown; words?: unknown }>({
-    model: LYRICS_MODEL,
+${SEARCH_NOTE}`;
+
+  const out = await groundedJson<{ note?: unknown; words?: unknown }>(
     system,
-    content: [{ type: "text", text: `SONG: "${song}" by ${artist}.` }],
-    maxTokens: 900,
-  });
+    `SONG: "${song}" by ${artist}.`,
+    1400,
+  );
 
   const words = Array.isArray(out.words)
     ? (out.words as Array<Record<string, unknown>>)
@@ -151,14 +209,15 @@ Return STRICT JSON (no markdown, no extra keys):
   "examples": [ { "text": string, "gloss": string } ]   // 1–2 short, natural ${d.learn} sentences a fan could actually say, each with a ${d.say} gloss
 }
 
-Warm and concise. ${GUARDRAIL}`;
+Warm and concise. ${GUARDRAIL}
 
-  const out = await jsonCall<Record<string, unknown>>({
-    model: LYRICS_MODEL,
+${SEARCH_NOTE}`;
+
+  const out = await groundedJson<Record<string, unknown>>(
     system,
-    content: [{ type: "text", text: `TERM: "${term}"  SONG: "${song}" by ${artist}.` }],
-    maxTokens: 1100,
-  });
+    `TERM: "${term}"  SONG: "${song}" by ${artist}.`,
+    1500,
+  );
 
   const crossSongs: CrossSong[] = Array.isArray(out.crossSongs)
     ? (out.crossSongs as Array<Record<string, unknown>>)

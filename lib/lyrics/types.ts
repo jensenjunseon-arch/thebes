@@ -85,3 +85,14 @@ export interface ChatTurn {
   role: "user" | "assistant";
   text: string;
 }
+
+/** One row of the live chart shown as a preset (newest top songs). */
+export interface ChartEntry {
+  rank: number;
+  title: string;
+  artist: string;
+  /** Album cover URL ("" if none). */
+  artwork: string;
+  /** 30s preview MP3 URL ("" if none) — reserved for a future "listen" hook. */
+  preview: string;
+}
