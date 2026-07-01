@@ -1,13 +1,14 @@
 "use client";
 
 // The chart-lyric vocabulary explorer — the interactive "wow loop":
-//   pick a song → its notable words appear as chips → tap one → meaning + why +
-//   cross-songs + slang → ask follow-ups in your own language.
+//   pick a song → it rises to center as a hero (with a Gemini-style loader) →
+//   its notable words appear as chips → tap one → meaning + why + cross-songs +
+//   slang → ask follow-ups in your own language.
 //
 // Bidirectional from one engine: "en" teaches the English in K-pop to a Korean
 // fan; "ko" teaches the Korean to a global fan. No full lyrics — words only.
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   ChartEntry,
   ChatTurn,
@@ -92,11 +93,18 @@ function ChartColumn({
 const T = {
   en: {
     learn: "영어 배우기",
-    other: "한국어 배우기",
     pick: "노래를 고르거나 직접 입력하세요",
     songPh: "노래 제목",
     artistPh: "아티스트",
     analyze: "단어 보기",
+    back: "차트로",
+    picked: "이 노래를 골랐어요",
+    loadingLines: [
+      "가사를 찾고 있어요…",
+      "핵심 영어 단어를 고르는 중…",
+      "노래의 맥락을 살펴보는 중…",
+      "거의 다 됐어요…",
+    ],
     tapHint: "단어를 누르면 뜻 · 왜 이 단어인지 · 다른 노래까지 알려줘요",
     why: "왜 이 단어일까 (해석)",
     slang: "요즘 유행이라면",
@@ -105,17 +113,23 @@ const T = {
     askPh: "이 단어에 대해 더 물어보세요…",
     send: "보내기",
     quick: ["왜 이 단어를 골랐을까?", "발음이 어떻게 돼?", "다른 예문도 알려줘"],
-    loadingSong: "노래 속 단어를 고르는 중…",
     loadingCard: "이 단어를 풀어보는 중…",
     unknown: "이 노래는 제가 잘 몰라요. 다른 노래로 해볼까요?",
   },
   ko: {
     learn: "Learn Korean",
-    other: "Learn English",
     pick: "Pick a song or type one in",
     songPh: "Song title",
     artistPh: "Artist",
     analyze: "Show words",
+    back: "Back to charts",
+    picked: "You picked",
+    loadingLines: [
+      "Finding the lyrics…",
+      "Picking the key Korean words…",
+      "Reading the song's context…",
+      "Almost there…",
+    ],
     tapHint: "Tap a word for its meaning, why it's there, and other songs that use it",
     why: "Why this word (interpretation)",
     slang: "If it's slang / trending",
@@ -124,7 +138,6 @@ const T = {
     askPh: "Ask anything about this word…",
     send: "Send",
     quick: ["Why this word?", "How is it pronounced?", "Give another example"],
-    loadingSong: "Picking out the words…",
     loadingCard: "Unpacking this word…",
     unknown: "I don't really know this song. Want to try another?",
   },
@@ -135,6 +148,12 @@ const ERROR_COPY: Record<string, string> = {
   ai_failed: "잠깐 막혔어요. 한 번만 다시 시도해 주세요.",
   bad_request: "노래 제목을 입력해 주세요.",
 };
+
+interface Selected {
+  title: string;
+  artist: string;
+  artwork: string;
+}
 
 export function LyricsApp({
   globalChart,
@@ -147,8 +166,10 @@ export function LyricsApp({
   const [songIn, setSongIn] = useState("");
   const [artistIn, setArtistIn] = useState("");
 
+  const [selected, setSelected] = useState<Selected | null>(null);
   const [words, setWords] = useState<SongWords | null>(null);
   const [loadingSong, setLoadingSong] = useState(false);
+  const [loadIdx, setLoadIdx] = useState(0);
 
   const [term, setTerm] = useState<string | null>(null);
   const [activeLine, setActiveLine] = useState("");
@@ -163,9 +184,15 @@ export function LyricsApp({
   const cardRef = useRef<HTMLDivElement>(null);
   const t = T[direction];
 
-  function switchDirection(d: Direction) {
-    if (d === direction) return;
-    setDirection(d);
+  // Cycle the loader's status lines while a song is being analyzed.
+  useEffect(() => {
+    if (!loadingSong) return;
+    setLoadIdx(0);
+    const id = setInterval(() => setLoadIdx((i) => i + 1), 1600);
+    return () => clearInterval(id);
+  }, [loadingSong]);
+
+  function reset() {
     setWords(null);
     setTerm(null);
     setActiveLine("");
@@ -174,9 +201,23 @@ export function LyricsApp({
     setError(null);
   }
 
-  async function loadSong(song: string, artist: string) {
+  function switchDirection(d: Direction) {
+    if (d === direction) return;
+    setDirection(d);
+    setSelected(null);
+    reset();
+  }
+
+  function backToCharts() {
+    setSelected(null);
+    setLoadingSong(false);
+    reset();
+  }
+
+  async function loadSong(song: string, artist: string, artwork = "") {
     const s = song.trim();
     if (!s) return;
+    setSelected({ title: s, artist: artist.trim(), artwork });
     setError(null);
     setLoadingSong(true);
     setWords(null);
@@ -205,7 +246,7 @@ export function LyricsApp({
   function pick(c: ChartEntry) {
     setSongIn(c.title);
     setArtistIn(c.artist);
-    loadSong(c.title, c.artist);
+    loadSong(c.title, c.artist, c.artwork);
   }
 
   async function tapWord(chip: WordChip) {
@@ -267,7 +308,10 @@ export function LyricsApp({
     } catch {
       setChat((c) => [
         ...c,
-        { role: "assistant", text: direction === "ko" ? "Sorry, I got stuck — try again?" : "잠깐 막혔어요. 다시 한 번 물어봐 주세요." },
+        {
+          role: "assistant",
+          text: direction === "ko" ? "Sorry, I got stuck — try again?" : "잠깐 막혔어요. 다시 한 번 물어봐 주세요.",
+        },
       ]);
     } finally {
       setChatBusy(false);
@@ -291,111 +335,156 @@ export function LyricsApp({
         ))}
       </div>
 
-      <h1 className="mt-6 font-kr text-2xl font-semibold tracking-tightish text-ink">
-        차트 속 가사로 <span className="g-grad-text font-bold">단어</span> 공부
-      </h1>
-      <p className="mt-2 font-kr text-sm text-ink/55">{t.pick}</p>
+      {/* Browse: chart columns + free input */}
+      {!selected && (
+        <>
+          <h1 className="mt-6 font-kr text-2xl font-semibold tracking-tightish text-ink">
+            차트 속 가사로 <span className="g-grad-text font-bold">단어</span> 공부
+          </h1>
+          <p className="mt-2 font-kr text-sm text-ink/55">{t.pick}</p>
 
-      {/* Live chart presets — global + K-pop side by side, refreshed hourly */}
-      {(globalChart.length > 0 || kpopChart.length > 0) && (
-        <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-7 sm:grid-cols-2">
-          <ChartColumn title="🔥 글로벌 차트" badge="Deezer · 매시간" entries={globalChart} onPick={pick} />
-          <ChartColumn title="🇰🇷 K-pop 차트" badge="Deezer · 매시간" entries={kpopChart} onPick={pick} />
-        </div>
+          {(globalChart.length > 0 || kpopChart.length > 0) && (
+            <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-7 sm:grid-cols-2">
+              <ChartColumn title="🔥 글로벌 차트" badge="Deezer · 매시간" entries={globalChart} onPick={pick} />
+              <ChartColumn title="🇰🇷 K-pop 차트" badge="Deezer · 매시간" entries={kpopChart} onPick={pick} />
+            </div>
+          )}
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              loadSong(songIn, artistIn);
+            }}
+            className="mt-6 flex flex-wrap items-center gap-2"
+          >
+            <input
+              value={songIn}
+              onChange={(e) => setSongIn(e.target.value)}
+              placeholder={t.songPh}
+              className="min-w-[10rem] flex-1 rounded-xl border border-ink/12 bg-paper px-3.5 py-2.5 font-kr text-sm text-ink outline-none focus:border-accent/50"
+            />
+            <input
+              value={artistIn}
+              onChange={(e) => setArtistIn(e.target.value)}
+              placeholder={t.artistPh}
+              className="min-w-[8rem] flex-1 rounded-xl border border-ink/12 bg-paper px-3.5 py-2.5 font-kr text-sm text-ink outline-none focus:border-accent/50"
+            />
+            <button
+              type="submit"
+              disabled={!songIn.trim()}
+              className="rounded-xl bg-accent px-4 py-2.5 font-kr text-sm font-medium text-on-dark transition hover:bg-accent/90 disabled:opacity-40"
+            >
+              {t.analyze}
+            </button>
+          </form>
+        </>
       )}
 
-      {/* Free input */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          loadSong(songIn, artistIn);
-        }}
-        className="mt-4 flex flex-wrap items-center gap-2"
-      >
-        <input
-          value={songIn}
-          onChange={(e) => setSongIn(e.target.value)}
-          placeholder={t.songPh}
-          className="min-w-[10rem] flex-1 rounded-xl border border-ink/12 bg-paper px-3.5 py-2.5 font-kr text-sm text-ink outline-none focus:border-accent/50"
-        />
-        <input
-          value={artistIn}
-          onChange={(e) => setArtistIn(e.target.value)}
-          placeholder={t.artistPh}
-          className="min-w-[8rem] flex-1 rounded-xl border border-ink/12 bg-paper px-3.5 py-2.5 font-kr text-sm text-ink outline-none focus:border-accent/50"
-        />
-        <button
-          type="submit"
-          disabled={loadingSong || !songIn.trim()}
-          className="rounded-xl bg-accent px-4 py-2.5 font-kr text-sm font-medium text-on-dark transition hover:bg-accent/90 disabled:opacity-40"
-        >
-          {t.analyze}
-        </button>
-      </form>
+      {/* Selected: hero (album art rises to center) → Gemini loader → words */}
+      {selected && (
+        <section className="mt-3">
+          <button
+            onClick={backToCharts}
+            className="font-kr text-sm text-ink/50 transition hover:text-ink"
+          >
+            ← {t.back}
+          </button>
 
-      {error && (
-        <p className="mt-4 rounded-xl bg-paper-2 px-4 py-3 font-kr text-sm text-ink/70">
-          {ERROR_COPY[error] ?? ERROR_COPY.ai_failed}
-        </p>
-      )}
+          <div className="lyr-hero-in mx-auto mt-6 flex flex-col items-center text-center">
+            <div className="relative grid place-items-center">
+              {loadingSong && <div aria-hidden className="lyr-glow" />}
+              {selected.artwork ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={selected.artwork}
+                  alt=""
+                  className={`relative z-10 h-32 w-32 rounded-3xl object-cover shadow-xl ${
+                    loadingSong ? "lyr-breathe" : ""
+                  }`}
+                />
+              ) : (
+                <div
+                  className={`relative z-10 grid h-32 w-32 place-items-center rounded-3xl bg-paper-2 text-4xl shadow-xl ${
+                    loadingSong ? "lyr-breathe" : ""
+                  }`}
+                >
+                  🎵
+                </div>
+              )}
+            </div>
 
-      {loadingSong && (
-        <p className="mt-6 font-kr text-sm text-ink/50">{t.loadingSong}</p>
-      )}
+            <div className="relative z-10 mt-4 font-mono text-[11px] uppercase tracking-wide text-accent">
+              {t.picked}
+            </div>
+            <h2 className="relative z-10 mt-2 font-serif text-[2rem] italic leading-tight text-ink">
+              {selected.title}
+            </h2>
+            <p className="relative z-10 mt-1 font-kr text-sm text-ink/55">{selected.artist}</p>
 
-      {/* Word chips */}
-      {words && !loadingSong && (
-        <section className="mt-8">
-          <div className="font-kr text-sm text-ink/45">
-            {words.song} <span className="text-ink/30">· {words.artist}</span>
+            {loadingSong && (
+              <p key={loadIdx} className="lyr-line-in g-grad-text mt-7 font-kr text-xl font-semibold">
+                {t.loadingLines[loadIdx % t.loadingLines.length]}
+              </p>
+            )}
           </div>
-          {words.note ? (
-            <p className="mt-1 font-kr text-[15px] leading-relaxed text-ink/80">{words.note}</p>
-          ) : null}
 
-          {words.words.length === 0 ? (
-            <p className="mt-4 font-kr text-sm text-ink/55">{t.unknown}</p>
-          ) : (
-            <>
-              <p className="mt-4 font-kr text-xs text-ink/45">{t.tapHint}</p>
-              <div className="mt-3 flex flex-wrap gap-2.5">
-                {words.words.map((w, i) => {
-                  const active = term === w.term;
-                  return (
-                    <button
-                      key={w.term}
-                      onClick={() => tapWord(w)}
-                      style={{ animationDelay: `${i * 55}ms` }}
-                      className={`animate-rise rounded-2xl border px-4 py-3 text-left transition hover:-translate-y-0.5 ${
-                        active
-                          ? "border-accent bg-accent/[0.06]"
-                          : "border-ink/10 bg-paper hover:border-accent/40"
-                      }`}
-                    >
-                      {w.line ? (
-                        <div className="font-sans text-[15px] leading-snug text-ink/80">
-                          {highlight(w.line, w.term)}
-                        </div>
-                      ) : (
-                        <div className="font-sans text-[15px] font-medium text-ink">{w.term}</div>
-                      )}
-                      <div className="mt-1 flex items-center gap-2">
-                        {w.teaser ? (
-                          <span className="font-kr text-xs font-medium text-accent">{w.teaser}</span>
-                        ) : (
-                          <span className="font-kr text-xs text-ink/55">{w.gloss}</span>
-                        )}
-                        {w.kind === "slang" && (
-                          <span className="rounded-full bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-accent">
-                            slang
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </>
+          {error && (
+            <p className="mt-6 rounded-xl bg-paper-2 px-4 py-3 text-center font-kr text-sm text-ink/70">
+              {ERROR_COPY[error] ?? ERROR_COPY.ai_failed}
+            </p>
+          )}
+
+          {!loadingSong && words && (
+            <div className="mt-9">
+              {words.note ? (
+                <p className="font-kr text-[15px] leading-relaxed text-ink/80">{words.note}</p>
+              ) : null}
+
+              {words.words.length === 0 ? (
+                <p className="mt-4 font-kr text-sm text-ink/55">{t.unknown}</p>
+              ) : (
+                <>
+                  <p className="mt-4 font-kr text-xs text-ink/45">{t.tapHint}</p>
+                  <div className="mt-3 flex flex-wrap gap-2.5">
+                    {words.words.map((w, i) => {
+                      const active = term === w.term;
+                      return (
+                        <button
+                          key={w.term}
+                          onClick={() => tapWord(w)}
+                          style={{ animationDelay: `${i * 55}ms` }}
+                          className={`animate-rise rounded-2xl border px-4 py-3 text-left transition hover:-translate-y-0.5 ${
+                            active
+                              ? "border-accent bg-accent/[0.06]"
+                              : "border-ink/10 bg-paper hover:border-accent/40"
+                          }`}
+                        >
+                          {w.line ? (
+                            <div className="font-sans text-[15px] leading-snug text-ink/80">
+                              {highlight(w.line, w.term)}
+                            </div>
+                          ) : (
+                            <div className="font-sans text-[15px] font-medium text-ink">{w.term}</div>
+                          )}
+                          <div className="mt-1 flex items-center gap-2">
+                            {w.teaser ? (
+                              <span className="font-kr text-xs font-medium text-accent">{w.teaser}</span>
+                            ) : (
+                              <span className="font-kr text-xs text-ink/55">{w.gloss}</span>
+                            )}
+                            {w.kind === "slang" && (
+                              <span className="rounded-full bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-accent">
+                                slang
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </section>
       )}
