@@ -22,10 +22,11 @@ interface DeezerTrack {
   album?: { cover_medium?: string; cover?: string };
 }
 
-export async function topChart(limit = 12): Promise<ChartEntry[]> {
+// genreId 0 = global chart; 16 = "Asian Music" (dominated by current K-pop).
+export async function topChart(genreId = 0, limit = 12): Promise<ChartEntry[]> {
   try {
     const res = await fetch(
-      `https://api.deezer.com/chart/0/tracks?limit=${limit}`,
+      `https://api.deezer.com/chart/${genreId}/tracks?limit=${limit}`,
       { next: { revalidate: 3600 } },
     );
     if (!res.ok) return FALLBACK;

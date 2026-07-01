@@ -12,11 +12,14 @@ export const metadata = {
 export const revalidate = 3600;
 
 export default async function LyricsPage() {
-  const chart = await topChart();
+  const [globalChart, kpopChart] = await Promise.all([
+    topChart(0, 10), // global
+    topChart(16, 10), // Asian Music ≈ K-pop
+  ]);
   return (
     <main className="min-h-dvh bg-paper text-ink">
       <SiteHeader label="Lyrics" />
-      <LyricsApp initialChart={chart} />
+      <LyricsApp globalChart={globalChart} kpopChart={kpopChart} />
     </main>
   );
 }
