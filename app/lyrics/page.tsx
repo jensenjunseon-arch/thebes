@@ -1,6 +1,6 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { LyricsApp } from "@/components/lyrics/LyricsApp";
-import { topChart } from "@/lib/lyrics/charts";
+import { topChart, kpopChart } from "@/lib/lyrics/charts";
 
 export const metadata = {
   title: "Thebes — 차트 속 가사로 단어 공부",
@@ -12,14 +12,14 @@ export const metadata = {
 export const revalidate = 3600;
 
 export default async function LyricsPage() {
-  const [globalChart, kpopChart] = await Promise.all([
+  const [globalChart, kpop] = await Promise.all([
     topChart(0, 10), // global
-    topChart(16, 10), // Asian Music ≈ K-pop
+    kpopChart(), // curated K-pop chart snapshot — see lib/lyrics/charts.ts
   ]);
   return (
     <main className="min-h-dvh bg-paper text-ink">
       <SiteHeader label="Lyrics" />
-      <LyricsApp globalChart={globalChart} kpopChart={kpopChart} />
+      <LyricsApp globalChart={globalChart} kpopChart={kpop} />
     </main>
   );
 }
