@@ -32,6 +32,12 @@ interface Dir {
   /** The language explanations are written in (the learner's own). */
   say: string;
   audience: string;
+  /**
+   * Few-shot teaser examples, written IN `say` — a literal example in the
+   * wrong language biases the model toward that language regardless of what
+   * the instruction text says. Keep this in sync with `say`.
+   */
+  teaserExamples: string;
 }
 
 function dir(direction: Direction): Dir {
@@ -41,12 +47,14 @@ function dir(direction: Direction): Dir {
       say: "English",
       audience:
         "a global K-pop fan (first language English, or comfortable reading English) learning the KOREAN used in the song",
+      teaserExamples: `"it's not what it looks like 👀", "don't translate this literally 😅"`,
     };
   }
   return {
     learn: "English",
     say: "Korean",
     audience: "a Korean K-pop fan learning the ENGLISH used in the song",
+    teaserExamples: `"곤충 얘기가 아니야 👀", "직역하면 큰일 나 😅"`,
   };
 }
 
@@ -146,7 +154,7 @@ Return STRICT JSON (no markdown, no extra keys):
 - gloss: a SHORT meaning in ${d.say}.
 - kind: "slang" if it is slang/trendy, "phrase" for multi-word, else "word".
 - line: the short SUNG fragment a fan recognizes, containing "term" VERBATIM — e.g. "got me feelin' butterflies". Keep it to ~3–7 words; NEVER a full line/verse. Use "" if there's no natural short fragment.
-- teaser: a SHORT curiosity hint in ${d.say} (≤8 words) ONLY when the word has a real twist — an idiom, slang, or hidden/cultural meaning — that makes the learner want to tap WITHOUT revealing the answer (e.g. "곤충 얘기가 아니야 👀", "직역하면 큰일 나 😅"). For a literal/obvious word, set teaser to "" (do NOT force one). Never spoil the meaning.
+- teaser: a SHORT curiosity hint, WRITTEN IN ${d.say} (≤8 words) ONLY when the word has a real twist — an idiom, slang, or hidden/cultural meaning — that makes the learner want to tap WITHOUT revealing the answer (e.g. ${d.teaserExamples} — matching that LANGUAGE, ${d.say}, not the words). For a literal/obvious word, set teaser to "" (do NOT force one). Never spoil the meaning.
 - Only include items you are confident actually appear in THIS song. If you do not know the song, return {"note": "<say in ${d.say} that you're not sure of this song>", "words": []}.
 
 ${GUARDRAIL}
