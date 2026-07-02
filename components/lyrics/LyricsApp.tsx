@@ -9,6 +9,8 @@
 // fan; "ko" teaches the Korean to a global fan. No full lyrics — words only.
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { OnboardingModal } from "@/components/lyrikko/OnboardingModal";
 import type {
   ChartEntry,
   ChatTurn,
@@ -115,6 +117,10 @@ const T = {
     quick: ["왜 이 단어를 골랐을까?", "발음이 어떻게 돼?", "다른 예문도 알려줘"],
     loadingCard: "이 단어를 풀어보는 중…",
     unknown: "이 노래는 제가 잘 몰라요. 다른 노래로 해볼까요?",
+    book: "내 단어장",
+    save: "+ 단어장에 저장",
+    saving: "저장 중…",
+    savedLabel: "저장됨 ✓",
   },
   ko: {
     learn: "Learn Korean",
@@ -140,6 +146,10 @@ const T = {
     quick: ["Why this word?", "How is it pronounced?", "Give another example"],
     loadingCard: "Unpacking this word…",
     unknown: "I don't really know this song. Want to try another?",
+    book: "My word book",
+    save: "+ Save to word book",
+    saving: "Saving…",
+    savedLabel: "Saved ✓",
   },
 } as const;
 
@@ -179,6 +189,10 @@ export function LyricsApp({
   const [chat, setChat] = useState<ChatTurn[]>([]);
   const [chatIn, setChatIn] = useState("");
   const [chatBusy, setChatBusy] = useState(false);
+
+  const [savedTerms, setSavedTerms] = useState<Set<string>>(new Set());
+  const [saveBusy, setSaveBusy] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -282,6 +296,44 @@ export function LyricsApp({
     }
   }
 
+  // Save the current card into the word book. 401 → login (round-trips back
+  // here via ?next=), 403 profile_required → onboarding modal, then retry.
+  async function saveWord() {
+    if (!words || !card || saveBusy) return;
+    const key = `${words.song}|${card.term}`;
+    if (savedTerms.has(key)) return;
+    setSaveBusy(true);
+    try {
+      const chip = words.words.find((w) => w.term === card.term);
+      const res = await fetch("/api/lyrikko/words", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          direction,
+          song: words.song,
+          artist: words.artist,
+          term: card.term,
+          line: activeLine,
+          gloss: chip?.gloss ?? "",
+          meaning: card.meaning,
+        }),
+      });
+      if (res.status === 401) {
+        window.location.href = "/login?next=/lyrics";
+        return;
+      }
+      if (res.status === 403) {
+        setShowOnboarding(true);
+        return;
+      }
+      if (res.ok) {
+        setSavedTerms((prev) => new Set(prev).add(key));
+      }
+    } finally {
+      setSaveBusy(false);
+    }
+  }
+
   async function ask(question: string) {
     const q = question.trim();
     if (!q || !words || !term || chatBusy) return;
@@ -320,19 +372,27 @@ export function LyricsApp({
 
   return (
     <div className="mx-auto max-w-3xl px-6 pb-24">
-      {/* Direction toggle */}
-      <div className="mt-2 inline-flex rounded-full border border-ink/10 bg-paper-2 p-1 font-kr text-sm">
-        {(["en", "ko"] as Direction[]).map((d) => (
-          <button
-            key={d}
-            onClick={() => switchDirection(d)}
-            className={`rounded-full px-4 py-1.5 transition ${
-              direction === d ? "bg-paper text-ink shadow-sm" : "text-ink/55 hover:text-ink"
-            }`}
-          >
-            {d === "en" ? T.en.learn : T.ko.learn}
-          </button>
-        ))}
+      {/* Direction toggle + word book link */}
+      <div className="mt-2 flex items-center justify-between">
+        <div className="inline-flex rounded-full border border-ink/10 bg-paper-2 p-1 font-kr text-sm">
+          {(["en", "ko"] as Direction[]).map((d) => (
+            <button
+              key={d}
+              onClick={() => switchDirection(d)}
+              className={`rounded-full px-4 py-1.5 transition ${
+                direction === d ? "bg-paper text-ink shadow-sm" : "text-ink/55 hover:text-ink"
+              }`}
+            >
+              {d === "en" ? T.en.learn : T.ko.learn}
+            </button>
+          ))}
+        </div>
+        <Link
+          href={"/lyrics/book" as never}
+          className="font-kr text-sm text-ink/55 transition hover:text-accent"
+        >
+          📖 {t.book}
+        </Link>
       </div>
 
       {/* Browse: chart columns + free input */}
@@ -501,6 +561,23 @@ export function LyricsApp({
                 {card.reading && (
                   <span className="font-mono text-sm text-ink/45">{card.reading}</span>
                 )}
+                {words && (
+                  <button
+                    onClick={saveWord}
+                    disabled={saveBusy || savedTerms.has(`${words.song}|${card.term}`)}
+                    className={`ml-auto shrink-0 rounded-full px-3.5 py-1.5 font-kr text-xs font-medium transition ${
+                      savedTerms.has(`${words.song}|${card.term}`)
+                        ? "bg-accent/10 text-accent"
+                        : "bg-accent text-on-dark hover:bg-accent/90 disabled:opacity-50"
+                    }`}
+                  >
+                    {savedTerms.has(`${words.song}|${card.term}`)
+                      ? t.savedLabel
+                      : saveBusy
+                        ? t.saving
+                        : t.save}
+                  </button>
+                )}
               </div>
 
               {activeLine && (
@@ -620,6 +697,16 @@ export function LyricsApp({
             </article>
           ) : null}
         </section>
+      )}
+
+      {showOnboarding && (
+        <OnboardingModal
+          onClose={() => setShowOnboarding(false)}
+          onDone={() => {
+            setShowOnboarding(false);
+            void saveWord();
+          }}
+        />
       )}
     </div>
   );

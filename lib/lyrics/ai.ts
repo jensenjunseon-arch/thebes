@@ -70,8 +70,9 @@ function s(x: unknown): string {
 
 // Keep the recognition fragment short — a sung snippet, never a reproduced
 // line/verse. Defensive cap even if the model over-returns: drop to "" past
-// ~9 words so we never render a long lyric chunk.
-function capLine(x: unknown): string {
+// ~9 words so we never render a long lyric chunk. Exported because the word
+// book save route must enforce the same cap on anything it persists.
+export function capLine(x: unknown): string {
   const v = s(x).replace(/\s+/g, " ");
   if (!v) return "";
   return v.split(" ").length > 9 ? "" : v;
