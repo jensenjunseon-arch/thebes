@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const providerError =
     searchParams.get("error_description") ?? searchParams.get("error");
-  const next = searchParams.get("next") ?? "/";
+  const next = searchParams.get("next") ?? "/lyrics";
 
   const fail = (msg: string) =>
     NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(msg)}`);

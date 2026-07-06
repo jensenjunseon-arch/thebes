@@ -67,7 +67,10 @@ export async function middleware(request: NextRequest) {
   // `next` value.
   if (user && (pathname === "/login" || pathname === "/signup")) {
     const next = request.nextUrl.searchParams.get("next");
-    const dest = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+    // Fall back to /lyrics (Lyrikko's home, the active product) rather than the
+    // shelved thebes marketing homepage when no explicit `next` is given.
+    const dest =
+      next && next.startsWith("/") && !next.startsWith("//") ? next : "/lyrics";
     return NextResponse.redirect(new URL(dest, request.url));
   }
 

@@ -6,14 +6,11 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthInput } from "@/components/auth/AuthInput";
-import { cn } from "@/lib/cn";
 import { SSOButton } from "@/components/auth/SSOButton";
-
-type Role = "student" | "parent";
+import { LYRIKKO } from "@/lib/brand";
 
 function SignupForm({ next }: { next: string }) {
   const router = useRouter();
-  const [role, setRole] = useState<Role>("student");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +28,7 @@ function SignupForm({ next }: { next: string }) {
       email,
       password,
       options: {
-        data: { role, name },
+        data: { name },
         emailRedirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
@@ -70,39 +67,10 @@ function SignupForm({ next }: { next: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Role selector */}
-      <div>
-        <p className="mb-2 font-mono text-[11px] uppercase tracking-tighter2 text-ink/60">
-          나는
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {(
-            [
-              { value: "student", label: "학생입니다" },
-              { value: "parent", label: "학부모입니다" },
-            ] as const
-          ).map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setRole(value)}
-              className={cn(
-                "rounded-xl border py-2.5 text-sm transition",
-                role === value
-                  ? "border-accent bg-accent text-on-dark"
-                  : "border-ink/15 bg-paper text-ink hover:border-accent/60",
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <AuthInput
         label="이름"
         type="text"
-        placeholder={role === "student" ? "홍길동" : "홍길동 부모"}
+        placeholder="홍길동"
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
@@ -165,8 +133,9 @@ function SignupLoginLink() {
 export default function SignupPage() {
   return (
     <AuthCard
+      brand={LYRIKKO}
       title="회원가입"
-      subtitle="AI 시대의 사고력 트레이닝을 시작합니다."
+      subtitle="차트 속 가사로 영어와 한국어를 배웁니다."
       footer={
         <>
           이미 계정이 있으신가요?{" "}
