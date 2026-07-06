@@ -117,6 +117,8 @@ const T = {
     quick: ["왜 이 단어를 골랐을까?", "발음이 어떻게 돼?", "다른 예문도 알려줘"],
     loadingCard: "이 단어를 풀어보는 중…",
     unknown: "이 노래는 제가 잘 몰라요. 다른 노래로 해볼까요?",
+    noWordsSwitch: "Learn Korean 모드로 바꿔서 이 곡의 한국어를 배워볼까요?",
+    switchCta: "→ Learn Korean으로 보기",
     book: "내 단어장",
     save: "+ 단어장에 저장",
     saving: "저장 중…",
@@ -146,6 +148,8 @@ const T = {
     quick: ["Why this word?", "How is it pronounced?", "Give another example"],
     loadingCard: "Unpacking this word…",
     unknown: "I don't really know this song. Want to try another?",
+    noWordsSwitch: "Want to switch to 영어 배우기 mode and learn the Korean in this song instead?",
+    switchCta: "→ Switch to 영어 배우기",
     book: "My word book",
     save: "+ Save to word book",
     saving: "Saving…",
@@ -228,9 +232,12 @@ export function LyricsApp({
     reset();
   }
 
-  async function loadSong(song: string, artist: string, artwork = "") {
+  // dirOverride avoids a stale-closure bug when switching direction and
+  // reloading the same song in one action (setDirection is async).
+  async function loadSong(song: string, artist: string, artwork = "", dirOverride?: Direction) {
     const s = song.trim();
     if (!s) return;
+    const useDirection = dirOverride ?? direction;
     setSelected({ title: s, artist: artist.trim(), artwork });
     setError(null);
     setLoadingSong(true);
@@ -243,7 +250,7 @@ export function LyricsApp({
       const res = await fetch("/api/lyrics/song", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ song: s, artist: artist.trim(), direction }),
+        body: JSON.stringify({ song: s, artist: artist.trim(), direction: useDirection }),
       });
       if (!res.ok) {
         const d = (await res.json().catch(() => ({}))) as { error?: string };
@@ -255,6 +262,15 @@ export function LyricsApp({
     } finally {
       setLoadingSong(false);
     }
+  }
+
+  // Known song, but nothing to teach in this direction — flip and re-fetch
+  // the SAME song rather than sending the fan back to the chart.
+  function switchAndReload() {
+    if (!selected) return;
+    const flipped: Direction = direction === "en" ? "ko" : "en";
+    setDirection(flipped);
+    void loadSong(selected.title, selected.artist, selected.artwork, flipped);
   }
 
   function pick(c: ChartEntry) {
@@ -501,7 +517,17 @@ export function LyricsApp({
               ) : null}
 
               {words.words.length === 0 ? (
-                <p className="mt-4 font-kr text-sm text-ink/55">{t.unknown}</p>
+                words.known ? (
+                  <button
+                    onClick={switchAndReload}
+                    className="mt-4 rounded-xl border border-accent/30 bg-accent/[0.06] px-4 py-3 text-left font-kr text-sm text-ink/80 transition hover:border-accent/50"
+                  >
+                    {t.noWordsSwitch}
+                    <span className="mt-1 block font-medium text-accent">{t.switchCta}</span>
+                  </button>
+                ) : (
+                  <p className="mt-4 font-kr text-sm text-ink/55">{t.unknown}</p>
+                )
               ) : (
                 <>
                   <p className="mt-4 font-kr text-xs text-ink/45">{t.tapHint}</p>

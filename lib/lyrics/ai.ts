@@ -147,7 +147,8 @@ List the most notable ${d.learn} words and short phrases a fan keeps hearing in 
 
 Return STRICT JSON (no markdown, no extra keys):
 {
-  "note": string,   // ONE short line in ${d.say} on how this song uses ${d.learn} (its vibe). "" if you don't know the song.
+  "known": boolean,  // true if you actually recognize this song — even if it turns out to have NO ${d.learn} content (e.g. an all-Korean song asked for its English words). false ONLY if you genuinely don't know the song at all.
+  "note": string,    // ONE short line in ${d.say} on how this song uses ${d.learn} (its vibe). If known=true but the song has little/no ${d.learn} content, say that plainly (e.g. "이 곡은 영어 가사가 거의 없어요"). If known=false, "" or a brief "not sure about this one" line.
   "words": [ { "term": string, "gloss": string, "kind": "word" | "phrase" | "slang", "line": string, "teaser": string } ]
 }
 
@@ -156,13 +157,13 @@ Return STRICT JSON (no markdown, no extra keys):
 - kind: "slang" if it is slang/trendy, "phrase" for multi-word, else "word".
 - line: the short SUNG fragment a fan recognizes, containing "term" VERBATIM — e.g. "got me feelin' butterflies". Keep it to ~3–7 words; NEVER a full line/verse. Use "" if there's no natural short fragment.
 - teaser: a SHORT curiosity hint, WRITTEN IN ${d.say} (≤8 words) ONLY when the word has a real twist — an idiom, slang, or hidden/cultural meaning — that makes the learner want to tap WITHOUT revealing the answer (e.g. ${d.teaserExamples} — matching that LANGUAGE, ${d.say}, not the words). For a literal/obvious word, set teaser to "" (do NOT force one). Never spoil the meaning.
-- Only include items you are confident actually appear in THIS song. If you do not know the song, return {"note": "<say in ${d.say} that you're not sure of this song>", "words": []}.
+- Only include items you are confident actually appear in THIS song. A known song can validly have zero words (see "known" above) — that is NOT the same as not knowing the song.
 
 ${GUARDRAIL}
 
 ${SEARCH_NOTE}`;
 
-  const out = await groundedJson<{ note?: unknown; words?: unknown }>(
+  const out = await groundedJson<{ known?: unknown; note?: unknown; words?: unknown }>(
     system,
     `SONG: "${song}" by ${artist}.`,
     1400,
@@ -186,7 +187,11 @@ ${SEARCH_NOTE}`;
         .slice(0, 12)
     : [];
 
-  return { note: s(out.note), words };
+  // A model that names actual words for the song obviously knows it — trust
+  // that over a possibly-inconsistent "known" flag.
+  const known = out.known === true || words.length > 0;
+
+  return { known, note: s(out.note), words };
 }
 
 type WordChip = SongWords["words"][number];

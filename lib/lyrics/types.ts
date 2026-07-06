@@ -38,6 +38,13 @@ export interface SongWords {
   song: string;
   artist: string;
   direction: Direction;
+  /**
+   * True when the model actually recognizes the song — even if it has zero
+   * words in the requested direction (e.g. an all-Korean song asked in "en"
+   * mode). Lets the UI tell "known song, wrong direction" apart from
+   * "never heard of this song", which need different messages.
+   */
+  known: boolean;
   /** One line on how this song uses the target language; "" if the song is unknown. */
   note: string;
   words: WordChip[];

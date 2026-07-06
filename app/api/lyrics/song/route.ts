@@ -31,11 +31,12 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { note, words } = await songWords(song, artist, direction);
+    const { known, note, words } = await songWords(song, artist, direction);
     return NextResponse.json({
       song,
       artist,
       direction,
+      known,
       note,
       words,
     } satisfies SongWords);
