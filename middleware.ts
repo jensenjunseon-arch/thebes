@@ -60,9 +60,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect already-logged-in users away from auth pages.
+  // Redirect already-logged-in users away from auth pages — honor `next` so
+  // e.g. a Lyrikko user bounced through /login mid-flow lands back on
+  // /lyrics instead of the marketing homepage. Only accept an internal path
+  // (starts with "/", not "//") to avoid an open-redirect via a crafted
+  // `next` value.
   if (user && (pathname === "/login" || pathname === "/signup")) {
-    return NextResponse.redirect(new URL("/", request.url));
+    const next = request.nextUrl.searchParams.get("next");
+    const dest = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+    return NextResponse.redirect(new URL(dest, request.url));
   }
 
   return response;

@@ -93,6 +93,17 @@ function LoginForm() {
   );
 }
 
+function SignupLink() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+  const href = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
+  return (
+    <Link href={href as "/signup"} className="text-accent hover:underline">
+      회원가입
+    </Link>
+  );
+}
+
 export default function LoginPage() {
   return (
     <AuthCard
@@ -101,9 +112,9 @@ export default function LoginPage() {
       footer={
         <>
           계정이 없으신가요?{" "}
-          <Link href="/signup" className="text-accent hover:underline">
-            회원가입
-          </Link>
+          <Suspense fallback={<Link href="/signup">회원가입</Link>}>
+            <SignupLink />
+          </Suspense>
         </>
       }
     >
