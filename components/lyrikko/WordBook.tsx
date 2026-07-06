@@ -6,6 +6,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { CardPreview } from "@/components/lyrikko/CardPreview";
+import { cardImageUrl } from "@/lib/lyrikko/cardUrl";
 import type { ReviewBox } from "@/lib/lyrikko/types";
 
 interface WordRow {
@@ -20,6 +22,16 @@ interface WordRow {
   box: ReviewBox;
   review_count: number;
   next_review_at: string;
+  created_at: string;
+}
+
+// Round up to the next collection milestone — the dogam always shows a few
+// empty slots ahead, never lands exactly on the current count (that would
+// have no "still to fill" feeling).
+function nextMilestone(count: number): number {
+  const step = 5;
+  const next = Math.ceil((count + 1) / step) * step;
+  return Math.max(step, next);
 }
 
 function highlight(text: string, term: string) {
@@ -46,6 +58,7 @@ export function WordBook() {
   const [grading, setGrading] = useState(false);
   const [sessionDone, setSessionDone] = useState<{ right: number; wrong: number } | null>(null);
   const [tally, setTally] = useState({ right: 0, wrong: 0 });
+  const [previewWord, setPreviewWord] = useState<WordRow | null>(null);
 
   async function load() {
     const res = await fetch("/api/lyrikko/words");
@@ -74,6 +87,17 @@ export function WordBook() {
       groups.set(key, g);
     }
     return [...groups.entries()];
+  }, [words]);
+
+  // "My word #N" — this word's position in MY OWN collection, oldest first.
+  // Never a cross-user/fandom count (see the cold-start critique).
+  const mineByWordId = useMemo(() => {
+    const map = new Map<string, number>();
+    const oldestFirst = [...(words ?? [])].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    );
+    oldestFirst.forEach((w, i) => map.set(w.id, i + 1));
+    return map;
   }, [words]);
 
   function startReview() {
@@ -228,7 +252,7 @@ export function WordBook() {
         </button>
       </div>
 
-      {words.length === 0 && (
+      {words.length === 0 ? (
         <div className="mt-14 text-center">
           <p className="font-kr text-sm text-ink/55">
             아직 모은 단어가 없어요. 노래에서 단어를 눌러 저장해 보세요!
@@ -240,6 +264,58 @@ export function WordBook() {
             노래 보러 가기
           </Link>
         </div>
+      ) : (
+        <section className="mt-6">
+          <h2 className="font-kr text-sm font-medium text-ink/70">
+            🎴 내 카드 도감{" "}
+            <span className="font-normal text-ink/40">
+              {words.length} / {nextMilestone(words.length)}
+            </span>
+          </h2>
+          <div className="mt-2.5 flex gap-2.5 overflow-x-auto pb-1">
+            {words.map((w) => (
+              <button
+                key={w.id}
+                onClick={() => setPreviewWord(w)}
+                className="shrink-0 overflow-hidden rounded-xl border border-ink/10 transition hover:-translate-y-0.5"
+                style={{ width: 66, height: 102 }}
+                title={`${w.term} 카드 보기`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={cardImageUrl(
+                    {
+                      direction: w.direction,
+                      song: w.song,
+                      artist: w.artist,
+                      term: w.term,
+                      line: w.line,
+                      gloss: w.gloss,
+                      meaning: w.meaning,
+                      box: w.box,
+                      mine: mineByWordId.get(w.id) ?? 1,
+                    },
+                    "card",
+                  )}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </button>
+            ))}
+            {Array.from({ length: Math.max(0, nextMilestone(words.length) - words.length) }).map(
+              (_, i) => (
+                <div
+                  key={`slot-${i}`}
+                  className="grid shrink-0 place-items-center rounded-xl border border-dashed border-ink/15 text-ink/20"
+                  style={{ width: 66, height: 102 }}
+                >
+                  <span className="text-lg">＋</span>
+                </div>
+              ),
+            )}
+          </div>
+        </section>
       )}
 
       <div className="mt-6 space-y-7">
@@ -276,6 +352,12 @@ export function WordBook() {
                       Lv.{w.box}
                     </span>
                     <button
+                      onClick={() => setPreviewWord(w)}
+                      className="shrink-0 font-kr text-xs text-ink/40 transition hover:text-accent"
+                    >
+                      🎴 카드
+                    </button>
+                    <button
                       onClick={() => remove(w.id)}
                       className="shrink-0 font-kr text-xs text-ink/25 opacity-0 transition hover:text-ink/60 group-hover:opacity-100"
                       aria-label="단어 삭제"
@@ -289,6 +371,23 @@ export function WordBook() {
           );
         })}
       </div>
+
+      {previewWord && (
+        <CardPreview
+          word={{
+            direction: previewWord.direction,
+            song: previewWord.song,
+            artist: previewWord.artist,
+            term: previewWord.term,
+            line: previewWord.line,
+            gloss: previewWord.gloss,
+            meaning: previewWord.meaning,
+            box: previewWord.box,
+            mine: mineByWordId.get(previewWord.id) ?? 1,
+          }}
+          onClose={() => setPreviewWord(null)}
+        />
+      )}
     </div>
   );
 }
