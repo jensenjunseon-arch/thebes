@@ -64,8 +64,16 @@ const GUARDRAIL = `HARD RULES:
 - Be honest. Only state things you are genuinely confident about. If you do not actually know this song, say so and return empty results rather than inventing words, lines, quotes, or other songs.
 - Treat "why the artist chose this word" as interpretation, never asserted fact. Do not fabricate artist quotes.`;
 
+// The model is told "no markdown" but ignores that for emphasis inside prose
+// fields (hook/meaning/why/slang/note/teaser) often enough to matter — those
+// render as plain text in the UI, so a literal "**word**"/"*word*" would leak
+// asterisks straight to the user. Strip markdown emphasis at the source.
+function stripEmphasis(x: string): string {
+  return x.replace(/\*\*(.+?)\*\*/g, "$1").replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "$1");
+}
+
 function s(x: unknown): string {
-  return typeof x === "string" ? x.trim() : "";
+  return typeof x === "string" ? stripEmphasis(x.trim()) : "";
 }
 
 // Keep the recognition fragment short — a sung snippet, never a reproduced
@@ -207,23 +215,25 @@ export async function wordCard(
   const d = dir(direction);
   const system = `You help ${d.audience}.
 
-The learner tapped the ${d.learn} term "${term}" from the song "${song}" by ${artist}. Explain it richly but honestly. Write every explanation in ${d.say}; keep example sentences in ${d.learn}.
+The learner tapped the ${d.learn} term "${term}" from the song "${song}" by ${artist}. Explain it honestly. Write every explanation in ${d.say}; keep example sentences in ${d.learn}.
 
 Lead with a HOOK, not a dictionary entry. The first thing the learner sees should make them go "oh!".
+
+VOICE: Write for a younger reader (think early teens). Keep it light and lively. Use SHORT sentences — break every thought onto its own short sentence, never long run-ons with lots of commas. Snappy, friendly, easy to skim. Prefer plain everyday words over textbook phrasing. Short does NOT mean shallow: keep the actual insight, just say it in fewer, punchier words.
 
 Return STRICT JSON (no markdown, no extra keys):
 {
   "term": string,
-  "hook": string,           // ONE punchy ${d.say} line that flips expectation or reveals the hidden meaning/feeling — the "oh!" moment. e.g. the word isn't what it literally says; or the emotion behind it. NOT a definition. Keep it to one sentence, vivid, a fitting emoji is welcome.
+  "hook": string,           // ONE short punchy ${d.say} line that flips expectation or reveals the hidden meaning/feeling — the "oh!" moment. NOT a definition. One vivid sentence, ≤ 14 words, a fitting emoji is welcome.
   "reading": string,        // pronunciation or romanization; "" if not useful
-  "meaning": string,        // clear meaning in ${d.say}
-  "why": string,            // INTERPRETATION (label it as such) of why this word suits the song's mood/theme, in ${d.say}. No invented quotes.
-  "slang": string,          // if slang/trending: what it means + why people use it, in ${d.say}. "" if not slang.
-  "crossSongs": [ { "title": string, "artist": string, "note": string } ],  // OTHER well-known songs using this same word/phrase. Only confident ones. [] if unsure — never invent.
+  "meaning": string,        // the meaning in ${d.say}. 1–2 SHORT sentences. Clear and plain, no long clauses.
+  "why": string,            // INTERPRETATION (label it as such) of why this word fits the song's mood, in ${d.say}. 1–2 SHORT sentences. No invented quotes.
+  "slang": string,          // if slang/trending: what it means + why people say it, in ${d.say}. 1–2 SHORT sentences. "" if not slang.
+  "crossSongs": [ { "title": string, "artist": string, "note": string } ],  // OTHER well-known songs using this same word/phrase. note = ONE short sentence. Only confident ones. [] if unsure — never invent.
   "examples": [ { "text": string, "gloss": string } ]   // 1–2 short, natural ${d.learn} sentences a fan could actually say, each with a ${d.say} gloss
 }
 
-Warm and concise. ${GUARDRAIL}`;
+Keep every field short and breezy. ${GUARDRAIL}`;
 
   // No web-search here: the tapped term already came from a grounded songWords
   // pass, and explaining a word's meaning doesn't need lyrics. Skipping the
@@ -232,7 +242,7 @@ Warm and concise. ${GUARDRAIL}`;
     model: LYRICS_MODEL,
     system,
     content: [{ type: "text", text: `TERM: "${term}"  SONG: "${song}" by ${artist}.` }],
-    maxTokens: 1500,
+    maxTokens: 1200,
   });
 
   const crossSongs: CrossSong[] = Array.isArray(out.crossSongs)
@@ -289,5 +299,5 @@ Answer the learner's question in ${d.say}, concise (2–5 sentences), warm, and 
     messages: [...history, { role: "user", content: opts.question }],
   });
   const block = res.content.find((b) => b.type === "text");
-  return block && block.type === "text" ? block.text.trim() : "";
+  return block && block.type === "text" ? stripEmphasis(block.text.trim()) : "";
 }
