@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { hasKey } from "@/lib/studio/ai";
 import { songWords } from "@/lib/lyrics/ai";
+import { cachedJson, cacheKey } from "@/lib/lyrics/cache";
 import type { Direction, SongWords } from "@/lib/lyrics/types";
 
 // Web-search grounding for brand-new songs can add a few seconds.
@@ -31,7 +32,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { known, note, words } = await songWords(song, artist, direction);
+    // Cache per song+direction; only cache recognized songs so an unknown-song
+    // answer doesn't stick after the model becomes able to ground it.
+    const { known, note, words } = await cachedJson(
+      cacheKey("song", direction, artist, song),
+      () => songWords(song, artist, direction),
+      (r) => r.known && r.words.length > 0,
+    );
     return NextResponse.json({
       song,
       artist,

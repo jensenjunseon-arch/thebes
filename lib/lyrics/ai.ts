@@ -223,15 +223,17 @@ Return STRICT JSON (no markdown, no extra keys):
   "examples": [ { "text": string, "gloss": string } ]   // 1–2 short, natural ${d.learn} sentences a fan could actually say, each with a ${d.say} gloss
 }
 
-Warm and concise. ${GUARDRAIL}
+Warm and concise. ${GUARDRAIL}`;
 
-${SEARCH_NOTE}`;
-
-  const out = await groundedJson<Record<string, unknown>>(
+  // No web-search here: the tapped term already came from a grounded songWords
+  // pass, and explaining a word's meaning doesn't need lyrics. Skipping the
+  // search loop cuts several seconds off every card open.
+  const out = await jsonCall<Record<string, unknown>>({
+    model: LYRICS_MODEL,
     system,
-    `TERM: "${term}"  SONG: "${song}" by ${artist}.`,
-    1500,
-  );
+    content: [{ type: "text", text: `TERM: "${term}"  SONG: "${song}" by ${artist}.` }],
+    maxTokens: 1500,
+  });
 
   const crossSongs: CrossSong[] = Array.isArray(out.crossSongs)
     ? (out.crossSongs as Array<Record<string, unknown>>)

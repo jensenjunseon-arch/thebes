@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server";
 import { hasKey } from "@/lib/studio/ai";
 import { wordCard } from "@/lib/lyrics/ai";
+import { cachedJson, cacheKey } from "@/lib/lyrics/cache";
 import type { Direction, WordCard } from "@/lib/lyrics/types";
 
 // Web-search grounding for brand-new songs can add a few seconds.
@@ -31,7 +32,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const card = await wordCard(song, artist, term, direction);
+    const card = await cachedJson(
+      cacheKey("word", direction, artist, song, term),
+      () => wordCard(song, artist, term, direction),
+      (c) => c.meaning.length > 0,
+    );
     if (!card.meaning) {
       return NextResponse.json({ error: "ai_failed" }, { status: 502 });
     }
