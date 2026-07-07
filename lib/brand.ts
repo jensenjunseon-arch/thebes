@@ -18,4 +18,4 @@ export interface Brand {
 }
 
 export const THEBES: Brand = { name: "Thebes", suffix: "AI", home: "/" };
-export const EIGENLYRIC: Brand = { name: "Eigenlyric", suffix: "AI", home: "/lyrics" };
+export const EIGENLYRIC: Brand = { name: "eigenlyric", suffix: "AI", home: "/lyrics" };

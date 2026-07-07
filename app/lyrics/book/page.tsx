@@ -4,7 +4,7 @@ import { WordBook } from "@/components/lyrikko/WordBook";
 import { EIGENLYRIC } from "@/lib/brand";
 
 export const metadata = {
-  title: "내 단어장 — Eigenlyric",
+  title: "내 단어장 — eigenlyric",
   description: "노래에서 모은 단어를 복습하고 쌓아가는 나만의 단어장.",
 };
 

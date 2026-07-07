@@ -111,7 +111,7 @@ export default function LoginPage() {
     <AuthCard
       brand={EIGENLYRIC}
       title="로그인"
-      subtitle="Eigenlyric 계정으로 로그인하세요."
+      subtitle="eigenlyric 계정으로 로그인하세요."
       footer={
         <>
           계정이 없으신가요?{" "}
