@@ -14,7 +14,18 @@ function isProtected(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
+// Eigenlyric ships from the same app as the shelved Thebes product, whose
+// marketing landing still owns "/". When the request comes in on Eigenlyric's
+// own domain, its root should open the app itself, not the Thebes landing.
+// Host-gated so the thebes *.vercel.app URLs keep serving Thebes at "/".
+const EIGENLYRIC_HOSTS = new Set(["eigenlyric.com", "www.eigenlyric.com"]);
+
 export async function middleware(request: NextRequest) {
+  const host = (request.headers.get("host") ?? "").toLowerCase();
+  if (EIGENLYRIC_HOSTS.has(host) && request.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/lyrics", request.url));
+  }
+
   // Without Supabase credentials the app runs in demo mode — skip auth checks.
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
