@@ -1,12 +1,16 @@
 import Link from "next/link";
+import type { Route } from "next";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { LogoutButton } from "@/components/LogoutButton";
+import { THEBES, type Brand } from "@/lib/brand";
 
 interface Props {
   label?: string;
+  /** Which product owns this page — controls the wordmark and logo link. */
+  brand?: Brand;
 }
 
-export async function SiteHeader({ label }: Props) {
+export async function SiteHeader({ label, brand = THEBES }: Props) {
   let user = null;
   if (isSupabaseConfigured()) {
     const supabase = await createClient();
@@ -14,10 +18,18 @@ export async function SiteHeader({ label }: Props) {
     user = data.user;
   }
 
+  // Keep a non-thebes login within its own brand: after login, come back here.
+  const loginHref = (
+    brand.home === "/" ? "/login" : `/login?next=${encodeURIComponent(brand.home)}`
+  ) as Route;
+
   return (
     <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-      <Link href="/" className="font-sans text-[18px] font-semibold tracking-tightish">
-        Thebes <span className="g-grad-text font-bold">AI</span>
+      <Link
+        href={brand.home as Route}
+        className="font-sans text-[18px] font-semibold tracking-tightish"
+      >
+        {brand.name} <span className="g-grad-text font-bold">{brand.suffix}</span>
       </Link>
 
       <div className="flex items-center gap-5">
@@ -35,7 +47,7 @@ export async function SiteHeader({ label }: Props) {
           </div>
         ) : (
           <Link
-            href="/login"
+            href={loginHref}
             className="font-mono text-xs uppercase tracking-tighter2 text-ink/60 hover:text-accent"
           >
             로그인

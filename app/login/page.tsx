@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { SSOButton } from "@/components/auth/SSOButton";
+import { EIGENLYRIC } from "@/lib/brand";
 
 function LoginForm() {
   const router = useRouter();
@@ -93,17 +94,29 @@ function LoginForm() {
   );
 }
 
+function SignupLink() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+  const href = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
+  return (
+    <Link href={href as "/signup"} className="text-accent hover:underline">
+      회원가입
+    </Link>
+  );
+}
+
 export default function LoginPage() {
   return (
     <AuthCard
+      brand={EIGENLYRIC}
       title="로그인"
-      subtitle="Thebes AI 계정으로 로그인하세요."
+      subtitle="Eigenlyric 계정으로 로그인하세요."
       footer={
         <>
           계정이 없으신가요?{" "}
-          <Link href="/signup" className="text-accent hover:underline">
-            회원가입
-          </Link>
+          <Suspense fallback={<Link href="/signup">회원가입</Link>}>
+            <SignupLink />
+          </Suspense>
         </>
       }
     >

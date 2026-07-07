@@ -14,10 +14,14 @@ const instrumentSerif = Instrument_Serif({
   display: "swap",
 });
 
+// Default (fallback) identity for any page that doesn't set its own title —
+// notably the client-rendered /login and /signup, which can't export metadata.
+// Eigenlyric is the active product; the shelved thebes landing pages each set
+// their own explicit Thebes title, so they're unaffected.
 export const metadata: Metadata = {
-  title: "Thebes AI — 답이 아니라 사고를 키우는 AI 코치",
+  title: "Eigenlyric AI — 차트 속 가사로 배우는 영어 & 한국어",
   description:
-    "답은 AI가 냅니다. Thebes AI는 답이 아니라, 문제를 영어로 ‘어떻게 생각하는가’ — AI 시대의 사고력을 키웁니다.",
+    "차트에 오른 K-pop을 고르면, 그 안의 영어(와 한국어) 단어를 눌러 뜻·맥락·다른 노래까지 배우는 자기주도 어휘 학습.",
 };
 
 // resizes-content: when the mobile keyboard opens, the layout (100dvh) shrinks

@@ -25,6 +25,7 @@ export default function CardnewsGallery() {
                 total={deck.cards.length}
                 size={deck.size}
                 width={360}
+                tagline={deck.tagline}
               />
               <div className="cn-deck-meta">
                 <div className="cn-deck-title">{deck.title}</div>

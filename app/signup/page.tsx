@@ -1,19 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthInput } from "@/components/auth/AuthInput";
-import { cn } from "@/lib/cn";
 import { SSOButton } from "@/components/auth/SSOButton";
+import { EIGENLYRIC } from "@/lib/brand";
 
-type Role = "student" | "parent";
-
-export default function SignupPage() {
+function SignupForm({ next }: { next: string }) {
   const router = useRouter();
-  const [role, setRole] = useState<Role>("student");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,18 +24,27 @@ export default function SignupPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
+    const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { role, name },
-        emailRedirectTo: `${location.origin}/auth/callback?next=/report`,
+        data: { name },
+        emailRedirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
 
     if (authError) {
       setError(authError.message);
       setLoading(false);
+      return;
+    }
+
+    // If email confirmation is off for this project, signUp() already
+    // returns an active session — go straight to `next` instead of showing
+    // a "check your email" screen the user can never act on.
+    if (data.session) {
+      router.push(next as "/");
+      router.refresh();
       return;
     }
 
@@ -60,97 +66,94 @@ export default function SignupPage() {
   }
 
   return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <AuthInput
+        label="이름"
+        type="text"
+        placeholder="홍길동"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+        autoComplete="name"
+      />
+      <AuthInput
+        label="이메일"
+        type="email"
+        placeholder="you@example.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        autoComplete="email"
+      />
+      <AuthInput
+        label="비밀번호 (8자 이상)"
+        type="password"
+        placeholder="••••••••"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        minLength={8}
+        autoComplete="new-password"
+        error={error || undefined}
+      />
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-2 w-full rounded-xl bg-ink py-2.5 text-sm text-on-dark transition hover:bg-accent disabled:cursor-wait disabled:opacity-60"
+      >
+        {loading ? "가입 중…" : "가입하기"}
+      </button>
+
+      <div className="relative my-4 flex items-center gap-3">
+        <div className="h-px flex-1 bg-ink/10" />
+        <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/40">또는</span>
+        <div className="h-px flex-1 bg-ink/10" />
+      </div>
+
+      <div className="space-y-2.5">
+        <SSOButton provider="kakao" label="카카오로 가입하기" next={next} />
+        <SSOButton provider="google" label="Google로 가입하기" next={next} />
+      </div>
+    </form>
+  );
+}
+
+function SignupLoginLink() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
+  const href = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
+  return (
+    <Link href={href as "/login"} className="text-accent hover:underline">
+      로그인
+    </Link>
+  );
+}
+
+export default function SignupPage() {
+  return (
     <AuthCard
+      brand={EIGENLYRIC}
       title="회원가입"
-      subtitle="AI 시대의 사고력 트레이닝을 시작합니다."
+      subtitle="차트 속 가사로 영어와 한국어를 배웁니다."
       footer={
         <>
           이미 계정이 있으신가요?{" "}
-          <Link href="/login" className="text-accent hover:underline">
-            로그인
-          </Link>
+          <Suspense fallback={<Link href="/login">로그인</Link>}>
+            <SignupLoginLink />
+          </Suspense>
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Role selector */}
-        <div>
-          <p className="mb-2 font-mono text-[11px] uppercase tracking-tighter2 text-ink/60">
-            나는
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            {(
-              [
-                { value: "student", label: "학생입니다" },
-                { value: "parent", label: "학부모입니다" },
-              ] as const
-            ).map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setRole(value)}
-                className={cn(
-                  "rounded-xl border py-2.5 text-sm transition",
-                  role === value
-                    ? "border-accent bg-accent text-on-dark"
-                    : "border-ink/15 bg-paper text-ink hover:border-accent/60",
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <AuthInput
-          label="이름"
-          type="text"
-          placeholder={role === "student" ? "홍길동" : "홍길동 부모"}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          autoComplete="name"
-        />
-        <AuthInput
-          label="이메일"
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-        />
-        <AuthInput
-          label="비밀번호 (8자 이상)"
-          type="password"
-          placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-          autoComplete="new-password"
-          error={error || undefined}
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-2 w-full rounded-xl bg-ink py-2.5 text-sm text-on-dark transition hover:bg-accent disabled:cursor-wait disabled:opacity-60"
-        >
-          {loading ? "가입 중…" : "가입하기"}
-        </button>
-
-        <div className="relative my-4 flex items-center gap-3">
-          <div className="h-px flex-1 bg-ink/10" />
-          <span className="font-mono text-[11px] uppercase tracking-tighter2 text-ink/40">또는</span>
-          <div className="h-px flex-1 bg-ink/10" />
-        </div>
-
-        <div className="space-y-2.5">
-          <SSOButton provider="kakao" label="카카오로 가입하기" next="/report" />
-          <SSOButton provider="google" label="Google로 가입하기" next="/report" />
-        </div>
-      </form>
+      <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-ink/5" />}>
+        <SignupFormWithNext />
+      </Suspense>
     </AuthCard>
   );
+}
+
+function SignupFormWithNext() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/";
+  return <SignupForm next={next} />;
 }

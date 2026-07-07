@@ -9,12 +9,14 @@ export function CardThumb({
   total,
   size,
   width,
+  tagline,
 }: {
   card: Card;
   index: number;
   total: number;
   size: CardSize;
   width: number;
+  tagline?: string;
 }) {
   const scale = width / size.w;
   return (
@@ -23,7 +25,7 @@ export function CardThumb({
         className="cn-thumb-inner"
         style={{ width: size.w, height: size.h, transform: `scale(${scale})` }}
       >
-        <CardNewsCard card={card} index={index} total={total} size={size} />
+        <CardNewsCard card={card} index={index} total={total} size={size} tagline={tagline} />
       </div>
     </div>
   );

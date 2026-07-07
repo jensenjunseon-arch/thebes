@@ -93,7 +93,107 @@ const MANIFESTO: Deck = {
   ],
 };
 
-export const DECKS: Deck[] = [MANIFESTO];
+// ── Deck #2 — K-pop 가사 영어·한국어 수요 검증 프로브 ───────────────────────
+// A demand probe, not a feature. It tests one question on Instagram before any
+// chart API or lyric licensing is built: do people want "what does the English
+// (and Korean) in the song I already love actually mean — and why?"
+//
+// Two design choices baked into the data, straight from the validation research:
+//  1. BIDIRECTIONAL — the same song teaches English to Korean fans AND Korean to
+//     the larger, faster-growing global fanbase (Korean = Duolingo's #6 language).
+//  2. NO FULL-LYRIC REPRODUCTION — every example is a single word/phrase the fan
+//     keeps hearing, never a quoted verse. This is the licensing-safe MVP shape:
+//     the chart supplies the song *list* (titles are facts), we teach the words.
+const KPOP_LYRICS: Deck = {
+  slug: "kpop-lyrics",
+  topic: "내가 매일 듣는 K-pop 노래 속 영어(와 한국어), 무슨 뜻이고 왜 썼을까",
+  title: "차트 속 가사로, 양방향 영어·한국어",
+  channel: "Instagram · 카드뉴스 8컷",
+  tagline: "노래로 배우는 영어 · 한국어",
+  size: SQUARE,
+  cards: [
+    {
+      template: "cover",
+      theme: "dark",
+      kicker: "WAIT — WHAT DID THEY JUST SAY?",
+      title: "매일 듣는 그 노래 속\n영어, *무슨 뜻인지*\n알고 듣나요?",
+      note: "Thebes · 차트 속 가사로 배우는 영어 & 한국어",
+    },
+    {
+      template: "statement",
+      kicker: "01 — 교재는 이미 네 플레이리스트에",
+      title: "요즘 K-pop의\n*절반은 영어*입니다.",
+      body: "2023년 상반기 걸그룹 히트곡의 영어 비중은 41%. (여자)아이들·르세라핌·블랙핑크는 50%를 넘겼습니다. 이미 외운 노래가, 가장 강력한 영어 교재입니다.",
+    },
+    {
+      template: "compare",
+      theme: "dark",
+      kicker: "02 — 사전이 못 알려주는 것",
+      heading: "뜻만 알면\n*절반*만 아는 것.",
+      them: {
+        label: "사전 · 번역기",
+        h: "shy = 수줍은",
+        p: "단어 하나의 정의에서 끝. 왜 'super shy'를 두 번 반복했는지, 어떤 느낌인지는 안 알려줍니다.",
+      },
+      us: {
+        label: "이 노래에서는",
+        h: "왜 이 단어를 골랐나",
+        p: "노래 전체 맥락에서의 의미, 요즘 이 표현이 유행하는 이유, 같은 단어가 쓰인 다른 곡까지.",
+      },
+    },
+    {
+      template: "list",
+      kicker: "03 — K-pop에 자주 나오는 영어",
+      heading: "이 단어들,\n*몇 개*나 정확히 아세요?",
+      items: [
+        { k: "vibe", en: "분위기·느낌" },
+        { k: "drama", en: "극적인 소동" },
+        { k: "magnetic", en: "끌어당기는" },
+        { k: "savage", en: "거침없는·쎈" },
+        { k: "slay", en: "죽여주다" },
+        { k: "fire", en: "끝내주는" },
+      ],
+    },
+    {
+      template: "statement",
+      kicker: "04 — '왜 이 단어'의 예",
+      title: "왜 그렇게\n*drama*를 외칠까?",
+      body: "그냥 '소동'이 아니라, 자기 서사를 무대처럼 극화하는 K-pop 특유의 자신감 표현입니다. 단어 뒤의 의도까지 — 이게 사전과의 차이입니다. (해석 · 인터뷰·맥락 근거)",
+    },
+    {
+      template: "statement",
+      theme: "dark",
+      kicker: "05 — 반대로도 흐릅니다",
+      title: "전 세계는 K-pop으로\n*한국어*를 배웁니다.",
+      body: "Duolingo에서 한국어는 6번째로 많이 배우는 언어(1,740만 명). 같은 노래 한 곡이, 한국 팬에겐 영어 교재, 해외 팬에겐 한국어 교재가 됩니다.",
+    },
+    {
+      template: "list",
+      kicker: "06 — 해외 팬이 매일 만나는 한국어",
+      heading: "K-pop 속 한국어,\n*양방향*으로.",
+      items: [
+        { k: "대박", en: "daebak" },
+        { k: "화이팅", en: "hwaiting" },
+        { k: "미쳤다", en: "michyeotda" },
+        { k: "진짜", en: "jinjja" },
+        { k: "오빠", en: "oppa" },
+        { k: "사랑해", en: "saranghae" },
+      ],
+    },
+    {
+      template: "cta",
+      theme: "dark",
+      kicker: "30초, 영어와 한국어",
+      title: "다음에 들을 노래,\n*뜻까지* 듣기.",
+      sub: "좋아하는 차트 곡을 고르면 → 그 속 영어·한국어를 30초에.\n관심 있으면 저장하고, DM으로 '노래' 한 마디만 보내주세요.",
+      url: "thebes.ai",
+      handle: "@thebes.ai",
+      pill: "이 노래로 배우기 →",
+    },
+  ],
+};
+
+export const DECKS: Deck[] = [KPOP_LYRICS, MANIFESTO];
 
 export function getDeck(slug: string): Deck | undefined {
   return DECKS.find((d) => d.slug === slug);

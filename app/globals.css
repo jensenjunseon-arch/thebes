@@ -982,3 +982,32 @@ a.lp-lang-opt:hover { color: var(--ink); background: var(--paper); }
   .cine-blob { animation: none; }
   .cine-line { transition: opacity .3s ease; transform: none; filter: none; }
 }
+
+/* ─── Lyrics: song-select hero + Gemini-style loader ─── */
+@keyframes lyrHeroIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.92); filter: blur(10px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+.lyr-hero-in { animation: lyrHeroIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+/* the brand gradient blooming behind the album art while the AI works */
+@keyframes lyrGlow {
+  0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 0.85; transform: translate(-50%, -50%) scale(1.28); }
+}
+.lyr-glow {
+  position: absolute; left: 50%; top: 50%;
+  width: 150px; height: 150px; border-radius: 50%;
+  background: var(--g-grad); filter: blur(30px); pointer-events: none;
+  animation: lyrGlow 1.8s ease-in-out infinite;
+}
+
+@keyframes lyrBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.lyr-breathe { animation: lyrBreathe 1.8s ease-in-out infinite; }
+
+@keyframes lyrLineIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.lyr-line-in { animation: lyrLineIn 0.5s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lyr-hero-in, .lyr-glow, .lyr-breathe, .lyr-line-in { animation: none; }
+}

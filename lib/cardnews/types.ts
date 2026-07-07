@@ -90,6 +90,8 @@ export interface CtaCard extends CardBase {
   url: string;
   /** Social handle, e.g. "@thebes.ai". */
   handle?: string;
+  /** Pill button copy; falls back to the default CTA when omitted. */
+  pill?: string;
 }
 
 export type Card =
@@ -110,6 +112,8 @@ export interface Deck {
   title: string;
   /** Where it's meant to be posted, for the gallery caption. */
   channel?: string;
+  /** Footer tagline shown on every non-CTA card; falls back to the brand default. */
+  tagline?: string;
   size: CardSize;
   cards: Card[];
 }

@@ -51,14 +51,24 @@ function TopBar({ index, total, onDark }: { index: number; total: number; onDark
 }
 
 /* ── Bottom bar: tag / url + swipe hint ──────────────────────────────────── */
-function BottomBar({ card, index, total }: { card: Card; index: number; total: number }) {
+function BottomBar({
+  card,
+  index,
+  total,
+  tagline,
+}: {
+  card: Card;
+  index: number;
+  total: number;
+  tagline?: string;
+}) {
   const isLast = index === total - 1;
   return (
     <footer className="cn-bot">
       {card.template === "cta" ? (
         <span className="cn-bot-url">{card.url}</span>
       ) : (
-        <span className="cn-bot-tag">사고를 가르치는 AI 코치</span>
+        <span className="cn-bot-tag">{tagline ?? "사고를 가르치는 AI 코치"}</span>
       )}
       {!isLast && card.template !== "cta" && <span className="cn-swipe">밀어서 보기 →</span>}
     </footer>
@@ -169,7 +179,7 @@ function CardBody({ card }: { card: Card }) {
           <h2 className="cn-title cn-title-cta">{renderRich(card.title)}</h2>
           {card.sub && <p className="cn-lede">{renderRich(card.sub)}</p>}
           <div className="cn-cta-row">
-            <span className="cn-cta-pill">사고력 진단 무료로 시작 →</span>
+            <span className="cn-cta-pill">{card.pill ?? "사고력 진단 무료로 시작 →"}</span>
             {card.handle && <span className="cn-cta-handle">{card.handle}</span>}
           </div>
         </div>
@@ -183,11 +193,13 @@ export function CardNewsCard({
   index,
   total,
   size,
+  tagline,
 }: {
   card: Card;
   index: number;
   total: number;
   size: CardSize;
+  tagline?: string;
 }) {
   const theme = card.theme ?? "paper";
   const onDark = theme === "dark";
@@ -198,7 +210,7 @@ export function CardNewsCard({
     >
       <TopBar index={index} total={total} onDark={onDark} />
       <CardBody card={card} />
-      <BottomBar card={card} index={index} total={total} />
+      <BottomBar card={card} index={index} total={total} tagline={tagline} />
     </div>
   );
 }

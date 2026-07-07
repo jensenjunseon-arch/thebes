@@ -18,7 +18,13 @@ export default async function CardExport({
 
   return (
     <div className="cn-export">
-      <CardNewsCard card={deck.cards[i]} index={i} total={deck.cards.length} size={deck.size} />
+      <CardNewsCard
+        card={deck.cards[i]}
+        index={i}
+        total={deck.cards.length}
+        size={deck.size}
+        tagline={deck.tagline}
+      />
     </div>
   );
 }

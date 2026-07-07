@@ -1,22 +1,28 @@
 import Link from "next/link";
+import type { Route } from "next";
 import type { ReactNode } from "react";
+import { EIGENLYRIC, type Brand } from "@/lib/brand";
 
 interface Props {
   title: string;
   subtitle?: string;
   children: ReactNode;
   footer?: ReactNode;
+  /** Which product this auth screen belongs to. Defaults to the active one. */
+  brand?: Brand;
 }
 
-export function AuthCard({ title, subtitle, children, footer }: Props) {
+export function AuthCard({ title, subtitle, children, footer, brand = EIGENLYRIC }: Props) {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-paper px-4 text-ink">
       <Link
-        href="/"
+        href={brand.home as Route}
         className="mb-8 font-mono text-base font-medium tracking-tight text-ink/80 transition hover:text-ink"
       >
-        Thebes
-        <span className="ml-1 font-semibold tracking-[0.02em] text-accent">AI</span>
+        {brand.name}
+        <span className="ml-1 font-semibold tracking-[0.02em] text-accent">
+          {brand.suffix}
+        </span>
       </Link>
 
       <div className="w-full max-w-sm rounded-3xl border border-ink/10 bg-paper-2 px-8 py-9">
