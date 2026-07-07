@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect already-logged-in users away from auth pages — honor `next` so
-  // e.g. a Lyrikko user bounced through /login mid-flow lands back on
+  // e.g. an Eigenlyric user bounced through /login mid-flow lands back on
   // /lyrics instead of the marketing homepage. Only accept an internal path
   // (starts with "/", not "//") to avoid an open-redirect via a crafted
   // `next` value.

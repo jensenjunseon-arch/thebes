@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import type { ReactNode } from "react";
-import { LYRIKKO, type Brand } from "@/lib/brand";
+import { EIGENLYRIC, type Brand } from "@/lib/brand";
 
 interface Props {
   title: string;
@@ -12,7 +12,7 @@ interface Props {
   brand?: Brand;
 }
 
-export function AuthCard({ title, subtitle, children, footer, brand = LYRIKKO }: Props) {
+export function AuthCard({ title, subtitle, children, footer, brand = EIGENLYRIC }: Props) {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-paper px-4 text-ink">
       <Link

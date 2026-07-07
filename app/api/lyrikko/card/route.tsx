@@ -100,7 +100,7 @@ export async function GET(req: Request) {
             color: palette.ink,
           }}
         >
-          LYRIKKO
+          EIGENLYRIC
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <div
@@ -253,7 +253,7 @@ export async function GET(req: Request) {
             color: "rgba(255,255,255,0.85)",
           }}
         >
-          LYRIKKO
+          EIGENLYRIC
         </div>
       </div>
     ),

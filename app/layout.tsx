@@ -16,10 +16,10 @@ const instrumentSerif = Instrument_Serif({
 
 // Default (fallback) identity for any page that doesn't set its own title —
 // notably the client-rendered /login and /signup, which can't export metadata.
-// Lyrikko is the active product; the shelved thebes landing pages each set
+// Eigenlyric is the active product; the shelved thebes landing pages each set
 // their own explicit Thebes title, so they're unaffected.
 export const metadata: Metadata = {
-  title: "Lyrikko AI — 차트 속 가사로 배우는 영어 & 한국어",
+  title: "Eigenlyric AI — 차트 속 가사로 배우는 영어 & 한국어",
   description:
     "차트에 오른 K-pop을 고르면, 그 안의 영어(와 한국어) 단어를 눌러 뜻·맥락·다른 노래까지 배우는 자기주도 어휘 학습.",
 };

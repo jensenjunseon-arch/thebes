@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { SSOButton } from "@/components/auth/SSOButton";
-import { LYRIKKO } from "@/lib/brand";
+import { EIGENLYRIC } from "@/lib/brand";
 
 function SignupForm({ next }: { next: string }) {
   const router = useRouter();
@@ -133,7 +133,7 @@ function SignupLoginLink() {
 export default function SignupPage() {
   return (
     <AuthCard
-      brand={LYRIKKO}
+      brand={EIGENLYRIC}
       title="회원가입"
       subtitle="차트 속 가사로 영어와 한국어를 배웁니다."
       footer={

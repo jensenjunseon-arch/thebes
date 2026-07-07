@@ -1,17 +1,17 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { WordBook } from "@/components/lyrikko/WordBook";
-import { LYRIKKO } from "@/lib/brand";
+import { EIGENLYRIC } from "@/lib/brand";
 
 export const metadata = {
-  title: "내 단어장 — Lyrikko",
+  title: "내 단어장 — Eigenlyric",
   description: "노래에서 모은 단어를 복습하고 쌓아가는 나만의 단어장.",
 };
 
 export default function WordBookPage() {
   return (
     <main className="min-h-dvh bg-paper text-ink">
-      <SiteHeader label="Word Book" brand={LYRIKKO} />
+      <SiteHeader label="Word Book" brand={EIGENLYRIC} />
       <div className="mx-auto max-w-3xl px-6 pb-24">
         <Link
           href={"/lyrics" as never}

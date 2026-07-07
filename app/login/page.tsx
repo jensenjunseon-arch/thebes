@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { SSOButton } from "@/components/auth/SSOButton";
-import { LYRIKKO } from "@/lib/brand";
+import { EIGENLYRIC } from "@/lib/brand";
 
 function LoginForm() {
   const router = useRouter();
@@ -108,9 +108,9 @@ function SignupLink() {
 export default function LoginPage() {
   return (
     <AuthCard
-      brand={LYRIKKO}
+      brand={EIGENLYRIC}
       title="로그인"
-      subtitle="Lyrikko 계정으로 로그인하세요."
+      subtitle="Eigenlyric 계정으로 로그인하세요."
       footer={
         <>
           계정이 없으신가요?{" "}
