@@ -40,6 +40,27 @@ function clip(s: string, max: number): string {
   return v.length > max ? `${v.slice(0, max - 1)}…` : v;
 }
 
+// Like clip(), but for prose: when it has to shorten, it ends on a whole
+// sentence instead of mid-word (which read as broken, e.g. "…문법적으로는 '주어").
+// Falls back to an ellipsis only if there's no sentence break in a reasonable
+// window, so the card never shows a dangling clause.
+function clipSentence(s: string, max: number): string {
+  const v = (s ?? "").trim();
+  if (v.length <= max) return v;
+  const window = v.slice(0, max);
+  // Last sentence-ending punctuation (period/!/?/…, incl. fullwidth) in-window.
+  const end = Math.max(
+    window.lastIndexOf("."),
+    window.lastIndexOf("!"),
+    window.lastIndexOf("?"),
+    window.lastIndexOf("。"),
+    window.lastIndexOf("…"),
+  );
+  // Only trust it if the sentence is a decent chunk, else hard-cut with an ell.
+  if (end >= max * 0.5) return window.slice(0, end + 1).trim();
+  return `${window.slice(0, max - 1).trim()}…`;
+}
+
 // Split the sung line around the term so the term renders in the accent
 // color — mirrors the frontend's highlight() helper, satori-compatible.
 function highlightParts(line: string, term: string): { text: string; hit: boolean }[] {
@@ -62,7 +83,7 @@ export async function GET(req: Request) {
   const term = clip(q.get("term") ?? "", 40);
   const line = clip(q.get("line") ?? "", 90);
   const gloss = clip(q.get("gloss") ?? "", 40);
-  const meaning = clip(q.get("meaning") ?? "", 140);
+  const meaning = clipSentence(q.get("meaning") ?? "", 230);
   const direction = q.get("direction") === "ko" ? "KO" : "EN";
   const box = Math.min(5, Math.max(1, Number(q.get("box")) || 1));
   const mine = Math.max(1, Number(q.get("mine")) || 1);
