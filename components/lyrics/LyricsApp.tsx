@@ -16,9 +16,25 @@ import type {
   ChatTurn,
   Direction,
   SongWords,
-  WordCard,
+  WordCardCore,
   WordChip,
+  WordSectionData,
+  WordSectionKey,
 } from "@/lib/lyrics/types";
+
+// Break card copy into one line per sentence — dense paragraphs read fine on
+// desktop but wrap awkwardly on a phone-width card, so we force the break at
+// each sentence boundary instead of leaving it to the browser.
+function sentenceBreak(text: string) {
+  if (!text) return null;
+  const sentences = text.match(/[^.!?]+[.!?]*(\s+|$)/g)?.map((s) => s.trim()).filter(Boolean);
+  if (!sentences || sentences.length <= 1) return text;
+  return sentences.map((s, i) => (
+    <span key={i} className="block">
+      {s}
+    </span>
+  ));
+}
 
 // Render a sung fragment with the learned term highlighted in place — the
 // recognition cue ("got me feelin' **butterflies**").
@@ -108,10 +124,13 @@ const T = {
       "거의 다 됐어요…",
     ],
     tapHint: "단어를 누르면 뜻 · 왜 이 단어인지 · 다른 노래까지 알려줘요",
-    why: "왜 이 단어일까 (해석)",
+    why: "왜 이 단어일까",
     slang: "요즘 유행이라면",
     cross: "이 표현이 쓰인 다른 노래",
     examples: "이렇게 써볼 수 있어요",
+    more: "또 다른 게 궁금하다면?",
+    secLoading: "만드는 중…",
+    crossEmpty: "확실한 다른 노래를 못 찾았어. 아는 척은 안 할게 😌",
     askPh: "이 단어에 대해 더 물어보세요…",
     send: "보내기",
     quick: ["왜 이 단어를 골랐을까?", "발음이 어떻게 돼?", "다른 예문도 알려줘"],
@@ -139,10 +158,13 @@ const T = {
       "Almost there…",
     ],
     tapHint: "Tap a word for its meaning, why it's there, and other songs that use it",
-    why: "Why this word (interpretation)",
-    slang: "If it's slang / trending",
+    why: "Why this word?",
+    slang: "Is it slang / trending?",
     cross: "Other songs using this",
     examples: "You could say",
+    more: "Curious about something else?",
+    secLoading: "Making this…",
+    crossEmpty: "Couldn't find other songs I'm sure about. Not gonna fake it 😌",
     askPh: "Ask anything about this word…",
     send: "Send",
     quick: ["Why this word?", "How is it pronounced?", "Give another example"],
@@ -187,8 +209,15 @@ export function LyricsApp({
 
   const [term, setTerm] = useState<string | null>(null);
   const [activeLine, setActiveLine] = useState("");
-  const [card, setCard] = useState<WordCard | null>(null);
+  const [card, setCard] = useState<WordCardCore | null>(null);
   const [loadingCard, setLoadingCard] = useState(false);
+
+  // Folded card sections — each is fetched the first time its toggle opens,
+  // so tapping a word only pays for the small core call.
+  const [openSecs, setOpenSecs] = useState<Set<WordSectionKey>>(new Set());
+  const [secData, setSecData] = useState<Partial<Record<WordSectionKey, WordSectionData>>>({});
+  const [secLoading, setSecLoading] = useState<Set<WordSectionKey>>(new Set());
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const [chat, setChat] = useState<ChatTurn[]>([]);
   const [chatIn, setChatIn] = useState("");
@@ -216,6 +245,7 @@ export function LyricsApp({
     setActiveLine("");
     setCard(null);
     setChat([]);
+    resetSections();
     setError(null);
   }
 
@@ -279,12 +309,62 @@ export function LyricsApp({
     loadSong(c.title, c.artist, c.artwork);
   }
 
+  function resetSections() {
+    setOpenSecs(new Set());
+    setSecData({});
+    setSecLoading(new Set());
+    setMoreOpen(false);
+  }
+
+  // Open/close one folded section; fetch its content on first open.
+  async function toggleSection(key: WordSectionKey) {
+    const opening = !openSecs.has(key);
+    setOpenSecs((prev) => {
+      const next = new Set(prev);
+      if (opening) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+    if (!opening || secData[key] || secLoading.has(key) || !words || !term) return;
+    setSecLoading((prev) => new Set(prev).add(key));
+    try {
+      const res = await fetch("/api/lyrics/word", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          song: words.song,
+          artist: words.artist,
+          term,
+          direction,
+          section: key,
+        }),
+      });
+      if (!res.ok) throw new Error("ai_failed");
+      const data = (await res.json()) as WordSectionData;
+      setSecData((prev) => ({ ...prev, [key]: data }));
+    } catch {
+      // Fold back closed so a retry tap re-fetches.
+      setOpenSecs((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    } finally {
+      setSecLoading((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    }
+  }
+
   async function tapWord(chip: WordChip) {
     if (!words) return;
     setTerm(chip.term);
     setActiveLine(chip.line);
     setCard(null);
     setChat([]);
+    resetSections();
     setLoadingCard(true);
     setError(null);
     setTimeout(() => cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
@@ -303,7 +383,7 @@ export function LyricsApp({
         const d = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(d.error ?? "ai_failed");
       }
-      setCard((await res.json()) as WordCard);
+      setCard((await res.json()) as WordCardCore);
     } catch (e) {
       setError(e instanceof Error ? e.message : "ai_failed");
       setTerm(null);
@@ -582,16 +662,18 @@ export function LyricsApp({
             <p className="font-kr text-sm text-ink/50">{t.loadingCard}</p>
           ) : card ? (
             <article className="animate-rise rounded-3xl border border-ink/10 bg-paper-2 p-6">
-              <div className="flex items-baseline gap-3">
-                <h2 className="font-serif text-3xl italic text-ink">{card.term}</h2>
-                {card.reading && (
-                  <span className="font-mono text-sm text-ink/45">{card.reading}</span>
-                )}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-serif text-3xl italic text-ink">{card.term}</h2>
+                  {card.reading && (
+                    <span className="mt-0.5 block font-mono text-sm text-ink/45">{card.reading}</span>
+                  )}
+                </div>
                 {words && (
                   <button
                     onClick={saveWord}
                     disabled={saveBusy || savedTerms.has(`${words.song}|${card.term}`)}
-                    className={`ml-auto shrink-0 rounded-full px-3.5 py-1.5 font-kr text-xs font-medium transition ${
+                    className={`shrink-0 rounded-full px-3.5 py-1.5 font-kr text-xs font-medium transition ${
                       savedTerms.has(`${words.song}|${card.term}`)
                         ? "bg-accent/10 text-accent"
                         : "bg-accent text-on-dark hover:bg-accent/90 disabled:opacity-50"
@@ -614,58 +696,99 @@ export function LyricsApp({
               )}
 
               {card.hook && (
-                <p className="mt-4 font-kr text-[19px] font-medium leading-relaxed text-ink">
-                  {card.hook}
+                <p className="mt-4 space-y-1 font-kr text-[19px] font-medium leading-relaxed text-ink">
+                  {sentenceBreak(card.hook)}
                 </p>
               )}
 
-              <p className="mt-3 font-kr text-[15px] leading-relaxed text-ink/70">{card.meaning}</p>
+              <p className="mt-3 space-y-1 font-kr text-[15px] leading-relaxed text-ink/70">
+                {sentenceBreak(card.meaning)}
+              </p>
 
-              {card.why && (
-                <div className="mt-5">
-                  <div className="font-mono text-[11px] uppercase tracking-wide text-accent">{t.why}</div>
-                  <p className="mt-1 font-kr text-[15px] leading-relaxed text-ink/85">{card.why}</p>
+              {/* Folded sections — each fetches its content on first open, so
+                  the tap-to-card path stays fast and the card stays compact. */}
+              <div className="mt-5 divide-y divide-ink/8 border-t border-ink/10">
+                {(["why", "slang", "examples", "cross"] as WordSectionKey[]).map((key) => {
+                  const open = openSecs.has(key);
+                  const loading = secLoading.has(key);
+                  const data = secData[key];
+                  return (
+                    <div key={key}>
+                      <button
+                        onClick={() => toggleSection(key)}
+                        className="flex w-full items-center justify-between py-3 text-left"
+                      >
+                        <span
+                          className={`font-kr text-sm font-medium ${open ? "text-accent" : "text-ink/75"}`}
+                        >
+                          {t[key]}
+                        </span>
+                        <span
+                          className={`text-ink/35 transition-transform ${open ? "rotate-90" : ""}`}
+                        >
+                          ›
+                        </span>
+                      </button>
+                      {open && (
+                        <div className="pb-4">
+                          {loading ? (
+                            <p className="font-kr text-sm text-ink/45">{t.secLoading}</p>
+                          ) : key === "examples" ? (
+                            <ul className="space-y-2">
+                              {(data?.examples ?? []).map((ex, i) => (
+                                <li key={i} className="rounded-xl bg-paper px-3.5 py-2.5">
+                                  <div className="font-sans text-[15px] text-ink">{ex.text}</div>
+                                  <div className="mt-0.5 font-kr text-xs text-ink/55">{ex.gloss}</div>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : key === "cross" ? (
+                            (data?.crossSongs?.length ?? 0) > 0 ? (
+                              <ul className="space-y-1.5">
+                                {data!.crossSongs!.map((c, i) => (
+                                  <li key={i} className="font-kr text-sm text-ink/80">
+                                    <span className="font-sans font-medium text-ink">{c.title}</span>
+                                    {c.artist && <span className="text-ink/45"> · {c.artist}</span>}
+                                    {c.note && <span className="text-ink/60"> — {c.note}</span>}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="font-kr text-sm text-ink/55">{t.crossEmpty}</p>
+                            )
+                          ) : (
+                            <p className="space-y-1 font-kr text-[15px] leading-relaxed text-ink/85">
+                              {sentenceBreak(data?.text ?? "")}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Follow-up chat, folded like the other sections */}
+                <div>
+                  <button
+                    onClick={() => setMoreOpen((v) => !v)}
+                    className="flex w-full items-center justify-between py-3 text-left"
+                  >
+                    <span
+                      className={`font-kr text-sm font-medium ${moreOpen ? "text-accent" : "text-ink/75"}`}
+                    >
+                      {t.more}
+                    </span>
+                    <span
+                      className={`text-ink/35 transition-transform ${moreOpen ? "rotate-90" : ""}`}
+                    >
+                      ›
+                    </span>
+                  </button>
                 </div>
-              )}
+              </div>
 
-              {card.slang && (
-                <div className="mt-5 rounded-2xl bg-accent/[0.06] px-4 py-3">
-                  <div className="font-mono text-[11px] uppercase tracking-wide text-accent">{t.slang}</div>
-                  <p className="mt-1 font-kr text-[15px] leading-relaxed text-ink/85">{card.slang}</p>
-                </div>
-              )}
-
-              {card.examples.length > 0 && (
-                <div className="mt-5">
-                  <div className="font-mono text-[11px] uppercase tracking-wide text-ink/40">{t.examples}</div>
-                  <ul className="mt-2 space-y-2">
-                    {card.examples.map((ex, i) => (
-                      <li key={i} className="rounded-xl bg-paper px-3.5 py-2.5">
-                        <div className="font-sans text-[15px] text-ink">{ex.text}</div>
-                        <div className="mt-0.5 font-kr text-xs text-ink/55">{ex.gloss}</div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {card.crossSongs.length > 0 && (
-                <div className="mt-5">
-                  <div className="font-mono text-[11px] uppercase tracking-wide text-ink/40">{t.cross}</div>
-                  <ul className="mt-2 space-y-1.5">
-                    {card.crossSongs.map((c, i) => (
-                      <li key={i} className="font-kr text-sm text-ink/80">
-                        <span className="font-sans font-medium text-ink">{c.title}</span>
-                        {c.artist && <span className="text-ink/45"> · {c.artist}</span>}
-                        {c.note && <span className="text-ink/60"> — {c.note}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Follow-up chat */}
-              <div className="mt-6 border-t border-ink/10 pt-5">
+              {moreOpen && (
+              <div className="pt-2">
                 {chat.length > 0 && (
                   <div className="mb-4 space-y-3">
                     {chat.map((m, i) => (
@@ -709,17 +832,18 @@ export function LyricsApp({
                     value={chatIn}
                     onChange={(e) => setChatIn(e.target.value)}
                     placeholder={t.askPh}
-                    className="flex-1 rounded-xl border border-ink/12 bg-paper px-3.5 py-2.5 font-kr text-sm text-ink outline-none focus:border-accent/50"
+                    className="min-w-0 flex-1 rounded-xl border border-ink/12 bg-paper px-3.5 py-2.5 font-kr text-sm text-ink outline-none focus:border-accent/50"
                   />
                   <button
                     type="submit"
                     disabled={chatBusy || !chatIn.trim()}
-                    className="rounded-xl bg-ink px-4 py-2.5 font-kr text-sm font-medium text-on-dark transition hover:bg-ink/90 disabled:opacity-40"
+                    className="shrink-0 rounded-xl bg-ink px-4 py-2.5 font-kr text-sm font-medium text-on-dark transition hover:bg-ink/90 disabled:opacity-40"
                   >
                     {t.send}
                   </button>
                 </form>
               </div>
+              )}
             </article>
           ) : null}
         </section>
