@@ -112,7 +112,8 @@ function SignupForm({ next }: { next: string }) {
       </div>
 
       <div className="space-y-2.5">
-        <SSOButton provider="kakao" label="카카오로 가입하기" next={next} />
+        {/* Kakao hidden until the provider is actually configured in Supabase
+            (Kakao Developers app + keys) — a dead button is worse than none. */}
         <SSOButton provider="google" label="Google로 가입하기" next={next} />
       </div>
     </form>
