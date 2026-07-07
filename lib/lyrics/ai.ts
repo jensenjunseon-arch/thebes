@@ -18,7 +18,10 @@ import type {
   CrossSong,
   Direction,
   SongWords,
-  WordCard,
+  WordCardCore,
+  WordExample,
+  WordSectionData,
+  WordSectionKey,
 } from "@/lib/lyrics/types";
 
 // Sonnet matches the studio "pack" tier: fast enough for a tap-to-explain
@@ -38,6 +41,12 @@ interface Dir {
    * the instruction text says. Keep this in sync with `say`.
    */
   teaserExamples: string;
+  /**
+   * Few-shot VOICE example for card prose, written IN `say` — shows the target
+   * register: short choppy sentences, friendly, talks TO the learner. Same
+   * keep-in-sync rule as teaserExamples.
+   */
+  voiceExample: string;
 }
 
 function dir(direction: Direction): Dir {
@@ -48,6 +57,7 @@ function dir(direction: Direction): Dir {
       audience:
         "a global K-pop fan (first language English, or comfortable reading English) learning the KOREAN used in the song",
       teaserExamples: `"it's not what it looks like 👀", "don't translate this literally 😅"`,
+      voiceExample: `"Nunchi? Basically reading the room. But it's more than that. It's a sixth sense for how everyone around you feels. Koreans treat it like a superpower."`,
     };
   }
   return {
@@ -55,6 +65,7 @@ function dir(direction: Direction): Dir {
     say: "Korean",
     audience: "a Korean K-pop fan learning the ENGLISH used in the song",
     teaserExamples: `"곤충 얘기가 아니야 👀", "직역하면 큰일 나 😅"`,
+    voiceExample: `"레모네이드? 레몬으로 만든 음료지 뭐. 그런데 이 노래에선 의미가 달라. 'When life gives you lemons, make lemonade'라는 말이 있거든. 시련이 닥치면 내 손으로 달콤하게 뒤집어버리겠단 뜻이지."`,
   };
 }
 
@@ -204,71 +215,116 @@ ${SEARCH_NOTE}`;
 
 type WordChip = SongWords["words"][number];
 
-// ── 2) Tapped word → deep card ───────────────────────────────────────────────
+// ── 2) Tapped word → card (core now, sections on demand) ─────────────────────
+//
+// The card is split so the first paint after a tap is FAST: the core call
+// generates only hook + meaning (few tokens), and each folded section (why /
+// slang / examples / cross-songs) is its own small call made when the learner
+// opens that toggle. No web-search on any of these: the term already came from
+// a grounded songWords pass.
 
-export async function wordCard(
+// Shared register for all card prose — the user-facing voice of the product.
+function voiceNote(d: Dir): string {
+  return `VOICE: Talk TO the learner like a friendly older sibling — casual, warm, a little playful (in Korean that means 반말, e.g. "~야", "~지", "~거든"). Write for a younger reader (early teens). SHORT sentences — one thought per sentence, no long run-ons. Snappy and easy to skim. Plain everyday words, zero textbook phrasing. Short does NOT mean shallow: keep the real insight, just say it in fewer, punchier words. Target register example (match this feel, in ${d.say}): ${d.voiceExample}`;
+}
+
+export async function wordCardCore(
   song: string,
   artist: string,
   term: string,
   direction: Direction,
-): Promise<WordCard> {
+): Promise<WordCardCore> {
   const d = dir(direction);
   const system = `You help ${d.audience}.
 
-The learner tapped the ${d.learn} term "${term}" from the song "${song}" by ${artist}. Explain it honestly. Write every explanation in ${d.say}; keep example sentences in ${d.learn}.
+The learner tapped the ${d.learn} term "${term}" from the song "${song}" by ${artist}. Give them the instant "oh!" — hook first, then the meaning. Write in ${d.say}.
 
-Lead with a HOOK, not a dictionary entry. The first thing the learner sees should make them go "oh!".
-
-VOICE: Write for a younger reader (think early teens). Keep it light and lively. Use SHORT sentences — break every thought onto its own short sentence, never long run-ons with lots of commas. Snappy, friendly, easy to skim. Prefer plain everyday words over textbook phrasing. Short does NOT mean shallow: keep the actual insight, just say it in fewer, punchier words.
+${voiceNote(d)}
 
 Return STRICT JSON (no markdown, no extra keys):
 {
   "term": string,
-  "hook": string,           // ONE short punchy ${d.say} line that flips expectation or reveals the hidden meaning/feeling — the "oh!" moment. NOT a definition. One vivid sentence, ≤ 14 words, a fitting emoji is welcome.
-  "reading": string,        // pronunciation or romanization; "" if not useful
-  "meaning": string,        // the meaning in ${d.say}. 1–2 SHORT sentences. Clear and plain, no long clauses.
-  "why": string,            // INTERPRETATION (label it as such) of why this word fits the song's mood, in ${d.say}. 1–2 SHORT sentences. No invented quotes.
-  "slang": string,          // if slang/trending: what it means + why people say it, in ${d.say}. 1–2 SHORT sentences. "" if not slang.
-  "crossSongs": [ { "title": string, "artist": string, "note": string } ],  // OTHER well-known songs using this same word/phrase. note = ONE short sentence. Only confident ones. [] if unsure — never invent.
-  "examples": [ { "text": string, "gloss": string } ]   // 1–2 short, natural ${d.learn} sentences a fan could actually say, each with a ${d.say} gloss
+  "hook": string,     // ONE short punchy ${d.say} line that flips expectation or reveals the hidden meaning/feeling. NOT a definition. ≤ 14 words, a fitting emoji is welcome.
+  "reading": string,  // pronunciation or romanization; "" if not useful
+  "meaning": string   // the meaning in ${d.say}. 2–3 SHORT sentences in the voice above — like the lemonade example: literal sense first, then the twist in THIS song.
 }
 
-Keep every field short and breezy. ${GUARDRAIL}`;
+${GUARDRAIL}`;
 
-  // No web-search here: the tapped term already came from a grounded songWords
-  // pass, and explaining a word's meaning doesn't need lyrics. Skipping the
-  // search loop cuts several seconds off every card open.
   const out = await jsonCall<Record<string, unknown>>({
     model: LYRICS_MODEL,
     system,
     content: [{ type: "text", text: `TERM: "${term}"  SONG: "${song}" by ${artist}.` }],
-    maxTokens: 1200,
+    maxTokens: 500,
   });
-
-  const crossSongs: CrossSong[] = Array.isArray(out.crossSongs)
-    ? (out.crossSongs as Array<Record<string, unknown>>)
-        .map((c) => ({ title: s(c.title), artist: s(c.artist), note: s(c.note) }))
-        .filter((c) => c.title.length > 0)
-        .slice(0, 5)
-    : [];
-
-  const examples = Array.isArray(out.examples)
-    ? (out.examples as Array<Record<string, unknown>>)
-        .map((e) => ({ text: s(e.text), gloss: s(e.gloss) }))
-        .filter((e) => e.text.length > 0)
-        .slice(0, 3)
-    : [];
 
   return {
     term: s(out.term) || term,
     hook: s(out.hook),
     reading: s(out.reading),
     meaning: s(out.meaning),
-    why: s(out.why),
-    slang: s(out.slang),
-    crossSongs,
-    examples,
   };
+}
+
+// Per-section prompt bodies. Each returns a tiny JSON payload; the section
+// call shares the same system framing + voice as the core call.
+const SECTION_SPECS: Record<WordSectionKey, (d: Dir) => string> = {
+  why: (d) => `Why does THIS word fit THIS song's mood/theme? This is INTERPRETATION — label it as such, no invented artist quotes.
+
+Return STRICT JSON: { "text": string }  // 2–3 SHORT ${d.say} sentences in the voice above`,
+  slang: (d) => `Is this term slang or trendy right now? If yes: what it really means + why people say it. If it's NOT slang, say so honestly in one light friendly line (that's a fine answer).
+
+Return STRICT JSON: { "text": string }  // 1–3 SHORT ${d.say} sentences in the voice above`,
+  examples: (d) => `Give 2 short, natural ${d.learn} sentences a fan could actually say using this term, each with a ${d.say} gloss.
+
+Return STRICT JSON: { "examples": [ { "text": string, "gloss": string } ] }`,
+  cross: (d) => `Name OTHER well-known songs that use this same word/phrase. ONLY ones you are genuinely confident about — an empty list beats an invented one.
+
+Return STRICT JSON: { "crossSongs": [ { "title": string, "artist": string, "note": string } ] }  // note = ONE short ${d.say} sentence in the voice above`,
+};
+
+export async function wordSection(
+  section: WordSectionKey,
+  song: string,
+  artist: string,
+  term: string,
+  direction: Direction,
+): Promise<WordSectionData> {
+  const d = dir(direction);
+  const system = `You help ${d.audience}. The learner is looking at the ${d.learn} term "${term}" from the song "${song}" by ${artist} and opened one more section of its card.
+
+${voiceNote(d)}
+
+${SECTION_SPECS[section](d)}
+
+No markdown, no extra keys. ${GUARDRAIL}`;
+
+  const out = await jsonCall<Record<string, unknown>>({
+    model: LYRICS_MODEL,
+    system,
+    content: [{ type: "text", text: `TERM: "${term}"  SONG: "${song}" by ${artist}.` }],
+    maxTokens: 500,
+  });
+
+  if (section === "examples") {
+    const examples: WordExample[] = Array.isArray(out.examples)
+      ? (out.examples as Array<Record<string, unknown>>)
+          .map((e) => ({ text: s(e.text), gloss: s(e.gloss) }))
+          .filter((e) => e.text.length > 0)
+          .slice(0, 3)
+      : [];
+    return { examples };
+  }
+  if (section === "cross") {
+    const crossSongs: CrossSong[] = Array.isArray(out.crossSongs)
+      ? (out.crossSongs as Array<Record<string, unknown>>)
+          .map((c) => ({ title: s(c.title), artist: s(c.artist), note: s(c.note) }))
+          .filter((c) => c.title.length > 0)
+          .slice(0, 5)
+      : [];
+    return { crossSongs };
+  }
+  return { text: s(out.text) };
 }
 
 // ── 3) Follow-up chat about a tapped word ────────────────────────────────────
@@ -284,7 +340,11 @@ export async function chatAnswer(opts: {
   const d = dir(opts.direction);
   const system = `You are a friendly ${d.learn} tutor for ${d.audience}. You are discussing the term "${opts.term}" from the song "${opts.song}" by ${opts.artist}.
 
-Answer the learner's question in ${d.say}, concise (2–5 sentences), warm, and honest (say so if you're unsure). ${GUARDRAIL}`;
+Answer the learner's question in ${d.say}, concise (2–5 sentences), and honest (say so if you're unsure).
+
+${voiceNote(d)}
+
+${GUARDRAIL}`;
 
   const history = opts.history
     .filter((t) => (t.role === "user" || t.role === "assistant") && s(t.text))

@@ -65,8 +65,12 @@ export interface WordExample {
   gloss: string;
 }
 
-/** The deep card shown when a chip is tapped. */
-export interface WordCard {
+/**
+ * The instant part of the card shown when a chip is tapped — hook + meaning
+ * only, so the first paint is fast. The heavier sections (why / slang /
+ * examples / cross-songs) load lazily, one API call per opened toggle.
+ */
+export interface WordCardCore {
   term: string;
   /**
    * The HOOK — one surprising/emotional opening line in the learner's language
@@ -78,13 +82,19 @@ export interface WordCard {
   reading: string;
   /** Clear meaning in the learner's language. */
   meaning: string;
-  /** INTERPRETATION (not asserted fact) of why this word fits the song. */
-  why: string;
-  /** If slang/trending: what it means + why people use it. "" otherwise. */
-  slang: string;
-  /** Other well-known songs using the same term. May be empty (never invented). */
-  crossSongs: CrossSong[];
-  examples: WordExample[];
+}
+
+/** One lazily-loaded card section, fetched when its toggle is opened. */
+export type WordSectionKey = "why" | "slang" | "examples" | "cross";
+
+/** Payload of one lazily-loaded section — only the matching field is set. */
+export interface WordSectionData {
+  /** For "why" and "slang": the short prose answer. */
+  text?: string;
+  /** For "examples". */
+  examples?: WordExample[];
+  /** For "cross". May be empty — never invented. */
+  crossSongs?: CrossSong[];
 }
 
 /** One turn in the follow-up chat about a tapped word. */
