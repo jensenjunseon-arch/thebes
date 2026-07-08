@@ -29,6 +29,10 @@ export interface EraPalette {
   ink: string;
   /** Softer foreground for secondary text. */
   inkSoft: string;
+  /** Story-canvas backdrop stops: same era hue pulled way down in lightness,
+   *  so the vivid card floats on a deep tinted field instead of blending in. */
+  bgFrom: string;
+  bgTo: string;
 }
 
 // FNV-1a-style string hash — deterministic, no crypto dependency. Same
@@ -52,5 +56,7 @@ export function eraPalette(song: string, artist: string): EraPalette {
     to: `hsl(${hue2}, 58%, 24%)`,
     ink: "#FBF9F4",
     inkSoft: "rgba(251, 249, 244, 0.72)",
+    bgFrom: `hsl(${hue}, 48%, 11%)`,
+    bgTo: `hsl(${hue2}, 42%, 5%)`,
   };
 }

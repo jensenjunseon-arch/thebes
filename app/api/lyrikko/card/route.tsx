@@ -121,7 +121,7 @@ export async function GET(req: Request) {
             color: palette.ink,
           }}
         >
-          EIGENLYRIC
+          eigenlyric
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <div
@@ -246,8 +246,10 @@ export async function GET(req: Request) {
     return new ImageResponse(card, { width: CARD_W, height: CARD_H, fonts });
   }
 
-  // Story canvas: same gradient extended full-bleed, card centered, safe zones
-  // clear top/bottom for the platform's own UI chrome.
+  // Story canvas: the same era hue collapsed into a near-black field (Spotify
+  // share-card move) so the vivid card pops forward instead of blending into
+  // an equally-saturated background. A soft glow + drop shadow do the lifting;
+  // no extra watermark — the card's own header logo is enough.
   return new ImageResponse(
     (
       <div
@@ -255,26 +257,26 @@ export async function GET(req: Request) {
           display: "flex",
           width: STORY_W,
           height: STORY_H,
-          backgroundImage: `linear-gradient(160deg, ${palette.from}, ${palette.to})`,
+          backgroundImage: `linear-gradient(180deg, ${palette.bgFrom}, ${palette.bgTo})`,
           alignItems: "center",
           justifyContent: "center",
           paddingTop: STORY_SAFE,
           paddingBottom: STORY_SAFE,
         }}
       >
-        {card}
         <div
           style={{
             display: "flex",
             position: "absolute",
-            bottom: STORY_SAFE - 60,
-            fontSize: 22,
-            fontWeight: 700,
-            letterSpacing: 3,
-            color: "rgba(255,255,255,0.85)",
+            width: 900,
+            height: 900,
+            borderRadius: 900,
+            backgroundImage: `radial-gradient(circle, ${palette.from} 0%, transparent 65%)`,
+            opacity: 0.35,
           }}
-        >
-          EIGENLYRIC
+        />
+        <div style={{ display: "flex", boxShadow: "0 40px 90px rgba(0,0,0,0.55)", borderRadius: 28 }}>
+          {card}
         </div>
       </div>
     ),
