@@ -3,10 +3,20 @@ import { LyricsApp } from "@/components/lyrics/LyricsApp";
 import { topChart, kpopChart } from "@/lib/lyrics/charts";
 import { EIGENLYRIC } from "@/lib/brand";
 
+// og:image itself comes from the sibling opengraph-image.tsx file convention;
+// twitter.card is set explicitly so X/카카오 render the large-image layout
+// instead of a small summary thumbnail.
 export const metadata = {
   title: "eigenlyric — 차트 속 가사로 단어 공부",
   description:
     "차트에 오른 노래를 고르면, 그 안의 영어(와 한국어) 단어를 눌러 뜻·맥락·다른 노래까지 배우고, 더 궁금한 건 바로 물어보는 자기주도 어휘 학습.",
+  openGraph: {
+    title: "eigenlyric — 차트 속 가사로 단어 공부",
+    description:
+      "차트에 오른 노래를 고르면, 그 안의 영어(와 한국어) 단어를 눌러 뜻·맥락·다른 노래까지 배우는 자기주도 어휘 학습.",
+    siteName: "eigenlyric",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 // Re-fetch the live chart at most hourly (ISR).
