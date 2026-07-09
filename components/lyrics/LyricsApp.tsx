@@ -27,7 +27,13 @@ import type {
 // each sentence boundary instead of leaving it to the browser.
 function sentenceBreak(text: string) {
   if (!text) return null;
-  const sentences = text.match(/[^.!?]+[.!?]*(\s+|$)/g)?.map((s) => s.trim()).filter(Boolean);
+  // One line per sentence. Absorb any emoji/symbols that trail the end
+  // punctuation into that same sentence, so a "😆" after "!" stays on its
+  // line instead of being orphaned at the start of the next one.
+  const sentences = text
+    .match(/[^.!?]+[.!?]*[\s\p{Extended_Pictographic}‍️]*/gu)
+    ?.map((s) => s.trim())
+    .filter(Boolean);
   if (!sentences || sentences.length <= 1) return text;
   return sentences.map((s, i) => (
     <span key={i} className="block">

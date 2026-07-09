@@ -57,7 +57,7 @@ function dir(direction: Direction): Dir {
       audience:
         "a global K-pop fan (first language English, or comfortable reading English) learning the KOREAN used in the song",
       teaserExamples: `"it's not what it looks like 👀", "don't translate this literally 😅"`,
-      voiceExample: `"Nunchi? Basically reading the room. But it's more than that. It's a sixth sense for how everyone around you feels. Koreans treat it like a superpower."`,
+      voiceExample: `"Nunchi? Omg you NEED this word 👀 It's basically your social radar — reading the room before anyone says a thing. Koreans treat it like a low-key superpower 💫 And honestly? Once you feel it, you can't unsee it. So good."`,
     };
   }
   return {
@@ -65,7 +65,7 @@ function dir(direction: Direction): Dir {
     say: "Korean",
     audience: "a Korean K-pop fan learning the ENGLISH used in the song",
     teaserExamples: `"곤충 얘기가 아니야 👀", "직역하면 큰일 나 😅"`,
-    voiceExample: `"레모네이드? 레몬으로 만든 음료지 뭐. 그런데 이 노래에선 의미가 달라. 'When life gives you lemons, make lemonade'라는 말이 있거든. 시련이 닥치면 내 손으로 달콤하게 뒤집어버리겠단 뜻이지."`,
+    voiceExample: `"레모네이드? 그냥 레몬 음료 아니야! 🍋 'When life gives you lemons, make lemonade'라는 완전 유명한 속담에서 딱 따온 거야. 인생이 시고 힘든 레몬을 던져도? 오히려 좋아~ 내가 달콤하게 블렌딩해서 마셔버리겠다는 당당 그 자체 선언이지! 💪 너네도 이 노래 들으면 힘 나지 않아?"`,
   };
 }
 
@@ -224,8 +224,10 @@ type WordChip = SongWords["words"][number];
 // a grounded songWords pass.
 
 // Shared register for all card prose — the user-facing voice of the product.
+// The product voice is a hyped-up K-pop fan friend geeking out with you, not a
+// tutor. High energy, lots of emojis, but still SHORT punchy sentences.
 function voiceNote(d: Dir): string {
-  return `VOICE: Talk TO the learner like a friendly older sibling — casual, warm, a little playful (in Korean that means 반말, e.g. "~야", "~지", "~거든"). Write for a younger reader (early teens). SHORT sentences — one thought per sentence, no long run-ons. Snappy and easy to skim. Plain everyday words, zero textbook phrasing. Short does NOT mean shallow: keep the real insight, just say it in fewer, punchier words. Target register example (match this feel, in ${d.say}): ${d.voiceExample}`;
+  return `VOICE: You are an excited K-pop fan bestie hyping up another fan — warm, bubbly, high-energy, playfully over-the-top. Talk TO the learner directly and pull them in (in Korean: 반말 + hype, e.g. "너네도 그랬지?", "완전 ~야!", "오히려 좋아~", "같이 파보자!"). Drop fitting emojis generously (🍋✨💪🥤💖😆). Keep SHORT punchy sentences — ONE idea per sentence, no long run-ons — but pack them with energy and exclamation. Intensifiers welcome (완전/진짜/딱/그냥/오히려). When a word comes from an idiom or has a backstory, GEEK OUT about it — explain where it comes from and why it's cool. Make the learner FEEL the vibe, not just read a definition. Big energy, short sentences, real insight. Target register (match this exact feel, written in ${d.say}): ${d.voiceExample}`;
 }
 
 export async function wordCardCore(
@@ -246,7 +248,7 @@ Return STRICT JSON (no markdown, no extra keys):
   "term": string,
   "hook": string,     // ONE short punchy ${d.say} line that flips expectation or reveals the hidden meaning/feeling. NOT a definition. ≤ 14 words, a fitting emoji is welcome.
   "reading": string,  // pronunciation or romanization; "" if not useful
-  "meaning": string   // the meaning in ${d.say}. 2–3 SHORT sentences in the voice above — like the lemonade example: literal sense first, then the twist in THIS song.
+  "meaning": string   // the meaning in ${d.say}, in the hyped voice above. 3–5 SHORT sentences. Like the lemonade example: literal sense first, then the idiom/backstory it comes from (geek out!), then the twist/feeling in THIS song. Punchy lines, emojis welcome — but every sentence stays short.
 }
 
 ${GUARDRAIL}`;
@@ -255,7 +257,7 @@ ${GUARDRAIL}`;
     model: LYRICS_MODEL,
     system,
     content: [{ type: "text", text: `TERM: "${term}"  SONG: "${song}" by ${artist}.` }],
-    maxTokens: 500,
+    maxTokens: 800,
   });
 
   return {
@@ -269,9 +271,9 @@ ${GUARDRAIL}`;
 // Per-section prompt bodies. Each returns a tiny JSON payload; the section
 // call shares the same system framing + voice as the core call.
 const SECTION_SPECS: Record<WordSectionKey, (d: Dir) => string> = {
-  why: (d) => `Why does THIS word fit THIS song's mood/theme? This is INTERPRETATION — label it as such, no invented artist quotes.
+  why: (d) => `Why does THIS word fit THIS song, and what's the song/artist vibe around it? Geek out like a fan: how the word ties into the song's message/energy, and — if you GENUINELY know it — the artist's concept or this era's vibe that makes it land. This is INTERPRETATION, not fact: no invented artist quotes, and if you're unsure of specifics (release dates, album numbers, concept details) stay vibe-level and never make them up — honest and hyped beats made-up.
 
-Return STRICT JSON: { "text": string }  // 2–3 SHORT ${d.say} sentences in the voice above`,
+Return STRICT JSON: { "text": string }  // 3–5 SHORT ${d.say} sentences in the hyped voice above`,
   slang: (d) => `Is this term slang or trendy right now? If yes: what it really means + why people say it. If it's NOT slang, say so honestly in one light friendly line (that's a fine answer).
 
 Return STRICT JSON: { "text": string }  // 1–3 SHORT ${d.say} sentences in the voice above`,
@@ -303,7 +305,7 @@ No markdown, no extra keys. ${GUARDRAIL}`;
     model: LYRICS_MODEL,
     system,
     content: [{ type: "text", text: `TERM: "${term}"  SONG: "${song}" by ${artist}.` }],
-    maxTokens: 500,
+    maxTokens: 700,
   });
 
   if (section === "examples") {
